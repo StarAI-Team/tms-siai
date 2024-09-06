@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transporters Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"> <!-- Font Awesome -->
+
+    <style>
+        /* Sidebar styling */
+        .sidebar {
+            position: fixed;
+            height: 100vh;
+            width: 15%;
+            background-color: #0056b3;
+            color: white; 
+            padding-top: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Navigation items */
+        .nav-items {
+            margin-top: 50%;
+        }
+
+        /* Logout button styling */
+        .logout-item {
+            margin-bottom: 10%;
+        }
+
+        /* Main content styling */
+        .main-content {
+            margin-left: 15%;
+            padding: 20px;
+        }
+
+        /* Sidebar links */
+        .sidebar .nav-link {    
+            color: white;
+        }
+
+        /* Active link styling */
+        .sidebar .nav-link.active {
+            background-color: #003d80;
+        }
+
+        /* Sidebar icons spacing */
+        .sidebar .nav-link .fas, .sidebar .nav-link .fa-chart-bar {
+            margin-right: 8px;
+        }
+
+        /* Table container with scrolling */
+        .table-container {
+            height: 700px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        /* Table row height */
+        .table tbody tr {
+            height: 45px;
+            line-height: 1.2;
+        }
+
+        /* Table cell padding */
+        .table th, .table td {
+            padding: 4px 8px;
+            vertical-align: middle;
+            max-height: 40px;
+        }
+
+        /* Text truncation */
+        .table td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        /* Tooltip on hover */
+        .table td:hover {
+            overflow: visible;
+            white-space: normal;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 bg-blue sidebar">
+                <ul class="nav flex-column nav-items">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('transporters') }}">
+                            <i class="fas fa-phone"></i> Logs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="filterFavorites()">
+                            <i class="fas fa-star"></i> Favorites
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="nav flex-column logout-item">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main content -->
+            <div class="col-md-10 main-content">
+                <h2>Transporters List</h2>
+                <!-- Add these elements inside the main-content div, before the table -->
+                <form id="searchForm" class="form-inline my-4">
+                    <input type="text" name="search" id="searchInput" class="form-control mr-sm-2" placeholder="Search...">
+    
+                    <select id="filterBy" name="filter_by" class="form-control mr-sm-2">
+                    <option value="">Filter By...</option>
+                    <option value="Transporter Name">Transporter Name</option>
+                    <option value="Rating">Rating</option>
+                    <option value="Fleet Size">Fleet Size</option>
+                    </select>
+
+                    <button type="button" class="btn btn-primary" onclick="filterTable()">Search</button>
+                </form>
+
+                <form id="updateForm" action="{{ url_for('view_favorites') }}" method="POST">
+                    <div class="table-container">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%;">Transporter Name</th>
+                                    <th style="width: 15%;">Company Name</th>
+                                    <th style="width: 15%;">Contact</th>
+                                    <th style="width: 15%;">Email</th>
+                                    <th style="width: 10%;">Truck Type List</th>
+                                    <th style="width: 10%;">Fleet Size</th>
+                                    <th style="width: 10%;">Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transporters-table-body">
+                                <!-- Rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="submitUpdates()">Update</button>
+                </form>
+                
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="alert alert-danger mt-3">
+                    {{ messages[0] }}
+                    </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let data = [];
+        const updatedRows = {};
+
+        // Fetch data and populate the table
+        fetch('/fetch_transporters')
+            .then(response => response.json())
+            .then(fetchedData => {
+                data = fetchedData;
+                renderTable();
+            })
+            .catch(error => console.error('Error fetching data:', error));
+
+        // Function to filter the table based on search input and selected filter
+function filterTable() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const filterBy = document.getElementById('filterBy').value;
+
+    const filteredData = data.filter(row => {
+        if (filterBy) {
+            return row[filterBy].toString().toLowerCase().includes(searchInput);
+        } else {
+            return Object.values(row).some(value => value.toString().toLowerCase().includes(searchInput));
+        }
+    });
+
+    renderFilteredTable(filteredData);
+}
+function filterFavorites() {
+    const favoriteData = data.filter(row => row['Favorite'] === true);
+    renderTable(favoriteData);
+}
+
+function renderTable(filteredData = data) {
+    const tableBody = document.getElementById('transporters-table-body');
+    tableBody.innerHTML = '';
+
+    filteredData.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="checkbox" class="favorite-checkbox" data-id="${row['ID']}" ${row['Favorite'] ? 'checked' : ''}></td>
+            <td title="${row['Transporter Name']}">${row['Transporter Name']}</td>
+            <td title="${row['Company Name']}">${row['Company Name']}</td>
+            <td title="${row['Contact']}">${row['Contact']}</td>
+            <td title="${row['Email']}">${row['Email']}</td>
+            <td title="${row['Truck Type List']}">${row['Truck Type List']}</td>
+            <td title="${row['Fleet Size']}">${row['Fleet Size']}</td>
+            <td title="${row['Rating']}">${row['Rating']}</td>
+        `;
+        tableBody.appendChild(tr);
+    });
+}
+
+
+// Function to render the filtered table
+function renderFilteredTable(filteredData) {
+    const tableBody = document.getElementById('transporters-table-body');
+    tableBody.innerHTML = '';
+
+    filteredData.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td title="${row['Transporter Name']}">${row['Transporter Name']}</td>
+            <td title="${row['Company Name']}">${row['Company Name']}</td>
+            <td title="${row['Contact']}">${row['Contact']}</td>
+            <td title="${row['Email']}">${row['Email']}</td>
+            <td title="${row['Truck Type List']}">${row['Truck Type List']}</td>
+            <td title="${row['Fleet Size']}">${row['Fleet Size']}</td>
+            <td title="${row['Rating']}">${row['Rating']}</td>
+        `;
+        tableBody.appendChild(tr);
+    });
+}
+
+
+        // Function to render table without pagination
+        function renderTable() {
+            const tableBody = document.getElementById('transporters-table-body');
+            tableBody.innerHTML = '';
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td title="${row['Transporter Name']}">${row['Transporter Name']}</td>
+                    <td title="${row['Company Name']}">${row['Company Name']}</td>
+                    <td title="${row['Contact']}">${row['Contact']}</td>
+                    <td title="${row['Email']}">${row['Email']}</td>
+                    <td title="${row['Truck Type List']}">${row['Truck Type List']}</td>
+                    <td title="${row['Fleet Size']}">${row['Fleet Size']}</td>
+                    <td title="${row['Rating']}">${row['Rating']}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Submit updates to the server
+        function submitUpdates() {
+            console.log('Submitting Updates:', updatedRows);
+            if (Object.keys(updatedRows).length === 0) {
+                alert('No changes to update.');
+                return;
+            }
+
+            fetch('/send_update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedRows),
+            })
+            .then(response => {
+                 if (response.ok) {
+                    alert('Updates submitted successfully!');
+                 } else {
+                    alert('Failed to submit updates.');
+                }
+             })
+            .catch(error => console.error('Error submitting updates:', error));
+        }
+
+    </script>
+</body>
+</html>
