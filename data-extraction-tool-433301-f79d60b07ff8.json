@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "data-extraction-tool-433301",
+  "private_key_id": "f79d60b07ff8f0aa3342effefe24dd54d6c3d454",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDXtA8JMfIR5aTI\nnfWs4cRMxk2yG3gIN9E798J/nExtLJ6xi0odg6GlivPT+xnFSt7wcweLkVHZUQqD\nA0YP7Dm2+KcJOKsy2d/S+rgEwfdJZ2b9xauD+kKa1I5Uo7emFVb8/zuszMZP6fw3\nA+LG8QqBmAhBkspjCUmvGodL/LQoMExOP9yGA/llknXEP82WQgdp7X5ipKi7pPZF\nLzqnFLwHH1dX+Gu9clEkZkVB8M1z5R1lxAB2imrsLrWJkduW2dbOD6+4W7DgGBT5\niDn4TQdDgMdeK2znRol6zLKI41rK7HLxBFFNEI7j5ZSkcuExSah6KGyIzcu89WBu\nsC9heOs7AgMBAAECggEAGw9CEZ+74+XgqbAzOThrVUxNQ+oxQSqra2/17OdRKSL/\nV3uHVTOFrExFsVKfVYJCfHyZtjcJQw9pF61p9SZnyR3haoU66NqvOvrr6eDhYkp/\n/5b0IM7c2yqOHm0ZZVLpAj0Moe1gdXb/hnFM2jMz47UMWBmPnSP1o+tajLxLZ30I\npH19+9r64gZCk0mpHevSSGB1ZaFc9a5krXga1yYf4nRH/9u1eQEFbKl6TuM9TCK7\n50NT+42fa1j2dwk+Df8fptmYYSDxrtDthmDIUJRljcP+l6EWkTybXm6DBcvx0jL0\n15LQ7QI8FFMNsRyQmZ/DJrWvEXbrxhlbVfA20W8ztQKBgQDwJyhV50/1tXocIuWE\nCikFpq+CctoA5Mf8kJPO9aeu5bR4Pu9c3CpdlMCng+wqUsr56ItXuBtjn4F45CHi\n3l3sHqZLXo5aX5uHWDeP0pStExESh64gwo3ztaaRaUmcdWTF2lBdO7OvOgc+ufZ1\nNgWj2a6haTx9Z9lPkjCJqWPLHwKBgQDl7+FYxi/nkfr36wx2DmleDJRyCjQ5y/Q1\naqlUZN/m+/QU+j/FyvSU/V1AsOBfFNUyuzGtN0LMS09wnYmYX2Se+Wsw23szunY4\nvSCQ8g5J5ifMQ+b9IvTRZd7rIub2NN+PvYTncmYia9pxX9or3N0lQp2j2pT9B+Yz\nCqC5LPU4ZQKBgAazwQ9srjGYR/kjDC68LdrnhPxqAiWGPQKScl2TQ4PBC2FTuFBq\nIJCOBzZlmyCvQNTqpYDkNXd5Sx65lyyCsjJVxKRT1js1cdy8HIjaAqY14wMWYEiv\nxVBo4GYsfw5rxE01Q4rmkKQyRWN9wyAQSuYAvDvq+PIzBMCQvuQIoy1XAoGACVmk\n10BP6GHGS9iSDCbv3/QxASYrE4KYrqdktVrYxALQ3R2EBF4JbhmTdjL7HMKzHLoB\n/iI2JCqX02OEmd6fL9vCoRz7uJHHhu0h6uL888JZMfQ862RFglJbK0KjE7X4tVam\nlebQAmxSWLPmIkx77az0zhnwXw24LbEr8fvDCQUCgYEAutzbBEkHTZZbMLegpi1f\nPLWPEzZT9+4SafsfQHhHV3hkNKWUy75Hyr7ypihJlzJc3o7okAPqdAZZ3pbUa0RS\newbPY+0mZu0Uqi+5iumIZ1+59DZ6YVjd740uGdkRb61yJZFrOtLwDphZSgOgYLP4\njM2+2lkjgXIe0XsPhu9Dc8E=\n-----END PRIVATE KEY-----\n",
+  "client_email": "google-sheet-data-extraction-t@data-extraction-tool-433301.iam.gserviceaccount.com",
+  "client_id": "100189114228073283223",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/google-sheet-data-extraction-t%40data-extraction-tool-433301.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
