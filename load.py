@@ -1,15 +1,15 @@
 from flask import Flask, request, jsonify
-from kafka import KafkaProducer
+""" from kafka import KafkaProducer """
 import json
 
 
 app = Flask(__name__)
-producer = KafkaProducer(bootstrap_servers='localhost:9092', value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+#producer = KafkaProducer(bootstrap_servers='localhost:9092', value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
 @app.route('/Post_load', methods=['POST'])
 def post_load():
     """ getting JSON data from request body"""
-    load_data = request.get_json()
+    load_data = request.form
 
     #fields that are required for the form to post load
     required_fields = [
@@ -25,7 +25,7 @@ def post_load():
         return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
     
     #sending the data to Kafka
-    producer.send('load_topic', value=load_data)
+   # producer.send('load_topic', value=load_data)
 
     # return the load data as a response
     return jsonify({"message": "Load details received", "load":load_data}), 200
