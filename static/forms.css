@@ -1,0 +1,105 @@
+/* Import the font from Google */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    font-family: 'Montserrat Alternates', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000; 
+    color: #fff;
+}
+
+.container {
+    display: flex;
+    height: 90%;
+    width: 90%;
+    background-image: url('/tms-siai/static/images/black-white-background.jpg'); 
+    background-position: left;
+    background-size: cover;
+    position: relative;
+    padding-left: 50%;
+}
+
+.form-container {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+
+h1 {
+    font-size: 2rem;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+input {
+    background: #333;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+}
+
+input::placeholder {
+    color: #bbb;
+}
+
+input[type="text"], input[type="number"], input[type="datetime-local"] {
+    width: 100%;
+    font-size: 1rem;
+}
+
+.price-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#recommended_price {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    font-size: 1.2rem;
+    text-align: center;
+    border-radius: 5px;
+    width: 100px;
+}
+
+.submit-button {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #FF4500; /* Matching the 'Next' button */
+    color: white;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #FF6347;
+}
