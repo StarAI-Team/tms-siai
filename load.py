@@ -1,10 +1,16 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 """ from kafka import KafkaProducer """
 import json
 
 
 app = Flask(__name__)
 #producer = KafkaProducer(bootstrap_servers='localhost:9092', value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+
+
+@app.route('/')
+def home():
+    return render_template ('load.html')
+    
 
 @app.route('/Post_load', methods=['POST'])
 def post_load():
