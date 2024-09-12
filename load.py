@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 """ from kafka import KafkaProducer """
 import json
+import requests
 
 
 app = Flask(__name__)
@@ -30,12 +31,22 @@ def post_load():
     if missing_fields:
         return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
     
-    #sending the data to Kafka
-   # producer.send('load_topic', value=load_data)
+    # Send the data to the processing Flask application
+    # endpoint of the kafka server
+    PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
+    try:
+        response = requests.post(
+            PROCESSING_FLASK_URL,
+            json=load_data,
+            headers={'Content-Type': 'application/json'}
+        )
+        response_data = response.json()
+        return jsonify(response_data), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)}), 500
 
     # return the load data as a response
     return jsonify({"message": "Load details received", "load":load_data}), 200
 
 if __name__ == '__main__':
     app.run(debug = True)
-
