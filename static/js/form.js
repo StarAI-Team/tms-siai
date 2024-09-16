@@ -55,4 +55,42 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Initially show the first step
     showStep(currentStep);
+
+    // Retrieve session ID and client ID from the injected HTML
+    const sessionDataElement = document.getElementById('sessionData');
+    const sessionId = sessionDataElement.getAttribute('data-session-id');
+    const clientId = sessionDataElement.getAttribute('data-client-id');
+
+    document.getElementById('multiStepForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Generate a unique event name using session ID or client ID
+        const eventName = `load_submission_${sessionId}_${clientId}_${Date.now()}`;
+
+        // Collect form data
+        const formData = new FormData(this);
+        const payload = {};
+        formData.forEach((value, key) => {
+            payload[key] = value;
+        });
+
+        // Add the unique event name to the payload
+        payload.event_name = eventName;
+
+        // Send the JSON payload via Fetch API
+        fetch('http://127.0.0.1:5000/Post_load', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
 });

@@ -141,7 +141,7 @@ input[type="number"] {
 .tooltip-container {
     position: relative;
     display: inline-block;
-    
+    width: 700px;
 }
 
 .custom-tooltip {
