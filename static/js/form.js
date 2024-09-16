@@ -9,10 +9,25 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Validate passwords
+    function validatePasswords() {
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirm_password").value;
+
+        if (password !== confirmPassword) {
+            alert("Passwords do not match.");
+            return false;
+        }
+        return true;
+    }
+
     // Move to the next step
     document.querySelectorAll(".next-button").forEach(button => {
         button.addEventListener("click", function() {
             if (currentStep < steps.length - 1) {
+                if (currentStep === 4 && !validatePasswords()) {
+                    return;
+                }
                 currentStep++;
                 showStep(currentStep);
             }
@@ -28,6 +43,15 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
+
+    // Handle form submission
+    document.querySelector(".submit-button").addEventListener("click", function() {
+        if (currentStep === steps.length - 1 && validatePasswords()) {
+            alert("Form submitted successfully!");
+            // You can handle form submission here
+        }
+    });
+
 
     // Initially show the first step
     showStep(currentStep);

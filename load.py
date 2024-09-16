@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 """ from kafka import KafkaProducer """
 import json
 import requests
+import os
 
 
 app = Flask(__name__)
