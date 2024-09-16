@@ -1,6 +1,32 @@
 version: '3.7'
 name: redpanda-services
+
 services:
+
+  db:
+    image: mongo:latest
+    hostname: test_mongodb
+    environment:
+      - MONGO_INITDB_DATABASE=animal_db
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+    ports:
+      - 27017:27017
+      
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=db
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=pass
+    ports:
+      - 8081:8081
+    depends_on:
+      - db
+
+
   redpanda-0:
     image: docker.redpanda.com/redpandadata/redpanda:v23.3.5
     container_name: redpanda-0
@@ -84,13 +110,30 @@ services:
     depends_on:
       - redpanda-0
 
-  app:
+  producer:
     build: .  # Path where your Dockerfile is located
-    container_name: tms-si-kafka
+    container_name: tms-si-kafka-producer
     restart: always
     env_file: .env
     depends_on:
       - redpanda-0
-    command: python avro_producer.py & python avro_consumer.py
+    command: python avro_producer.py
     ports:
       - 6000:6000
+
+  consumer:
+    build: .  # Path where your Dockerfile is located
+    container_name: tms-si-kafka-consumer
+    restart: always
+    env_file: .env
+    depends_on:
+      - redpanda-0
+    command: python avro_consumer.py
+    ports:
+      - 7000:7000
+    volumes:
+      - .:/app
+    links:
+      - db
+
+  
