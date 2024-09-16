@@ -22,6 +22,16 @@ body, html {
     width: 100%;
 }
 
+.transport-image-section {
+    background-image: url('/static/images/truck1.png');
+    background-position: center left;
+    background-size: cover;
+    width: 800px; 
+    height: 100%; 
+    flex-shrink: 0;
+}
+
+
 .image-section {
     background-image: url('/static/images/black-white-background.jpg');
     background-position: center left;
@@ -30,6 +40,7 @@ body, html {
     height: 100%; 
     flex-shrink: 0;
 }
+
 
 .form-container {
     width: 800px; 
@@ -174,4 +185,65 @@ input#delivery_duration {
     padding: 8px; /* Same padding for consistency */
     font-size: 14px;
     box-sizing: border-box; /* To include padding in width calculation */
+}
+
+.input-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.upload-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #d9534f;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.upload-btn:hover {
+    background-color: #c9302c;
+}
+
+/* Ensure the expiry section has some margin and proper label styling */
+.expiry {
+    margin-top: 20px;
+}
+
+.expiry {
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+/* Style the label */
+.expiry-label {
+    margin: 0; 
+    font-size: 14px; 
+}
+
+/* Style the date input */
+.expiry input[type="date"] {
+    width: 150px; 
+    padding: 5px;
+    font-size: 14px; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    box-sizing: border-box; 
 }
