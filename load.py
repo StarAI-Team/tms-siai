@@ -3,23 +3,8 @@ from flask import Flask, request, jsonify, render_template,redirect, url_for, se
 import json
 import requests
 import os
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
+import uuid
 
-=======
-import uuid
->>>>>>> dba0274ca74ed4eca7eaaf3570fe8dfe5def8f1a
-=======
-import uuid
->>>>>>> dba0274ca74ed4eca7eaaf3570fe8dfe5def8f1a
-=======
-import uuid
->>>>>>> dba0274ca74ed4eca7eaaf3570fe8dfe5def8f1a
-=======
-import uuid
->>>>>>> dba0274ca74ed4eca7eaaf3570fe8dfe5def8f1a
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # Generates a random 24-byte string
@@ -89,4 +74,4 @@ def post_load():
     return jsonify({"message": "Load details received", "load":load_data}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)

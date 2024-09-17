@@ -9,12 +9,12 @@
 </head>
 <body>
     <div class="container">
-        <div class=" transport-image-section"></div>
+        <div class=" client-image-section"></div>
         <div class="form-container">
-            <form id="multiStepForm" action="http://127.0.0.1:8000/Register_transporter" method="POST" enctype="multipart/form-data">
+            <form id="multiStepForm" action="http://127.0.0.1:5001/client_register" method="POST" enctype="multipart/form-data">
                 <!-- Section 1 -->
                 <div class="form-step">
-                    <h1>Basic Details</h1>
+                    <h1>Representative Details</h1>
                     <input type="text" id="first_name" name="first_name" placeholder="First Name" required>
                     <input type="text" id="last_name" name="last_name" placeholder="Last Name" required>
                     <input type="date" id="date_of_birth" name="date_of_birth" placeholder="Date of Birth" required>
@@ -77,77 +77,12 @@
                         </div>
                     </div>
 
-                    <div class="input-group">
-                        <div class="input-wrapper">
-                            <input type="text" id="operators_licence_text" name="operators_licence_text" placeholder="Upload a pdf showing operators licence">
-                            <label for="operators_licence" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="operators_licence" name="operators_licence" accept="pdf" required>
-                        </div>
-                    </div>
-                    
-                    <div class="expiry">
-                    <label for=" operators_expiry"> Operators Licence Expiry</label>
-                    <input type="date" id="operators_expiry" name="operators_expiry" required>
-                </div>
-
-                    <div class="input-group">
-                        <div class="input-wrapper">
-                            <input type="text" id="permits_text" name="permits_text" placeholder="Upload a pdf showing Permit">
-                            <label for="permits" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="permits" name="permits" accept="pdf" required>
-                        </div>
-                    </div>
-                    <div class="expiry">
-                    <label for=" permit_expiry"> Permit Licence Expiry</label>
-                    <input type="date" id="permit_expiry" name="permit_expiry" required>
-                </div>
-
-                    <div class="input-group">
-                        <div class="input-wrapper">
-                            <input type="text" id="tracking_licence_text" name="tracking_licence_text" placeholder="Upload a pdf showing tracking" >
-                            <label for="tracking_licence" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="tracking_licence" name="tracking_licence" accept="pdf" required>
-                        </div>
-                    </div>
                     <button type="button" class="next-button">Next</button>
                     <button type="button" class="prev-button">Back</button>
                 </div>
 
 
                     <!-- Section 4 -->
-                <div class="form-step" style="display:none;">
-                    <h1>Fleet Management </h1>
-                    <input type="number" id="number_of_trucks" name="number_of_trucks" placeholder="Number of Trucks" required>
-                    <div class="input-group">
-                        <div class="input-wrapper">
-                            <input type="text" id="num_of_trucks_text" name="num_of_trucks_text" placeholder="Upload an excel showing all trucks">
-                            <label for="num_of_trucks" class="upload-btn">Upload excel</label>
-                            <input type="file" id="num_of_trucks" name="num_of_trucks" accept="excel" required>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <div class="input-wrapper">
-                            <input type="text" id="reg_books_text" name="reg_books_text" placeholder="Upload pdf of reg books" >
-                            <label for="reg_books" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="reg_books" name="reg_books" accept="pdf" required>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <div class="input-wrapper">
-                            <input type="text" id="certificate_of_fitness_text" name="certificate_of_fitness_text" placeholder="Upload pdf of certificate of fitness">
-                            <label for="certificate_of_fitness" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="certificate_of_fitness" name="certificate_of_fitness" accept="pdf" required>
-                        </div>
-                    </div> 
-
-                    <!-- Register Button -->
-                    <button type="button" class="prev-button">Back</button>
-                    <button type="button" class="next-button">Next</button>
-                </div>
-
-                <!-- Section 5 -->
                 <div class="form-step" style="display:none;">
                     <h1>Security </h1>
 
@@ -167,6 +102,7 @@
         </div>
     </div>
 
-    <script src="/static/js/transporter.js"></script>
+    <div id="sessionData" data-session-id="{{ session['session_id'] }}" data-client-id="{{ session['client_id'] }}"></div>
+    <script src="/static/js/form.js"></script>
 </body>
 </html>
