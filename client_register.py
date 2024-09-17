@@ -9,18 +9,17 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template ('transport_register.html')
+    return render_template ('client_register.html')
     
 
-@app.route('/transport_register', methods=['POST'])
+@app.route('/client_register', methods=['POST'])
 def register_transporter():
     transporter_data = request.form.to_dict()  # Form data
 
     #fields that are required for the transporter to register 
     file_fields = [
-        'directorship', 'certificate_of_incorporation', 'proof_of_current_address', 'tax_clearance','operators_licence',
-        'permits', 'tracking_licence', 'num_of_trucks', 'reg_books', 'certificate_of_fitness',
-        'profile_picture',
+         'directorship', 'proof_of_current_address', 'tax_clearance', 'certificate_of_incorporation', 'id_number',
+        'profile_picture'
         
     ]
 
@@ -53,13 +52,11 @@ def register_transporter():
         'first_name', 'last_name', 'date_of_birth', 'phone_number', 'id_number',
         'company_name', 'bank_name', 'account_name', 'account_number', 
         'location', 'company_email', 'company_contact', 'bank_name', 'account_name', 'account_number',
-        'directorship_text', 'proof_of_current_address_text', 
+        'directorship_text', 'proof_of_current_address_text',
         'tax_clearance_text', 'certificate_of_incorporation_text',
-        'operators_licence_text', 'operators_expiry', 'permits_text', 'permit_expiry',
-        'tracking_licence_text', 'number_of_trucks', 'num_of_trucks_text',
-        'reg_books', 'reg_books_text', 'certificate_of_fitness_text',
         'user_name', 'password', 'confirm_password', 
-        
+       
+
     ] + file_fields
 
 
@@ -84,7 +81,7 @@ def register_transporter():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug = True, port=8000)
+    app.run(debug = True, port=5001)
 
 
 
