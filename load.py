@@ -4,14 +4,26 @@ import json
 import requests
 import os
 import uuid
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # Generates a random 24-byte string
+CORS(app)
+PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
 
 users = {
     "user1": "password1",
     "user2": "password2"
 }
+
+def get_ip_address():
+    if request.headers.getlist("X-Forwarded-For"):
+        ip = request.headers.getlist("X-Forwarded-For")[0]
+    else:
+        ip = request.remote_addr
+    return ip
+
 
 @app.route('/')
 def index():
@@ -19,15 +31,30 @@ def index():
 
 @app.route('/login', methods=['POST'])
 def login():
-    username = request.form.get('username')
-    password = request.form.get('password')
+    data = request.get_json()  # Get JSON payload
+    print(data)
+    username = data.get('username')
+    password = data.get('password')
+    role = data.get('role')  # Capture role from JSON
+    #print(data)
+    try:
+            # Send the login credentials to the external service (Redpanda or similar)
+            response = requests.post(
+                PROCESSING_FLASK_URL,  # External backend URL
+                json=data,
+                headers={'Content-Type': 'application/json'}
+            )
 
-    if username in users and users[username] == password:
-        session['client_id'] = username  # Use the username as the client ID
-        session['session_id'] = str(uuid.uuid4())  # Generate a session ID
-        return '', 200  # Successful login, empty response body
-    else:
-        return 'Login failed. Please check your credentials and try again.', 401
+            if username in users and users[username] == password:
+                session['client_id'] = username  # Use the username as the client ID
+                session['session_id'] = str(uuid.uuid4())  # Generate a session ID
+        
+        # Return success response with client_id and role
+                return jsonify({"message": "Login successful", "client_id": username, "role": role}), 200
+            else:
+             return jsonify({"message": "Login failed. Please check your credentials and try again."}), 401
+    except requests.exceptions.RequestException as e:
+            return jsonify({"error": str(e)}), 500
 
 @app.route('/load')
 def load_page():
@@ -39,9 +66,12 @@ def load_page():
 @app.route('/Post_load', methods=['POST'])
 def post_load():
     load_data = request.get_json() 
-    print(load_data)
+    #print(load_data)
     #print("Form data received:", load_data)  # Debugging line
-
+ # Capture the IP address and User-Agent
+    user_ip = get_ip_address()
+    user_agent = request.headers.get('User-Agent')
+    
     if not load_data:
         print("No data received from the form.")
         return jsonify({"error": "No data received"}), 400

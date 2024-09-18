@@ -41,7 +41,8 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault();
 
         // Generate a unique event name using session ID or client ID
-        const eventName = `load_submission_${sessionId}_${clientId}_${Date.now()}`;
+        const eventName = `load_submission`;
+        const clientId = `${sessionId}`;
 
         // Collect form data
         const formData = new FormData(this);
@@ -52,6 +53,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Add the unique event name to the payload
         payload.event_name = eventName;
+        payload.client_id = clientId;
 
         // Send the JSON payload via Fetch API
         fetch('http://127.0.0.1:5000/Post_load', {
@@ -59,7 +61,8 @@ document.addEventListener("DOMContentLoaded", function() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            mode: 'cors'
         })
         .then(response => response.json())
         .then(data => {
