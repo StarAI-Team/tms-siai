@@ -11,7 +11,7 @@
     <div class="container">
         <div class=" transport-image-section"></div>
         <div class="form-container">
-            <form id="multiStepForm" action="http://127.0.0.1:8000/Register_transporter" method="POST" enctype="multipart/form-data">
+            <form id="multiStepForm" action="http://127.0.0.1:8000/register_transporter" method="POST" enctype="multipart/form-data">
                 <!-- Section 1 -->
                 <div class="form-step">
                     <h1>Basic Details</h1>
@@ -30,7 +30,13 @@
                 <div class="form-step" style="display:none;">
                     <h1>Company Details Continued </h1>
                    <input type="number" id="company_contact" name="company_contact" placeholder="Company Phone Number " required>
-                    <input type="text" id="bank_name" name="bank_name" placeholder=" Company Bank Name " required>
+                   <input type="text" id="bank_name" name="bank_name" list="banks" placeholder="Company Bank Name" required>
+                   <datalist id="banks">
+                     <option value="CBZ ">
+                     <option value="Stanbic">
+                     <option value="Ecobank">
+                     <!--  more bank options here -->
+                   </datalist>
                     <input type="text" id="account_name" name="account_name" placeholder="Account Name" required>
                     <input type="number" id="account_number" name="account_number" placeholder="Account Number" required>
                     <div class="input-group">
@@ -153,7 +159,7 @@
 
                     <div class="input-group">
                         <div class="input-wrapper">
-                            <input type="text" id="user_name" name="user_name" placeholder="Enter Username" required>
+                            <input type="text" id="user_name" name="user_name" placeholder="Upload Company Logo">
                             <label for="profile_picture" class="upload-btn">Upload Profile Picture</label>
                             <input type="file" id="profile_picture" name="profile_picture" accept="image" required>
                         </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Transporter Register</title>
+    <title> Client Register</title>
     <link rel="stylesheet" href="/static/css/forms.css"> 
     <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
@@ -11,7 +11,7 @@
     <div class="container">
         <div class=" client-image-section"></div>
         <div class="form-container">
-            <form id="multiStepForm" action="http://127.0.0.1:5001/client_register" method="POST" enctype="multipart/form-data">
+            <form id="multiStepForm" action="http://127.0.0.1:8050/client_register" method="POST" enctype="multipart/form-data">
                 <!-- Section 1 -->
                 <div class="form-step">
                     <h1>Representative Details</h1>
@@ -30,7 +30,13 @@
                 <div class="form-step" style="display:none;">
                     <h1>Company Details Continued </h1>
                    <input type="number" id="company_contact" name="company_contact" placeholder="Company Phone Number " required>
-                    <input type="text" id="bank_name" name="bank_name" placeholder=" Company Bank Name " required>
+                   <input type="text" id="bank_name" name="bank_name" list="banks" placeholder="Company Bank Name" required>
+                   <datalist id="banks">
+                     <option value="CBZ ">
+                     <option value="Stanbic">
+                     <option value="Ecobank">
+                     <!--  more bank options here -->
+                   </datalist>
                     <input type="text" id="account_name" name="account_name" placeholder="Account Name" required>
                     <input type="number" id="account_number" name="account_number" placeholder="Account Number" required>
                     <div class="input-group">
