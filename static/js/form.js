@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.querySelector(".submit-button").addEventListener("click", function() {
         if (currentStep === steps.length - 1 && validatePasswords()) {
             alert("Form submitted successfully!");
-            // You can handle form submission here
+            
         }
     });
 

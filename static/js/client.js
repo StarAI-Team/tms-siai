@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const formData = new FormData(form);
 
             // Creating a custom event with a single event name
-            const formSubmissionEvent = new CustomEvent('transporterRegistration', {
+            const formSubmissionEvent = new CustomEvent('clientRegistration', {
                 detail: {
                     formData: formData,
                     formId: form.id // Optional: Pass the form ID
@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.dispatchEvent(formSubmissionEvent);
 
             // Send form data to the server
-            fetch('http://127.0.0.1:8000/register_transporter', {
+            fetch('http://127.0.0.1:8050/client_register', {
                 method: 'POST',
                 body: formData,
             })            
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
      // Listen for the custom event globally 
-     document.addEventListener('transporterRegistration', function (e) {
+     document.addEventListener('clientRegistration', function (e) {
         console.log('Form submission event detected: ', e.detail);
         const formData = e.detail.formData;
         for (var pair of formData.entries()) {
@@ -138,11 +138,5 @@ document.addEventListener("DOMContentLoaded", function() {
     handleFileNameUpdate('proof_of_current_address', 'proof_of_current_address_text');
     handleFileNameUpdate('tax_clearance', 'tax_clearance_text');
     handleFileNameUpdate('certificate_of_incorporation', 'certificate_of_incorporation_text');
-    handleFileNameUpdate('operators_licence', 'operators_licence_text');
-    handleFileNameUpdate('permits', 'permits_text');
-    handleFileNameUpdate('tracking_licence', 'tracking_licence_text');
-    handleFileNameUpdate('num_of_trucks', 'num_of_trucks_text');
-    handleFileNameUpdate('reg_books', 'reg_books_text');
-    handleFileNameUpdate('certificate_of_fitness', 'certificate_of_fitness_text');
     handleFileNameUpdate('profile_picture', 'user_name');
 });
