@@ -25,7 +25,7 @@ def uploaded_file(filename):
 
 @app.route('/')
 def home():
-    return render_template ('transport_register.html')
+    return render_template ('register.html')
     
 
 @app.route('/register_transporter', methods=['POST'])
