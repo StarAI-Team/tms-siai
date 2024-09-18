@@ -72,7 +72,7 @@ def register_transporter():
 
     #Ensuring all required fields are present
     required_fields = [
-        'first_name', 'last_name', 'date_of_birth', 'phone_number', 'id_number',
+        'first_name', 'last_name', 'phone_number', 'id_number',
         'company_name', 'bank_name', 'account_name', 'account_number', 
         'company_location', 'company_email', 'company_contact', 'bank_name', 'account_name', 'account_number',
         'directorship_text', 'proof_of_current_address_text', 

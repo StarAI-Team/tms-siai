@@ -17,7 +17,6 @@
                     <h1>Representative Details</h1>
                     <input type="text" id="first_name" name="first_name" placeholder="First Name" required>
                     <input type="text" id="last_name" name="last_name" placeholder="Last Name" required>
-                    <input type="date" id="date_of_birth" name="date_of_birth" placeholder="Date of Birth" required>
                     <input type="number" id="phone_number" name="phone_number" placeholder="Phone Number" required>
                     <input type="number" id="id_number" name="id_number" placeholder="ID Number" required>
                     <input type="text" id="company_name" name="company_name" placeholder="Company Name " required>
@@ -94,7 +93,7 @@
 
                     <div class="input-group">
                         <div class="input-wrapper">
-                            <input type="text" id="user_name" name="user_name" placeholder="Enter Username" required>
+                            <input type="text" id="user_name" name="user_name" placeholder="Upload company logo" required>
                             <label for="profile_picture" class="upload-btn">Upload Profile Picture</label>
                             <input type="file" id="profile_picture" name="profile_picture" accept="image" required>
                         </div>
@@ -109,6 +108,6 @@
     </div>
 
     <div id="sessionData" data-session-id="{{ session['session_id'] }}" data-client-id="{{ session['client_id'] }}"></div>
-    <script src="/static/js/form.js"></script>
+    <script src="/static/js/client.js"></script>
 </body>
 </html>
