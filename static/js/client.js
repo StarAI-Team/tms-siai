@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function() {
         formSteps.forEach((el, index) => {
             el.style.display = index === step ? "block" : "none";
         });
+        clearErrorMessage();
     }
 
     // Show only the first form step initially
@@ -22,6 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (!input.checkValidity()) {
                 valid = false;
                 input.classList.add('error');
+                showErrorMessage(`Please fill out the required field: ${input.placeholder}`);
                 console.log("Input " + input.name + " is invalid.");
                 console.log("Validation message: ", input.validationMessage);
             } else {
@@ -37,13 +39,28 @@ document.addEventListener("DOMContentLoaded", function() {
     function validatePasswords() {
         const password = document.getElementById("password").value;
         const confirmPassword = document.getElementById("confirm_password").value;
-        if (password !== confirmPassword) {
-            alert("Passwords do not match.");
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.classList.add('error');
+            showErrorMessage("Passwords do not match.");
             console.log("Passwords do not match.");
             return false;
+        } else {
+            confirmPassword.classList.remove('error');
+            console.log("Passwords match.");
+            return true;
         }
-        console.log("Passwords match.");
-        return true;
+    }
+
+    function showErrorMessage(message) {
+        const errorMessageDiv = document.querySelector('#step-error-message');
+        errorMessageDiv.innerText = message;
+        errorMessageDiv.style.display = 'block';
+    }
+
+    function clearErrorMessage() {
+        const errorMessageDiv = document.querySelector('#step-error-message');
+        errorMessageDiv.innerText = '';
+        errorMessageDiv.style.display = 'none';
     }
     
     nextButtons.forEach(button => {
@@ -92,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.dispatchEvent(formSubmissionEvent);
 
             // Send form data to the server
-            fetch('http://127.0.0.1:8050/client_register', {
+            fetch('http://127.0.0.1:8000/client_register', {
                 method: 'POST',
                 body: formData,
             })            
@@ -110,6 +127,8 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(error => {
                 console.error('Error:', error);
             });
+        } else {
+            showErrorMessage('Please fix the errors before submitting.');
         }
     });
 
