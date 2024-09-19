@@ -51,11 +51,32 @@ document.addEventListener("DOMContentLoaded", function() {
             payload[key] = value;
         });
 
-        // Add the unique event name to the payload
+        // Add the unique event name and client ID to the payload
         payload.event_name = eventName;
         payload.client_id = clientId;
 
-        // Send the JSON payload via Fetch API
+        // Add user agent to the payload
+        payload.user_agent = navigator.userAgent;
+
+        // Optional: Fetch user IP from an external service and append it to the payload
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                payload.user_ip = data.ip;  // Add user IP to the payload
+
+                // Now that we have both the user agent and IP, send the payload
+                sendFormData(payload);
+            })
+            .catch(error => {
+                console.error('Error fetching IP address:', error);
+                
+                // If fetching the IP fails, still send the form data without it
+                sendFormData(payload);
+            });
+    });
+
+    // Function to send form data to the backend
+    function sendFormData(payload) {
         fetch('http://127.0.0.1:5000/Post_load', {
             method: 'POST',
             headers: {
@@ -71,5 +92,5 @@ document.addEventListener("DOMContentLoaded", function() {
         .catch(error => {
             console.error('Error:', error);
         });
-    });
+    }
 });
