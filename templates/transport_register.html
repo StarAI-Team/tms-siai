@@ -24,6 +24,9 @@
                     <input type="email" id="company_email" name="company_email" placeholder="Company Email " required>
                     <button type="button" class="next-button">Next</button>
                 </div>
+                <!-- Error message placeholder -->
+                 <div id="step-error-message" class="error-message"></div>
+                
                 
                 <!-- Section 2 -->
                 <div class="form-step" style="display:none;">
@@ -42,7 +45,7 @@
                         <div class="input-wrapper">
                             <input type="text" id="directorship_text" name="directorship_text" placeholder="Upload a pdf showing directors and their details">
                             <label for="directorship" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="directorship" name="directorship" accept="pdf" required>
+                            <input type="file" id="directorship" name="directorship" accept="application/pdf" required>
                         </div>
                     </div>
 
@@ -50,13 +53,15 @@
                         <div class="input-wrapper">
                             <input type="text" id="proof_of_current_address_text" name="proof_of_current_address_text" placeholder="Upload a pdf showing proof of current address">
                             <label for="proof_of_current_address" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="proof_of_current_address" name="proof_of_current_address" accept="pdf" required>
+                            <input type="file" id="proof_of_current_address" name="proof_of_current_address" accept="application/pdf" required>
                         </div>
                     </div>
 
                     <button type="button" class="next-button">Next</button>
                     <button type="button" class="prev-button">Back</button>
                 </div>
+                <div id="step-error-message" class="error-message"></div>
+                
 
                 <!-- Section 3 -->
                 <div class="form-step" style="display:none;">
@@ -66,7 +71,7 @@
                         <div class="input-wrapper">
                             <input type="text" id="tax_clearance_text" name="tax_clearance_text" placeholder="Upload a pdf showing Tax Clearance">
                             <label for="tax_clearance" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="tax_clearance" name="tax_clearance" accept="pdf" required>
+                            <input type="file" id="tax_clearance" name="tax_clearance" accept="application/pdf" required>
                         </div>
                     </div> 
                     <div class="expiry">
@@ -78,7 +83,7 @@
                         <div class="input-wrapper">
                             <input type="text" id="certificate_of_incorporation_text" name="certificate_of_incorporation_text" placeholder="Upload a pdf showing certificate of incorporation">
                             <label for="certificate_of_incorporation" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="certificate_of_incorporation" name="certificate_of_incorporation" accept="pdf" required>
+                            <input type="file" id="certificate_of_incorporation" name="certificate_of_incorporation" accept="application/pdf" required>
                         </div>
                     </div>
 
@@ -86,7 +91,7 @@
                         <div class="input-wrapper">
                             <input type="text" id="operators_licence_text" name="operators_licence_text" placeholder="Upload a pdf showing operators licence">
                             <label for="operators_licence" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="operators_licence" name="operators_licence" accept="pdf" required>
+                            <input type="file" id="operators_licence" name="operators_licence" accept="application/pdf" required>
                         </div>
                     </div>
                     
@@ -99,7 +104,7 @@
                         <div class="input-wrapper">
                             <input type="text" id="permits_text" name="permits_text" placeholder="Upload a pdf showing Permit">
                             <label for="permits" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="permits" name="permits" accept="pdf" required>
+                            <input type="file" id="permits" name="permits" accept="application/pdf" required>
                         </div>
                     </div>
                     <div class="expiry">
@@ -111,12 +116,13 @@
                         <div class="input-wrapper">
                             <input type="text" id="tracking_licence_text" name="tracking_licence_text" placeholder="Upload a pdf showing tracking" >
                             <label for="tracking_licence" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="tracking_licence" name="tracking_licence" accept="pdf" required>
+                            <input type="file" id="tracking_licence" name="tracking_licence" accept="application/pdf" required>
                         </div>
                     </div>
                     <button type="button" class="next-button">Next</button>
                     <button type="button" class="prev-button">Back</button>
                 </div>
+                <div id="step-error-message" class="error-message"></div>
 
 
                     <!-- Section 4 -->
@@ -127,7 +133,7 @@
                         <div class="input-wrapper">
                             <input type="text" id="num_of_trucks_text" name="num_of_trucks_text" placeholder="Upload an excel showing all trucks">
                             <label for="num_of_trucks" class="upload-btn">Upload excel</label>
-                            <input type="file" id="num_of_trucks" name="num_of_trucks" accept="excel" required>
+                            <input type="file" id="num_of_trucks" name="num_of_trucks" accept=".xlsx, .xls" required>
                         </div>
                     </div>
 
@@ -135,7 +141,7 @@
                         <div class="input-wrapper">
                             <input type="text" id="reg_books_text" name="reg_books_text" placeholder="Upload pdf of reg books" >
                             <label for="reg_books" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="reg_books" name="reg_books" accept="pdf" required>
+                            <input type="file" id="reg_books" name="reg_books" accept="application/pdf" required>
                         </div>
                     </div>
 
@@ -143,7 +149,7 @@
                         <div class="input-wrapper">
                             <input type="text" id="certificate_of_fitness_text" name="certificate_of_fitness_text" placeholder="Upload pdf of certificate of fitness">
                             <label for="certificate_of_fitness" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="certificate_of_fitness" name="certificate_of_fitness" accept="pdf" required>
+                            <input type="file" id="certificate_of_fitness" name="certificate_of_fitness" accept="application/pdf" required>
                         </div>
                     </div> 
 
@@ -151,6 +157,8 @@
                     <button type="button" class="prev-button">Back</button>
                     <button type="button" class="next-button">Next</button>
                 </div>
+                <!-- Error message placeholder -->
+                <div id="step-error-message" class="error-message"></div>
 
                 <!-- Section 5 -->
                 <div class="form-step" style="display:none;">
@@ -160,13 +168,14 @@
                         <div class="input-wrapper">
                             <input type="text" id="user_name" name="user_name" placeholder="Upload Company Logo">
                             <label for="profile_picture" class="upload-btn">Upload Profile Picture</label>
-                            <input type="file" id="profile_picture" name="profile_picture" accept="image" required>
+                            <input type="file" id="profile_picture" name="profile_picture" accept="image/*" required>
                         </div>
                     </div> 
                     <input type="password" id="password" name="password" placeholder="Enter Password" required>
                     <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
                     <button type="button" class="prev-button">Back</button>
                     <button type="submit" class="submit-button">Submit</button>
+                <div id="step-error-message" class="error-message"></div>
 
             </form>
         </div>

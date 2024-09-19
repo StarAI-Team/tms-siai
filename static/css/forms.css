@@ -257,3 +257,14 @@ input[type="file"] {
     border-radius: 5px; 
     box-sizing: border-box; 
 }
+.form-step {
+    display: none;
+}
+.error {
+    border: 1px solid red;
+}
+#step-error-message {
+    color: red;
+    font-weight: bold;
+    display: none;
+}
