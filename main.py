@@ -47,7 +47,7 @@ class GoogleSheetUpdater:
         return pd.DataFrame(records)
 
 # Usage
-SERVICE_ACCOUNT_FILE = './data-extraction-tool-433301-f79d60b07ff8.json'
+SERVICE_ACCOUNT_FILE = './data-extraction-tool-433301-eaef27c2bac9.json'
 DOCUMENT_ID = '1h2dNYqfsyHtwv-E7Q2tUvrBRQnzXYjjrLPR_ogPuG0c'
 
 updater = GoogleSheetUpdater(SERVICE_ACCOUNT_FILE, DOCUMENT_ID)

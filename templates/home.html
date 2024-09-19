@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Include any map-related scripts or styles -->
+</head>
+<body>
+    <div class="navbar">
+        <ul>
+            <li><a href="{{ url_for('form') }}">Post Load</a></li>
+            <li><a href="{{ url_for('view_transporters') }}">View Transporters</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <!-- Main map and widgets -->
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4439.859761951858!2d30.98305831136774!3d-17.879917783023224!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1931a1e270c0f677%3A0x5228d0be8510364b!2sInsburg%20Freight%20Logistics!5e1!3m2!1sen!2ses!4v1726760741608!5m2!1sen!2ses" width="1200" height="650" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+
+    <div class="sidebar">
+        <h3>Logistics Trends</h3>
+        <!-- Add sidebar content for updates -->
+    </div>
+</body>
+</html>
