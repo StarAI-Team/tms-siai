@@ -68,6 +68,7 @@
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const role = document.getElementById('roleSelect').value;
+    const eventName = `login_request`;
 
     if (username && password && role) {
         fetch('http://localhost:5000/login', {
@@ -78,7 +79,8 @@
             body: JSON.stringify({
                 username: username,
                 password: password,
-                role: role
+                role: role,
+                event_name: eventName
             })
         })
         .then(response => {
