@@ -7,7 +7,8 @@ import os
 import uuid
 from flask_cors import CORS
 
-app = Flask(__name__)  # Generates a random 24-byte string
+app = Flask(__name__)
+app.secret_key = os.urandom(24)  # Generates a random 24-byte string
 CORS(app)
 PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
 
