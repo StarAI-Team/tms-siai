@@ -27,10 +27,23 @@ def uploaded_file(filename):
 def home():
     return render_template ('register.html')
 
+@app.route('/transport-package')
+def transport_package():
+    return render_template ('transport_package.html')
+
+@app.route('/transporter_package_selected')
+def transporter_package_selected():
+    return render_template ('transporter_payment_package.html')
+
+@app.route('/transporter_pay')
+def transporter_pay():
+    return render_template ('transporter_paying.html')
+
 
 @app.route('/welcome-transporter')
 def welcome_transporter():
     return render_template ('transport_register.html')
+
 
 @app.route('/register_transporter', methods=['POST'])
 def register_transporter():
@@ -118,9 +131,21 @@ def register_transporter():
     
     return jsonify({"message": "Transporter registered successfully"}), 200
 
+
+@app.route('/client-package')
+def client_package():
+    return render_template ('client_package.html')
+
+
+@app.route('/client_package_selected')
+def client_package_selected():
+    return render_template ('client_payment_package.html')
+
 @app.route('/welcome-client')
 def welcome_client():
     return render_template ('client_register.html')
+
+
 
 @app.route('/client_register', methods=['POST'])
 def client_register():

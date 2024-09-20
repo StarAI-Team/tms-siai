@@ -265,6 +265,7 @@ input[type="file"] {
 }
 #step-error-message {
     color: red;
-    font-weight: bold;
+    font-size: larger;
+    font-weight: regular;
     display: none;
 }

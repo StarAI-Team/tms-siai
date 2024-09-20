@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat Alternates', sans-serif;
+    background: url('/static/images/transporter_register.png') no-repeat center center/cover;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.text-container {
+  margin-top: 20px; 
+  text-align: center;
+}
+
+.text-container ul {
+  list-style-type: disc; 
+  padding-left: 20px; 
+  text-align: left;
+  margin-top: 20px;
+}
+h1 {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px; 
+  }
+
+.packages {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.package {
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid red;
+    border-radius: 8px;
+    padding: 20px;
+    width: 280px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.package:hover {
+    transform: translateY(-10px);
+}
+
+h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.validity,
+.price {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+ul {
+    list-style-type: none;
+    margin-bottom: 2rem;
+}
+
+li {
+    margin-bottom: 0.5rem;
+}
+.price-btn {
+    background-color: #696767(243, 235, 235);
+    border: white;
+    color: white;
+    padding: 30px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.btn {
+    background-color: red;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.btn:hover {
+    background-color: darkred;
+}
+.price_dropdown {
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: lighter;
+  }
+  
+  input[list="services"] {
+    appearance: none;
+    padding: 5px;
+    border: 1px solid #ccc;
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: lighter;
+  }
+  
+  select:focus {
+    outline: none;
+  }
+  
+  option {
+    padding: 5px;
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: lighter;
+    
+  }
+  
