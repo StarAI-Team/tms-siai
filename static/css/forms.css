@@ -191,10 +191,10 @@ input[type="number"] {
 }
 
 input#delivery_duration {
-    width: 100%; /* Same width as other fields */
-    padding: 8px; /* Same padding for consistency */
+    width: 100%; 
+    padding: 8px; 
     font-size: 14px;
-    box-sizing: border-box; /* To include padding in width calculation */
+    box-sizing: border-box; 
 }
 
 .input-group {
@@ -231,7 +231,7 @@ input[type="file"] {
     background-color: #c9302c;
 }
 
-/* Ensure the expiry section has some margin and proper label styling */
+
 .expiry {
     margin-top: 20px;
 }

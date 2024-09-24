@@ -36,26 +36,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 
             }
   
-            // Animate the clicked package with smooth and calming effect
+           
             anime({
                 targets: packageElement,
-                scale: 1.05,  // Slight and subtle scaling
-                duration: 500,  // Moderate speed
-                easing: 'easeInOutSine',  // Smooth and gradual easing
-                borderColor: '#ffffff',  // White border color
-                boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.2)',  // Soft shadow for depth
+                scale: 1.28,
+                duration: 500,  
+                easing: 'easeInOutSine',  
+                borderColor: '#ffffff',  
+                boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.2)',  
             });
   
-            // Animate the other packages back to their original state
+
             packages.forEach(otherPackage => {
                 if (otherPackage !== packageElement) {
                     anime({
                         targets: otherPackage,
-                        scale: 1,  // Return to normal size
-                        duration: 500,  // Same duration for smooth transition
-                        easing: 'easeInOutSine',  // Smooth transition
-                        borderColor: '#ffffff',  // White border
-                        boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)',  // Remove shadow
+                        scale: 1,  
+                        duration: 500,  
+                        easing: 'easeInOutSine',  
+                        borderColor: '#ffffff',  
+                        boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)',  
                     });
                 }
             });

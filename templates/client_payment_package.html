@@ -29,7 +29,7 @@
                 <!-- Card Payment Icons -->
             <a href="#" class="payment-option" data-method="visa"><img src="/static/images/visa-logo-visa-icon-free-free-vector.jpg" alt="VISA"></a>
             <a href="#" class="payment-option" data-method="mastercard"><img src="/static/images/Mastercard_new_logo-1200x865.webp" alt="MasterCard"></a>
-            <a href="#" class="payment-option" data-method="zimswitch"><img src="/static/images/zimswitch.jpeg" alt="ZimSwitc"></a>
+            <a href="#" class="payment-option" data-method="zimswitch"><img src="/static/images/zimswitch.jpeg" alt="ZimSwitch"></a>
         </div>
 
             <!-- Hidden Payment Details Form -->
@@ -58,7 +58,7 @@
         const selectedPackage = urlParams.get('package');
         const selectedAmount = urlParams.get('amount');
 
-        // Setting the package name and price dynamically
+        // Set the package name and price dynamically
         document.getElementById('package-name').textContent = selectedPackage;
         document.getElementById('package-price').textContent = selectedAmount ? `$${selectedAmount}` : '$0';
 
@@ -81,7 +81,7 @@
                 cardPayment.style.display = 'none';
 
                 // Show corresponding payment inputs
-                if (method === 'visa' || method === 'mastercard' || 'zimswitch') {
+                if (method === 'visa' || method === 'mastercard' ||  method ==='zimswitch') {
                     cardPayment.style.display = 'block';
                 } else {
                     mobilePayment.style.display = 'block';

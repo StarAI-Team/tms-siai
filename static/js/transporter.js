@@ -1,8 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
+    const requiredFields = {
+        section1: ['first_name', 'last_name', 'phone_number', 'id_number','id_number', 'company_name', 'company_location', 'company_email'],
+        section2: ['company_contact', 'bank_name', 'account_name', 'account_number', 'directorship_text','directorship', 'proof_of_current_address_text', 'proof_of_current_address' ],
+        section3: ['tax_clearance_text', 'tax_clearance', 'tax_expiry', 'certificate_of_incorporation_text', 'certificate_of_incorporation','operators_licence_text', 'operators_licence', 'operators_expiry', 'permits_text', 'permits', 'permit_expiry', 'tracking_licence_text','tracking_licence', ],
+        section4: ['number_of_trucks', 'num_of_trucks_text', 'num_of_trucks', 'reg_books_text','reg_books', 'certificate_of_fitness_text', 'certificate_of_fitness'],
+        section5: ['user_name', 'profile_picture', 'password', 'confirm_password']
+    };
     const form = document.getElementById('multiStepForm');
     const nextButtons = document.querySelectorAll('.next-button');
     const prevButtons = document.querySelectorAll('.prev-button');
     const formSteps = document.querySelectorAll('.form-step');
+    const finalNextButton = document.querySelector('#final-next-button');
     let currentStep = 0;
 
     function showStep(step) {
@@ -16,33 +24,87 @@ document.addEventListener("DOMContentLoaded", function() {
     showStep(currentStep);
 
     function validateFormStep() {
-        let valid = true;
-        const inputs = formSteps[currentStep].querySelectorAll('input');
+        const currentSection = formSteps[currentStep]; 
+        const required = requiredFields[`section${currentStep + 1}`] || [];
+        let isValid = true; // Initialize validity to true
+    
+        // Select only input elements in the current section
+        const inputs = currentSection.querySelectorAll('input');
+
         inputs.forEach(input => {
-            console.log("Validating input: ", input.name);
-            if (!input.checkValidity()) {
-                valid = false;
-                input.classList.add('error');
-                showErrorMessage(`Please fill out the required field: ${input.placeholder}`);
-                console.log("Input " + input.name + " is invalid.");
-                console.log("Validation message: ", input.validationMessage);
-            } else {
-                input.classList.remove('error');
-                console.log("Input " + input.name + " is valid.");
+            // Check if the input is in the required list for the current step
+            if (required.includes(input.name)) {
+                console.log("Validating input: ", input.name);
+                if (!input.checkValidity()) { 
+                    isValid = false; 
+                    input.classList.add('error'); 
+                    showErrorMessage(`Please fill out the required field: ${input.placeholder}`); // Show error message
+                    console.log("Input " + input.name + " is invalid.");
+                    console.log("Validation message: ", input.validationMessage);
+                } else {
+                    input.classList.remove('error'); 
+                    console.log("Input " + input.name + " is valid.");
+                }
             }
         });
-        return valid;
+        
+        return isValid; 
     }
     
     
+    finalNextButton.addEventListener('click', async function(event) {
+        
+        if (!validateFormStep()) {
+            event.preventDefault(); // Prevent moving to the next step if validation fails
+            return; 
+        }
+    
+        // If on step 4, validate passwords before proceeding
+    if (currentStep === 4 && !validatePasswords()) {
+        alert('Passwords do not match!');
+        return; 
+    }
+
+    // Gather form data to send to Flask
+    const formData = new FormData(document.getElementById("multiStepForm"));
+    const payload = {};
+    
+    // Convert FormData to a plain object
+    formData.forEach((value, key) => {
+        payload[key] = value;
+    });
+
+    try {
+        // Send data to Flask processing endpoint using fetch
+        const response = await fetch('http:/127.0.0.1:8000/register_transporter', {  
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+            console.log('Data sent to Flask successfully.');
+            // Optionally, you can proceed to the next step or route
+            window.location.href = 'http://127.0.0.1:8000/transporter-package'
+        } else {
+            console.error('Error sending data to Flask:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error sending data to Flask:', error);
+    }
+});
+
 
     function validatePasswords() {
         const password = document.getElementById("password").value;
         const confirmPassword = document.getElementById("confirm_password").value;
-        if (password.value !== confirmPassword.value) {
+        if (password !== confirmPassword) {
             confirmPassword.classList.add('error');
             showErrorMessage("Passwords do not match.");
             console.log("Passwords do not match.");
+            alert("Passwords do not match! Try Again")
             return false;
         } else {
             confirmPassword.classList.remove('error');
@@ -50,7 +112,8 @@ document.addEventListener("DOMContentLoaded", function() {
             return true;
         }
     }
-    
+
+
     function showErrorMessage(message) {
         const errorMessageDiv = document.querySelector('#step-error-message');
         errorMessageDiv.innerText = message;
@@ -63,83 +126,132 @@ document.addEventListener("DOMContentLoaded", function() {
         errorMessageDiv.style.display = 'none';
     }
 
-    nextButtons.forEach(button => {
-        button.addEventListener("click", function() {
-            console.log("Next button clicked");
-            if (validateFormStep()) {
-                if (currentStep === 4 && !validatePasswords()) {
-                    return;
-                }
-                if (currentStep < formSteps.length - 1) {
-                    currentStep++;
-                    console.log("Moving to step:", currentStep);
-                    showStep(currentStep);
-                } else {
-                    console.log("No more steps to move to.");
-                }
-            } else {
-                console.log("Current step is invalid.");
-            }
+    function sendEventData(section) {
+        const data = {};
+        const inputs = formSteps[currentStep].querySelectorAll('input');
+        inputs.forEach(input => {
+            data[input.name] = input.value;
         });
-    });
+        console.log("Form data being sent:", data);
     
-    prevButtons.forEach(button => {
-        button.addEventListener("click", function() {
-            if (currentStep > 0) {
-                currentStep--;
-                showStep(currentStep);
-            }
-        });
-    });
-
-    // Handle form submission
-    form.addEventListener('submit', function (e) {
-        e.preventDefault(); // Prevent the default form submission
-        if (validateFormStep()) {
-            const formData = new FormData(form);
-
-            // Creating a custom event with a single event name
-            const formSubmissionEvent = new CustomEvent('transporterRegistration', {
-                detail: {
-                    formData: formData,
-                    formId: form.id // Optional: Pass the form ID
-                }
-            });
-            // Dispatch the custom event
-            document.dispatchEvent(formSubmissionEvent);
-
-            // Send form data to the server
-            fetch('http://127.0.0.1:8000/register_transporter', {
+        // Capture user_id and ip_address from the backend
+        fetch('/get_user_metadata')
+        .then(response => response.json())
+        .then(metadata => {
+            const eventDetails = {
+            event_name: `transporterRegistration(${section})`,  
+            user_id: metadata.user_id,
+            ip_address: metadata.ip_address,
+            timestamp: new Date().toISOString(),
+            user_agent: navigator.userAgent,
+            form_data: data  
+        };
+    
+           
+        // Log the final payload before sending
+        console.log("Final payload to be sent:", eventDetails)
+    
+    
+            // Send the captured data to Flask for processing
+            fetch('/register_transporter', {
                 method: 'POST',
-                body: formData,
-            })            
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(eventDetails),
+            })
             .then(response => response.json())
             .then(data => {
-                if (data.error === "Missing fields") {
-                    alert(`Error: Missing fields: ${data.fields.join(', ')}`);
-                } else {
-                    alert('Form submitted successfully!');
-                    form.reset();
-                    currentStep = 0;  // Reset to the first step after successful submission
-                    showStep(currentStep);  // Show the first step
-                }
+                console.log('Event data sent:', data);
             })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        } else {
-            showErrorMessage('Please fix the errors before submitting.');
-        }
-    });
+            .catch(error => console.error('Error sending event data:', error));
+        })
+        .catch(error => console.error('Error fetching metadata:', error));
+    }
+    
+   // Assuming you have already defined formSteps and currentStep
 
-     // Listen for the custom event globally 
-     document.addEventListener('transporterRegistration', function (e) {
-        console.log('Form submission event detected: ', e.detail);
-        const formData = e.detail.formData;
-        for (var pair of formData.entries()) {
-            console.log(pair[0] + ': ' + pair[1]);
+nextButtons.forEach(button => {
+    button.addEventListener("click", async function() {
+        console.log("Next button clicked");
+
+        // Validate the current form step before proceeding
+        if (validateFormStep()) {
+            // Create an object to hold form data
+            const payload = {};
+            const inputs = formSteps[currentStep]?.querySelectorAll("input, textarea") || [];
+
+            // Append data to the payload object
+            inputs.forEach(input => {
+                if (input.name && input.value) {
+                    payload[input.name] = input.value; // Use the name attribute as the key
+                }
+            });
+
+            // Capture user metadata (user_id and ip_address)
+            try {
+                const metadataResponse = await fetch('/get_user_metadata');
+                const metadata = await metadataResponse.json();
+
+                // Add user_id and ip_address to the payload
+                payload.user_id = metadata.user_id; 
+                payload.ip_address = metadata.ip_address; // Optional, if needed
+            } catch (error) {
+                console.error('Error fetching user metadata:', error);
+                return; // Exit if metadata cannot be fetched
+            }
+
+            // Log the final payload before sending
+            console.log("Final Payload being sent:", payload);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/register_transporter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await response.json();
+
+                // Handle response
+                if (data.error) {
+                    alert(`Error: ${data.error}`);
+                } else {
+                    // Proceed to the next step
+                    console.log("Data submitted successfully:", data);
+                    // Move to the next step logic...
+                    if (currentStep < formSteps.length - 1) {
+                        currentStep++;
+                        showStep(currentStep); // Display the next step
+                    } else {
+                        alert('Final step completed successfully!');
+                        form.reset(); // Reset the form if needed
+                    }
+                }
+            } catch (error) {
+                console.error('Error submitting step:', error);
+            }
+        } else {
+            console.log("Current step is invalid.");
+            showErrorMessage('Please fix the errors before proceeding.');
         }
     });
+});
+
+    
+
+
+ prevButtons.forEach(button => {
+    button.addEventListener("click", function() {
+        if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    });
+});
+
 
     // Function to handle file name update for file inputs
     function handleFileNameUpdate(fileInputId, textInputId) {
