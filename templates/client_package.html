@@ -21,15 +21,15 @@
                     <li>Can only accept 5 bids</li>
                     <li>Route Planning for 1 trip</li>
                 </ul>
-                 <a href="/package_selected?package=Trial Package" class="btn">Register</a>
+                 <a href="/welcome-client" class="btn">Register</a>
             </div>
 
             <!-- Standard Package -->
             <div class="package standard">
                 <h2>Standard Package</h2>
                 <div class="button-container">
-                <a href="/package_selected?package=Monthly Standard Package" class="btn"> $10 per month </a> 
-                <a href="/package_selected?package=Annual Standard Package" class="btn"> $150 per year </a>
+                <a href="#"data-package="Monthly Standard Package" data-amount="10" class="btn select-package"> $10 per month </a> 
+                <a href="#"data-package="Annual Standard Package" data-amount="115" class="btn select-package"> $115 per year </a>
                 </div>
 
                 <ul>
@@ -39,11 +39,11 @@
                     <li>Limited route planning</li>
                     <li>Limited Analytics</li>
                     <li>Pay per use for extra services:
-                        <input list="services" name="services" placeholder="View Prices">
+                        <input list="services" name="services" id="extra-services" placeholder="View Prices">
                         <datalist id="services">
-                          <option value="Advanced Analytics ($15)">Advanced Analytics ($15)</option>
-                          <option value="Post Load ($5)">Post Load ($5)</option>
-                          <option value="Accept Bid ($20)">Accept Bid ($20)</option>
+                          <option value="Advanced Analytics ($15)" data-value="15">Advanced Analytics ($15)</option>
+                          <option value="Post Load ($5)" data-value="5">Post Load ($5)</option>
+                          <option value="Accept Bid ($20)" data-value="20">Accept Bid ($20)</option>
                           </datalist>
                       </li>
                 </ul>
@@ -53,8 +53,8 @@
             <div class="package premium">
                 <h2>Premium Package</h2>
                 <div class="button-container">
-                    <a href="/package_selected?package=Monthly Premium Package" class="btn"> $15 per month </a>
-                    <a href="/package_selected?package=Annual Premium Package" class="btn"> $200 per year </a>
+                    <a href="/client_package_selected?package=Monthly Premium Package" class="btn"> $10 per month </a>
+                    <a href="/client_package_selected?package=Annual Premium Package" class="btn"> $115 per year </a>
                     </div>
     
                 <ul>
@@ -66,11 +66,10 @@
                     <li>Advanced Analytics and business intelligence</li>
                     <li>24/7 support</li>
                 </ul>
-                <button class="btn">Next</button>
             </div>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script src="/static/js/package.js"></script>
+    <script src="/static/js/clientpackage.js"></script>
 </body>
 </html>

@@ -44,10 +44,41 @@ def transporter_pay():
 def welcome_transporter():
     return render_template ('transport_register.html')
 
+    
+@app.route('/get_user_metadata', methods=['GET'])
+def get_user_metadata():
+    user_id = str(uuid.uuid4())  
+    ip_address = request.remote_addr  
+    
+    metadata = {
+        'user_id': user_id,
+        'ip_address': ip_address
+    }
+    return jsonify(metadata)
+
 
 @app.route('/register_transporter', methods=['POST'])
 def register_transporter():
-    transporter_data = request.form.to_dict()  # Form data
+    if request.is_json:
+        payload = request.get_json()  # Get the JSON payload
+    else:
+        return jsonify({"error": "Invalid content type"}), 400
+    transporter_data = request.form.to_dict()
+     # Debug: Print raw form data to check what is being sent
+    print("Raw form data:", request.form)
+
+    # Create transporter_data dictionary directly from the payload
+    transporter_data = {
+        'user_id': payload.get('user_id'),  # Get user_id from the payload
+        'ip_address': payload.get('ip_address', request.remote_addr),  # Fallback to request's IP if not sent
+        **{key: payload[key] for key in payload if key not in ['user_id', 'ip_address']}  # Include all other fields
+    }
+
+    print("Transporter data before processing:", transporter_data)
+
+    # Get the current section from the form submission
+    current_section = transporter_data.get('current_section')
+   
 
     #files that are required for the transporter to register 
     file_fields = [
@@ -56,6 +87,15 @@ def register_transporter():
         'profile_picture',
         
     ]
+
+     # Segregated required fields by sections (from the `requiredFields` in JavaScript)
+    required_fields_by_section = {
+        'section1': ['first_name', 'last_name', 'phone_number', 'id_number', 'company_name', 'company_location', 'company_email'],
+        'section2': ['company_contact', 'bank_name', 'account_name', 'account_number', 'directorship_text', 'directorship', 'proof_of_current_address_text', 'proof_of_current_address'],
+        'section3': ['tax_clearance_text', 'tax_clearance', 'tax_expiry', 'certificate_of_incorporation_text', 'certificate_of_incorporation', 'operators_licence_text', 'operators_licence', 'operators_expiry', 'permits_text', 'permits', 'permit_expiry', 'tracking_licence_text', 'tracking_licence'],
+        'section4': ['number_of_trucks', 'num_of_trucks_text', 'num_of_trucks', 'reg_books_text', 'reg_books', 'certificate_of_fitness_text', 'certificate_of_fitness'],
+        'section5': ['user_name', 'profile_picture', 'password', 'confirm_password']
+    }
 
     # Handling file uploads
     file_data = {}
@@ -75,44 +115,45 @@ def register_transporter():
 
     transporter_data.update(file_data)
 
-     # Password validation and hashing
+     # Password validation
     password = transporter_data.get('password')
-    confirm_password = transporter_data.pop('confirm_password')
+    confirm_password = transporter_data.get('confirm_password')  
 
-    if password != confirm_password:
+    # Check if both password fields are present before comparing
+    if password and confirm_password and password != confirm_password:
         return jsonify({"error": "Passwords do not match"}), 400
+
+    # Hash the password if it exists
+    if password:
+        hashed_password = generate_password_hash(password)
+        transporter_data['password'] = hashed_password
+
+    # Validate only the fields for the current section
+    required_fields_for_section = required_fields_by_section.get(current_section, [])
     
-    hashed_password = generate_password_hash(password)
-    transporter_data['password'] = hashed_password
+     # Separate validation for regular form fields and file fields
+    required_form_fields = [field for field in required_fields_for_section if field not in file_fields]
+    required_file_fields = [field for field in required_fields_for_section if field in file_fields]
+
+    # Check for missing regular form fields
+    missing_form_fields = [field for field in required_form_fields if field not in transporter_data]
     
+    # Check for missing file fields
+    missing_file_fields = [field for field in required_file_fields if field not in request.files and field not in transporter_data]
 
+    # Combine all missing fields
+    missing_fields = missing_form_fields + missing_file_fields
 
-    #Ensuring all required fields are present
-    required_fields = [
-        'first_name', 'last_name', 'phone_number', 'id_number',
-        'company_name', 'bank_name', 'account_name', 'account_number', 
-        'company_location', 'company_email', 'company_contact', 'bank_name', 'account_name', 'account_number',
-        'directorship_text', 'proof_of_current_address_text', 
-        'tax_clearance_text', 'certificate_of_incorporation_text',
-        'operators_licence_text', 'operators_expiry', 'permits_text', 'permit_expiry',
-        'tracking_licence_text', 'number_of_trucks', 'num_of_trucks_text',
-        'reg_books', 'reg_books_text', 'certificate_of_fitness_text',
-        'user_name', 'password' 
-        
-    ] + file_fields
-
-
-    missing_fields = [field for field in required_fields if field not in transporter_data and field not in request.files]
     if missing_fields:
         return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
     
-    # Generating  a unique user ID
-    user_id = str(uuid.uuid4())
+    # Final payload to send to processing URL
+    processing_payload = {
+        **transporter_data  # This spreads all fields from transporter_data
+    }
 
-    # Adding user_id and event_name to the data
-    transporter_data['user_id'] = user_id
-    transporter_data['event_name'] = 'transporterRegistration'
-  
+    processing_payload = transporter_data
+    print("Final payload being sent to processing URL:", processing_payload)
 
     
     # Send the data to the processing Flask application
@@ -125,11 +166,14 @@ def register_transporter():
             headers={'Content-Type': 'application/json'}
         )
         response_data = response.json()
+        print("Response status code:", response.status_code)
+        print("Response data:", response_data)
         return jsonify(response_data), response.status_code
     except requests.exceptions.RequestException as e:
+        print("Error occurred while sending to processing URL:", e)
         return jsonify({"error": str(e)}), 500
     
-    return jsonify({"message": "Transporter registered successfully"}), 200
+    return jsonify({"message": "Data submitted successfully"}), 200
 
 
 @app.route('/client-package')

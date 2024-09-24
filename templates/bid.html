@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auction Room</title>
+    <link rel="stylesheet" href="/static/css/bid.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="auction-room">
+        <!-- Left Image Side -->
+        <div class="image-side"></div>
+
+        <!-- Right Content Side -->
+        <div class="container">
+            <h1>Auction Room</h1>
+
+            <div class="auction-card">
+                <div class="star-flashing">
+                    <div class="star">Perfect Match!</div>
+                </div>
+
+                <div class="auction-details">
+                    <h2>Pelcravia</h2>
+                    <p><strong>Load:</strong> Wheat</p>
+                    <p><strong>Quantity:</strong> 2 Tonnes</p>
+                    <p><strong>Route:</strong> Harare RoadPort 8am - Manika Port Beira</p>
+                    <p><strong>Rate:</strong> $1300</p>
+                    <p><strong>Payment Duration:</strong> 60 Days</p>
+                    <p><strong>Truck Type and Number:</strong> 10 tanker</p>
+                </div>
+            </div>
+
+            <!-- "Check out" Text with White Border -->
+            <div class="view-text-container">
+                <div class="view-text">
+                    Check Out What The Other Transporters are bidding
+                </div>
+            </div>
+
+            <!-- Bids -->
+            <div class="bids">
+                <div class="bid-view">$1400</div>
+                <div class="bid-view">$1200</div>
+                <div class="bid-view">$1300</div>
+                <div class="bid-view">$1100</div>
+                <div class="bid-view">$900</div>
+            </div>
+
+            <!-- User Offer Input -->
+            <div class="offer-container">
+                <input type="number" id="offer-input" placeholder="Your Offer" />
+            </div>            
+            <input type="text" class="addon-input" placeholder="AddOns e.g. I can pay for your customs clearance fee">
+
+            <!-- Action Buttons -->
+            <div class="buttons">
+                <button class="back-button">Back</button>
+                <button class="bid-button" href="home.html">Bid</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

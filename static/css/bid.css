@@ -1,0 +1,320 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat Alternates', sans-serif;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    background-color: #000;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.auction-room {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.image-side {
+    background-image: url('/static/images/bid-image.png'); 
+    background-size: cover;
+    background-position: center;
+    width: 50%; 
+    height: 100%;
+}
+
+.container {
+    width: 50%; 
+    padding: 30px;
+    background-color: #111;
+    border-left: 2px solid #333;
+    color: white; 
+}
+
+h1 {
+    font-size: 36px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.auction-card {
+    background-color: #222;
+    border-radius: 10px;
+    padding: 20px;
+    border: 2px solid #444;
+    position: relative;
+    margin-bottom: 80px;
+}
+
+.star-flashing {
+    position: absolute;
+    top: -30px;
+    right: -30px;
+}
+
+.star {
+    background-color: yellow;
+    color: black;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 50%;
+    text-align: center;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: flash 0.7s infinite;
+}
+
+@keyframes flash {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.1;
+    }
+}
+
+.auction-details {
+    text-align: left;
+    margin-top: 10px;
+}
+
+.auction-details p {
+    margin: 5px 0;
+}
+
+.view-text-container {
+    margin-top: 20px;
+    margin-bottom: 30px;
+    text-align: center;
+    color: white;
+    border: 1px solid white; 
+    padding: 10px;
+    width: 100%; 
+    border-radius: 10px;
+    background-color: #222;
+}
+
+.view-text {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.bids {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+   
+}
+
+.bid-view {
+    background: none;
+    border: 2px solid red;
+    padding: 10px;
+    font-size: 18px;
+    color: white;
+    border-radius: 10px;
+}
+
+.bid-button, .back-button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 90px;
+    margin: 10px;
+    margin-top: 70px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border: 1px solid white;
+}
+#offer-input {
+    width: 60%; 
+    padding: 15px 60px; 
+    font-size: 16px;
+    background-color: #333; 
+    color: white;
+    border: 1px solid white; 
+    border-radius: 5px; 
+    text-align: center;
+    appearance: none; 
+    margin-bottom: 15px;
+}
+
+
+#offer-input::placeholder {
+    color: rgb(165, 165, 165); 
+}
+
+
+.offer-container {
+    width: 100%;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.bid-button:hover, .back-button:hover {
+    background-color: #ff4500;
+}
+
+.addon-input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background-color: #333;
+    border: 1px solid white;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.bid-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.left-side {
+    width: 50%;
+    background: url('/static/images/bid-image.png') no-repeat center center;
+    background-size: cover;
+}
+
+.right-side {
+    width: 50%;
+    padding: 40px;
+    text-align: left;
+    background-color: black;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.load-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #222;
+    padding: 20px;
+    margin-bottom: 10px;
+    border: 1px solid red;
+    position: relative;
+}
+
+.load-details {
+    flex-grow: 1;
+}
+
+.load-name {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.stars {
+    color: gold;
+    margin-left: 10px;
+}
+
+.member-status {
+    font-size: 14px;
+    margin-left: 10px;
+    color: gray;
+}
+
+.price {
+    background-color: white;
+    color: black;
+    font-size: 20px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.all-bid-button {
+    background-color: transparent;
+    color: white;
+    border: 2px solid red;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.upgrade-button {
+    width: 100%;
+    padding: 15px;
+    background-color: red;
+    color: white;
+    border: none;
+    font-size: 18px;
+    margin: 20px 0;
+    cursor: pointer;
+}
+
+.all-back-button {
+    background-color: black;
+    color: white;
+    border: 2px solid red;
+    padding: 15px 60px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.perfect-match {
+    background-color: red;
+    color: white;
+}
+
+.perfect-match .price {
+    background-color: white;
+    color: black;
+}
+
+.perfect-match-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: yellow;
+    color: black;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
