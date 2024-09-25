@@ -10,8 +10,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const nextButtons = document.querySelectorAll('.next-button');
     const prevButtons = document.querySelectorAll('.prev-button');
     const formSteps = document.querySelectorAll('.form-step');
-    const finalNextButton = document.querySelector('#final-next-button');
+    const showPasswordCheckbox = document.getElementById('show_password');
     let currentStep = 0;
+
+    showPasswordCheckbox.addEventListener('change', () => {
+        const inputType = showPasswordCheckbox.checked ? 'text' : 'password';
+        passwordInput.type = inputType;
+        confirmPasswordInput.type = inputType;
+    });
 
     function showStep(step) {
         formSteps.forEach((el, index) => {

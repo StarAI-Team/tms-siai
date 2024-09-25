@@ -172,7 +172,20 @@ def welcome_client():
 
 @app.route('/client_register', methods=['POST'])
 def client_register():
-    client_data = request.form.to_dict()  # Form data
+    if request.is_json:
+        payload = request.get_json()  
+    else:
+        return jsonify({"error": "Invalid content type"}), 400
+    
+    # Debug: Print incoming JSON payload
+    print("Incoming JSON Payload:", payload)
+    client_data = {
+        **{key: payload[key] for key in payload if key not in ['form_data']} ,
+        **{key: payload['form_data'][key] for key in payload['form_data']}
+    } 
+    print("CLIENT DATA", client_data)
+
+    
 
     #files that are required for the client to register 
     file_fields = [
@@ -180,6 +193,14 @@ def client_register():
         'profile_picture',
         
     ]
+
+    # Segregated required fields by section
+    required_fields_by_section = {
+        'section1':['first_name', 'last_name', 'phone_number', 'id_number','id_number', 'company_name', 'company_location', 'company_email'],
+        'section2': ['company_contact', 'bank_name', 'account_name', 'account_number', 'directorship_text','directorship', 'proof_of_current_address_text', 'proof_of_current_address' ],
+        'section3': ['tax_clearance_text', 'tax_clearance', 'tax_expiry', 'certificate_of_incorporation_text', 'certificate_of_incorporation'],
+        'section4': ['user_name', 'profile_picture', 'password', 'confirm_password']
+    }
 
     # Handling file uploads
     file_data = {}
@@ -199,15 +220,19 @@ def client_register():
 
     client_data.update(file_data)
 
-     # Password validation and hashing
-    password = client_data.get('password')
-    confirm_password = client_data.pop('confirm_password')
+    # Password validation for Section 4
+    current_section = client_data.get('current_section')
+    if current_section == 'section4':
+        password = client_data.get('form_data', {}).get('password')
+        confirm_password = client_data.get('form_data', {}).get('confirm_password')
 
-    if password != confirm_password:
-        return jsonify({"error": "Passwords do not match"}), 400
-    
-    hashed_password = generate_password_hash(password)
-    client_data['password'] = hashed_password
+        # Check if passwords are provided and match
+        if password and confirm_password:
+            if password != confirm_password:
+                return jsonify({"error": "Passwords do not match"}), 400
+            else:
+                # Hash the password before storing it
+                client_data['form_data']['password'] = generate_password_hash(password)
     
 
 
@@ -222,16 +247,15 @@ def client_register():
     ] + file_fields
 
 
-    missing_fields = [field for field in required_fields if field not in client_data and field not in request.files]
+    # Validate required fields
+    missing_fields = [field for field in required_fields_by_section.get(current_section, []) if field not in client_data]
+
     if missing_fields:
         return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
     
-    # Generating  a unique user ID
-    user_id = str(uuid.uuid4())
-
-    # Adding user_id and event_name to the data
-    client_data['user_id'] = user_id
-    client_data['event_name'] = 'clientRegistration'
+    
+# Print transporter data before sending to the next service
+    print("Final transporter data being sent:", client_data)
   
 
     
@@ -239,6 +263,8 @@ def client_register():
     # endpoint of the kafka server
     PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
     try:
+        # Print the transporter_data before sending
+        print("Sending the following data to processing URL:", client_data)
         response = requests.post(
             PROCESSING_FLASK_URL,
             json=client_data,

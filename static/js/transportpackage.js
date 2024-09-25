@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const url = `/transporter_package_selected?package=${encodeURIComponent(selectedPackage)}&amount=${totalAmount}`;
                 
                 // Send event data before redirecting
-                const section = 'Packages'; // You can change this to the appropriate section name
+                const section = 'Packages'; 
                 sendEventData(section, selectedPackage, totalAmount);
 
                 // Redirecting after a slight delay to ensure the data is sent

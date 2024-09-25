@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <<script>
+    <script>
         // Get query parameters from the URL
         const urlParams = new URLSearchParams(window.location.search);
         const selectedPackage = urlParams.get('package');
@@ -135,17 +135,17 @@ document.getElementById('submit-payment-button').addEventListener('click', funct
             const formData = new FormData(form);
 
             // Creating a custom event with a single event name
-            const formSubmissionEvent = new CustomEvent('transporterRegistration', {
+            const formSubmissionEvent = new CustomEvent('transporterRegistrationPayment', {
                 detail: {
                     formData: formData,
-                    formId: form.id // Optional: Pass the form ID
+                    formId: form.id 
                 }
             });
             // Dispatch the custom event
             document.dispatchEvent(formSubmissionEvent);
 
             // Send form data to the server
-            fetch('http://127.0.0.1:8000/register_transporter', {
+            fetch('/register_transporter', {
                 method: 'POST',
                 body: formData,
             })            
