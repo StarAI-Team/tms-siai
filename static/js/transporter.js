@@ -51,69 +51,33 @@ document.addEventListener("DOMContentLoaded", function() {
         return isValid; 
     }
     
-    
-    finalNextButton.addEventListener('click', async function(event) {
-        
-        if (!validateFormStep()) {
-            event.preventDefault(); // Preventing moving to the next step if validation fails
-            return; 
-        }
-    
-        
-    if (currentStep === 4 && !validatePasswords()) {
-        alert('Passwords do not match!');
-        return; 
-    }
-
-    // Gathering form data to send to Flask
-    const formData = new FormData(document.getElementById("multiStepForm"));
-    const payload = {};
-    
-    // Converting FormData to a plain object
-    formData.forEach((value, key) => {
-        payload[key] = value;
-    });
-
-    try {
-        // Sending data to Flask processing endpoint
-        const response = await fetch('http:/127.0.0.1:8000/register_transporter', {  
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        });
-
-        if (response.ok) {
-            console.log('Data sent to Flask successfully.');
+    document.addEventListener('DOMContentLoaded', () => {
+        // Function to update the text input with selected file names
+        function handleFileInput(event, textInputId) {
+            const input = event.target;
+            const textInput = document.getElementById(textInputId);
             
-            window.location.href = 'http://127.0.0.1:8000/transporter-package'
-        } else {
-            console.error('Error sending data to Flask:', response.statusText);
+            // Get list of files
+            const files = input.files;
+            let fileNames = [];
+            
+            // Loop through the file list and collect names
+            for (let i = 0; i < files.length; i++) {
+                fileNames.push(files[i].name);
+            }
+            
+            // Join file names and display them in the text input
+            textInput.value = fileNames.join(', ');
         }
-    } catch (error) {
-        console.error('Error sending data to Flask:', error);
-    }
-});
-
-
-    function validatePasswords() {
-        const password = document.getElementById("password").value;
-        const confirmPassword = document.getElementById("confirm_password").value;
-        if (password !== confirmPassword) {
-            confirmPassword.classList.add('error');
-            showErrorMessage("Passwords do not match.");
-            console.log("Passwords do not match.");
-            alert("Passwords do not match! Try Again")
-            return false;
-        } else {
-            confirmPassword.classList.remove('error');
-            console.log("Passwords match.");
-            return true;
-        }
-    }
-
-
+    
+        // Attach event listeners for file input changes
+        const regBooksInput = document.getElementById('reg_books');
+        const fitnessCertInput = document.getElementById('certificate_of_fitness');
+    
+        regBooksInput.addEventListener('change', (e) => handleFileInput(e, 'reg_books_text'));
+        fitnessCertInput.addEventListener('change', (e) => handleFileInput(e, 'certificate_of_fitness_text'));
+    });
+    
     function showErrorMessage(message) {
         const errorMessageDiv = document.querySelector('#step-error-message');
         errorMessageDiv.innerText = message;
@@ -126,23 +90,24 @@ document.addEventListener("DOMContentLoaded", function() {
         errorMessageDiv.style.display = 'none';
     }
 
-    function sendEventData(section) {
+    async function sendEventData(section, shouldRedirect) {
         const data = {};
         const inputs = formSteps[currentStep].querySelectorAll('input, textarea');
     
         // Collecting form data from inputs in the current section
         inputs.forEach(input => {
             if (input.name && input.value) {
-                data[input.name] = input.value;
+                data[input.name] = input.value; 
             }
         });
     
         console.log("Form data for section:", section, data);
     
         // Fetching user_id and ip_address metadata from the backend
-        fetch('/get_user_metadata')
-        .then(response => response.json())
-        .then(metadata => {
+        try {
+            const metadataResponse = await fetch('/get_user_metadata');
+            const metadata = await metadataResponse.json();
+    
             const eventDetails = {
                 event_name: `transporterRegistration(${section})`,  // Use the section name
                 user_id: metadata.user_id,
@@ -156,51 +121,73 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log("Payload to be sent:", eventDetails);
     
             // Sending the section data to the Flask backend
-            fetch('/register_transporter', {
+            const response = await fetch('/register_transporter', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(eventDetails),  // Sending JSON payload
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Response data:', data);
-                if (data.error) {
-                    alert(`Error: ${data.error}`);
-                } else {
+            });
+    
+            const responseData = await response.json();
+            console.log('Response data:', responseData);
+            
+            if (responseData.error) {
+                alert(`Error: ${responseData.error}`);
+                return false;  // Return false if there's an error
+            } else {
+                return true;  // Return true for a successful submission
+            }
+        } catch (error) {
+            console.error('Error sending data:', error);
+            alert('There was a problem submitting your data. Please try again.');
+            return false;  // Return false on catch
+        }
+    }
+    
+    // Attaching event listener
+    nextButtons.forEach(button => {
+        button.addEventListener("click", async function() {
+            if (validateFormStep()) {  // Performing validation for the current step
+                const section = formSteps[currentStep].querySelector("h1").textContent.trim();  // Get section name
+                const success = await sendEventData(section, false);  // Submitting section data
+                
+                if (success) {
                     // Moving to the next step if submission is successful
                     if (currentStep < formSteps.length - 1) {
                         currentStep++;
                         showStep(currentStep);
                     } else {
-                        alert('All sections completed successfully!');
-                        form.reset();  
+                        // All sections completed successfully, validate password
+                        const password = document.getElementById("password").value;
+                        const confirmPasswordElement = document.getElementById("confirm_password");
+                        
+                        if (!confirmPasswordElement) {
+                            console.error("Confirm password field is missing!");
+                            return; 
+                        }
+    
+                        const confirmPassword = confirmPasswordElement.value;
+    
+                        // Validate password
+                        if (password !== confirmPassword) {
+                            confirmPasswordElement.classList.add('error');
+                            showErrorMessage("Passwords do not match.");
+                            alert("Passwords do not match! Try Again");
+                        } else {
+                            confirmPasswordElement.classList.remove('error');
+                            console.log("Passwords match.");
+                            // Redirect to the desired URL upon successful validation
+                            window.location.href = '/transporter-package';
+                        }
                     }
                 }
-            })
-            .catch(error => {
-                console.error('Error sending data:', error);
-                alert('There was a problem submitting your data. Please try again.');
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching metadata:', error);
-            alert('Error fetching user metadata.');
-        });
-    }
-    
-    // Attaching event listener for the "Next" button
-    nextButtons.forEach(button => {
-        button.addEventListener("click", function() {
-            if (validateFormStep()) {  // Performing validation for the current step
-                const section = formSteps[currentStep].querySelector("h1").textContent.trim();  // Get section name
-                sendEventData(section);  // Submitting section data
             } else {
                 showErrorMessage('Please fix the errors before proceeding.');
             }
         });
-    });    
+    });
+    
     
 
  prevButtons.forEach(button => {
