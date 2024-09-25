@@ -143,17 +143,17 @@
 
                     <div class="input-group">
                         <div class="input-wrapper">
-                            <input type="text" id="reg_books_text" name="reg_books_text" placeholder="Upload pdf of reg books" >
+                            <input type="text" id="reg_books_text" name="reg_books_text" placeholder="Upload pdf(s) of reg books" >
                             <label for="reg_books" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="reg_books" name="reg_books" accept="application/pdf" required>
+                            <input type="file" id="reg_books" name="reg_books" accept="application/pdf"  multiple required>
                         </div>
                     </div>
 
                     <div class="input-group">
                         <div class="input-wrapper">
-                            <input type="text" id="certificate_of_fitness_text" name="certificate_of_fitness_text" placeholder="Upload pdf of certificate of fitness">
+                            <input type="text" id="certificate_of_fitness_text" name="certificate_of_fitness_text" placeholder="Upload pdf(s) of certificate of fitness">
                             <label for="certificate_of_fitness" class="upload-btn">Upload pdf</label>
-                            <input type="file" id="certificate_of_fitness" name="certificate_of_fitness" accept="application/pdf" required>
+                            <input type="file" id="certificate_of_fitness" name="certificate_of_fitness" accept="application/pdf"  multiple required>
                         </div>
                     </div> 
 
@@ -179,7 +179,7 @@
                     <input type="password" id="password" name="password" placeholder="Enter Password" required>
                     <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
                     <button type="button" class="prev-button">Back</button>
-                    <button type="button" id="final-next-button" class="next-button final-next">Next</button>
+                    <button type="button" class="next-button">Next</button>
                 <div id="step-error-message" class="error-message"></div>
 
             </form>

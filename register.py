@@ -27,8 +27,8 @@ def uploaded_file(filename):
 def home():
     return render_template ('register.html')
 
-@app.route('/transport-package')
-def transport_package():
+@app.route('/transporter-package')
+def transporter_package():
     return render_template ('transport_package.html')
 
 @app.route('/transporter_package_selected')
@@ -66,8 +66,12 @@ def register_transporter():
     
     # Debug: Print incoming JSON payload
     print("Incoming JSON Payload:", payload)
-    
-    transporter_data = payload 
+    transporter_data = {
+        **{key: payload[key] for key in payload if key not in ['form_data']} ,
+        **{key: payload['form_data'][key] for key in payload['form_data']}
+    } 
+    print("TRANSPORTER DATA", transporter_data)
+
 
     # Files that are required for the transporter to register
     file_fields = [
@@ -150,7 +154,7 @@ def register_transporter():
 
     return jsonify({"message": "Data submitted successfully"}), 200
 
-""" 
+ 
 @app.route('/client-package')
 def client_package():
     return render_template ('client_package.html')
@@ -246,8 +250,6 @@ def client_register():
         return jsonify({"error": str(e)}), 500
     
     return jsonify({"message": "client registered successfully"}), 200
-"""
-
 
 
 if __name__ == '__main__':

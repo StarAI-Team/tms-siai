@@ -13,7 +13,7 @@
         <div class="form-container">
             <form id="multiStepForm" action="http://127.0.0.1:8000/client_register" method="POST" enctype="multipart/form-data">
                 <!-- Section 1 -->
-                <div class="form-step">
+                <div class="form-step" id="section1" >
                     <h1>Representative Details</h1>
                     <input type="text" id="first_name" name="first_name" placeholder="First Name" required>
                     <input type="text" id="last_name" name="last_name" placeholder="Last Name" required>
@@ -27,7 +27,7 @@
                 <div id="step-error-message" class="error-message"></div>
                 
                 <!-- Section 2 -->
-                <div class="form-step" style="display:none;">
+                <div class="form-step" id="section2" style="display:none;">
                     <h1>Company Details Continued </h1>
                    <input type="number" id="company_contact" name="company_contact" placeholder="Company Phone Number " required>
                    <input type="text" id="bank_name" name="bank_name" list="banks" placeholder="Company Bank Name" required>
@@ -62,7 +62,7 @@
                 <div id="step-error-message" class="error-message"></div>
 
                 <!-- Section 3 -->
-                <div class="form-step" style="display:none;">
+                <div class="form-step" id="section3" style="display:none;">
                     <h1>Company Details Continued </h1>
 
                     <div class="input-group">
@@ -92,7 +92,7 @@
 
 
                     <!-- Section 4 -->
-                <div class="form-step" style="display:none;">
+                <div class="form-step" id="section4" style="display:none;">
                     <h1>Security </h1>
 
                     <div class="input-group">
