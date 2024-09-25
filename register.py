@@ -60,7 +60,7 @@ def get_user_metadata():
 @app.route('/register_transporter', methods=['POST'])
 def register_transporter():
     if request.is_json:
-        payload = request.get_json()  # Get the JSON payload
+        payload = request.get_json()  
     else:
         return jsonify({"error": "Invalid content type"}), 400
     
@@ -101,10 +101,10 @@ def register_transporter():
                 file_uri = url_for('uploaded_file', filename=unique_filename, _external=True)
                 file_data[file_field] = file_uri
 
-    # Merge form data with file data if files exist
+    # Merging form data with file data if files exist
     transporter_data.update(file_data)
 
-    # Password validation for Section 5 (assuming password fields are in 'section5')
+    # Password validation for Section 5 
     current_section = transporter_data.get('current_section')
     if current_section == 'section5':
         password = transporter_data.get('form_data', {}).get('password')
@@ -126,7 +126,7 @@ def register_transporter():
     if missing_fields:
         return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
     
-    # Debug: Print transporter data before sending to the next service
+    # Print transporter data before sending to the next service
     print("Final transporter data being sent:", transporter_data)
 
 
@@ -143,13 +143,14 @@ def register_transporter():
         response_data = response.json()
         print("Response status code:", response.status_code)
         print("Response data:", response_data)
-        print("Event Details:", transporter_data)
         return jsonify(response_data), response.status_code
     except requests.exceptions.RequestException as e:
         print("Error occurred while sending to processing URL:", e)
         return jsonify({"error": str(e)}), 500
 
     return jsonify({"message": "Data submitted successfully"}), 200
+
+""" 
 @app.route('/client-package')
 def client_package():
     return render_template ('client_package.html')
@@ -245,7 +246,7 @@ def client_register():
         return jsonify({"error": str(e)}), 500
     
     return jsonify({"message": "client registered successfully"}), 200
-
+"""
 
 
 
