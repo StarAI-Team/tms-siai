@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
         clearErrorMessage();
     }
 
-    // Show only the first form step initially
+    // Showing only the first form step initially
     showStep(currentStep);
 
     function validateFormStep() {
@@ -28,17 +28,17 @@ document.addEventListener("DOMContentLoaded", function() {
         const required = requiredFields[`section${currentStep + 1}`] || [];
         let isValid = true; // Initialize validity to true
     
-        // Select only input elements in the current section
+        // Selecting only input elements in the current section
         const inputs = currentSection.querySelectorAll('input');
 
         inputs.forEach(input => {
-            // Check if the input is in the required list for the current step
+            // Checking if the input is in the required list for the current step
             if (required.includes(input.name)) {
                 console.log("Validating input: ", input.name);
                 if (!input.checkValidity()) { 
                     isValid = false; 
                     input.classList.add('error'); 
-                    showErrorMessage(`Please fill out the required field: ${input.placeholder}`); // Show error message
+                    showErrorMessage(`Please fill out the required field: ${input.placeholder}`); 
                     console.log("Input " + input.name + " is invalid.");
                     console.log("Validation message: ", input.validationMessage);
                 } else {
@@ -55,27 +55,27 @@ document.addEventListener("DOMContentLoaded", function() {
     finalNextButton.addEventListener('click', async function(event) {
         
         if (!validateFormStep()) {
-            event.preventDefault(); // Prevent moving to the next step if validation fails
+            event.preventDefault(); // Preventing moving to the next step if validation fails
             return; 
         }
     
-        // If on step 4, validate passwords before proceeding
+        
     if (currentStep === 4 && !validatePasswords()) {
         alert('Passwords do not match!');
         return; 
     }
 
-    // Gather form data to send to Flask
+    // Gathering form data to send to Flask
     const formData = new FormData(document.getElementById("multiStepForm"));
     const payload = {};
     
-    // Convert FormData to a plain object
+    // Converting FormData to a plain object
     formData.forEach((value, key) => {
         payload[key] = value;
     });
 
     try {
-        // Send data to Flask processing endpoint using fetch
+        // Sending data to Flask processing endpoint
         const response = await fetch('http:/127.0.0.1:8000/register_transporter', {  
             method: 'POST',
             headers: {
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (response.ok) {
             console.log('Data sent to Flask successfully.');
-            // Optionally, you can proceed to the next step or route
+            
             window.location.href = 'http://127.0.0.1:8000/transporter-package'
         } else {
             console.error('Error sending data to Flask:', response.statusText);
@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const data = {};
         const inputs = formSteps[currentStep].querySelectorAll('input, textarea');
     
-        // Collect form data from inputs in the current section
+        // Collecting form data from inputs in the current section
         inputs.forEach(input => {
             if (input.name && input.value) {
                 data[input.name] = input.value;
@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
         console.log("Form data for section:", section, data);
     
-        // Fetch user_id and ip_address metadata from the backend
+        // Fetching user_id and ip_address metadata from the backend
         fetch('/get_user_metadata')
         .then(response => response.json())
         .then(metadata => {
@@ -150,18 +150,18 @@ document.addEventListener("DOMContentLoaded", function() {
                 timestamp: new Date().toISOString(),
                 user_agent: navigator.userAgent,
                 current_section: section,
-                form_data: data  // Include form data for the current section
+                form_data: data  
             };
     
             console.log("Payload to be sent:", eventDetails);
     
-            // Send the section data to the Flask backend
+            // Sending the section data to the Flask backend
             fetch('/register_transporter', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(eventDetails),  // Send JSON payload
+                body: JSON.stringify(eventDetails),  // Sending JSON payload
             })
             .then(response => response.json())
             .then(data => {
@@ -169,13 +169,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (data.error) {
                     alert(`Error: ${data.error}`);
                 } else {
-                    // Move to the next step if submission is successful
+                    // Moving to the next step if submission is successful
                     if (currentStep < formSteps.length - 1) {
                         currentStep++;
                         showStep(currentStep);
                     } else {
                         alert('All sections completed successfully!');
-                        form.reset();  // Reset the form when all sections are completed
+                        form.reset();  
                     }
                 }
             })
@@ -190,12 +190,12 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    // Attach event listener for the "Next" button
+    // Attaching event listener for the "Next" button
     nextButtons.forEach(button => {
         button.addEventListener("click", function() {
-            if (validateFormStep()) {  // Perform validation for the current step
+            if (validateFormStep()) {  // Performing validation for the current step
                 const section = formSteps[currentStep].querySelector("h1").textContent.trim();  // Get section name
-                sendEventData(section);  // Submit section data
+                sendEventData(section);  // Submitting section data
             } else {
                 showErrorMessage('Please fix the errors before proceeding.');
             }
@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Bind the file input elements to handle file name display
+    // Binding the file input elements to handle file name display
     handleFileNameUpdate('directorship', 'directorship_text');
     handleFileNameUpdate('proof_of_current_address', 'proof_of_current_address_text');
     handleFileNameUpdate('tax_clearance', 'tax_clearance_text');
