@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submissions</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <ul>
+                <li><a href="#">Manage Users</a></li>
+                <li><a href="#">View Users</a></li>
+                <li><a href="#">View History</a></li>
+                <li><a href="#">View Loads</a></li>
+                <li><a href="#" class="active">Submissions</a></li>
+                <li><a href="#">Analytics</a></li>
+            </ul>
+        </nav>
+
+        <div class="content">
+            <h2>Submissions</h2>
+            <div class="submission-details">
+                <h3>{{ submission.company_name }}</h3>
+                <p>{{ submission.address }}</p>
+                <p>{{ submission.number_of_trucks }} Trucks</p>
+
+                <ul>
+                    {% for file in submission.files %}
+                        <li><a href="#">{{ file }}</a></li>
+                    {% endfor %}
+                </ul>
+
+                <div class="decision-buttons">
+                    <button class="accept">Accept</button>
+                    <button class="decline">Decline</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
