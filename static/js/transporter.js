@@ -128,120 +128,80 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function sendEventData(section) {
         const data = {};
-        const inputs = formSteps[currentStep].querySelectorAll('input');
-        inputs.forEach(input => {
-            data[input.name] = input.value;
-        });
-        console.log("Form data being sent:", data);
+        const inputs = formSteps[currentStep].querySelectorAll('input, textarea');
     
-        // Capture user_id and ip_address from the backend
+        // Collect form data from inputs in the current section
+        inputs.forEach(input => {
+            if (input.name && input.value) {
+                data[input.name] = input.value;
+            }
+        });
+    
+        console.log("Form data for section:", section, data);
+    
+        // Fetch user_id and ip_address metadata from the backend
         fetch('/get_user_metadata')
         .then(response => response.json())
         .then(metadata => {
             const eventDetails = {
-            event_name: `transporterRegistration(${section})`,  
-            user_id: metadata.user_id,
-            ip_address: metadata.ip_address,
-            timestamp: new Date().toISOString(),
-            user_agent: navigator.userAgent,
-            form_data: data  
-        };
+                event_name: `transporterRegistration(${section})`,  // Use the section name
+                user_id: metadata.user_id,
+                ip_address: metadata.ip_address,
+                timestamp: new Date().toISOString(),
+                user_agent: navigator.userAgent,
+                current_section: section,
+                form_data: data  // Include form data for the current section
+            };
     
-           
-        // Log the final payload before sending
-        console.log("Final payload to be sent:", eventDetails)
+            console.log("Payload to be sent:", eventDetails);
     
-    
-            // Send the captured data to Flask for processing
+            // Send the section data to the Flask backend
             fetch('/register_transporter', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(eventDetails),
+                body: JSON.stringify(eventDetails),  // Send JSON payload
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Event data sent:', data);
-            })
-            .catch(error => console.error('Error sending event data:', error));
-        })
-        .catch(error => console.error('Error fetching metadata:', error));
-    }
-    
-   // Assuming you have already defined formSteps and currentStep
-
-nextButtons.forEach(button => {
-    button.addEventListener("click", async function() {
-        console.log("Next button clicked");
-
-        // Validate the current form step before proceeding
-        if (validateFormStep()) {
-            // Create an object to hold form data
-            const payload = {};
-            const inputs = formSteps[currentStep]?.querySelectorAll("input, textarea") || [];
-
-            // Append data to the payload object
-            inputs.forEach(input => {
-                if (input.name && input.value) {
-                    payload[input.name] = input.value; // Use the name attribute as the key
-                }
-            });
-
-            // Capture user metadata (user_id and ip_address)
-            try {
-                const metadataResponse = await fetch('/get_user_metadata');
-                const metadata = await metadataResponse.json();
-
-                // Add user_id and ip_address to the payload
-                payload.user_id = metadata.user_id; 
-                payload.ip_address = metadata.ip_address; // Optional, if needed
-            } catch (error) {
-                console.error('Error fetching user metadata:', error);
-                return; // Exit if metadata cannot be fetched
-            }
-
-            // Log the final payload before sending
-            console.log("Final Payload being sent:", payload);
-
-            try {
-                const response = await fetch('http://127.0.0.1:8000/register_transporter', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload),
-                });
-
-                const data = await response.json();
-
-                // Handle response
+                console.log('Response data:', data);
                 if (data.error) {
                     alert(`Error: ${data.error}`);
                 } else {
-                    // Proceed to the next step
-                    console.log("Data submitted successfully:", data);
-                    // Move to the next step logic...
+                    // Move to the next step if submission is successful
                     if (currentStep < formSteps.length - 1) {
                         currentStep++;
-                        showStep(currentStep); // Display the next step
+                        showStep(currentStep);
                     } else {
-                        alert('Final step completed successfully!');
-                        form.reset(); // Reset the form if needed
+                        alert('All sections completed successfully!');
+                        form.reset();  // Reset the form when all sections are completed
                     }
                 }
-            } catch (error) {
-                console.error('Error submitting step:', error);
-            }
-        } else {
-            console.log("Current step is invalid.");
-            showErrorMessage('Please fix the errors before proceeding.');
-        }
-    });
-});
-
+            })
+            .catch(error => {
+                console.error('Error sending data:', error);
+                alert('There was a problem submitting your data. Please try again.');
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching metadata:', error);
+            alert('Error fetching user metadata.');
+        });
+    }
     
-
+    // Attach event listener for the "Next" button
+    nextButtons.forEach(button => {
+        button.addEventListener("click", function() {
+            if (validateFormStep()) {  // Perform validation for the current step
+                const section = formSteps[currentStep].querySelector("h1").textContent.trim();  // Get section name
+                sendEventData(section);  // Submit section data
+            } else {
+                showErrorMessage('Please fix the errors before proceeding.');
+            }
+        });
+    });    
+    
 
  prevButtons.forEach(button => {
     button.addEventListener("click", function() {
