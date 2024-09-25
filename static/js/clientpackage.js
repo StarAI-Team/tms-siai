@@ -35,6 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = url;
                 
             }
+
+            setTimeout(() => {
+                console.log("Redirecting to:", url);
+                window.location.href = url;
+            }, 100); 
+
   
             // Animating the clicked package with smooth and calming effect
             anime({
@@ -62,4 +68,62 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
   });
+
   
+// Function to send event data to Flask
+function sendEventData(section, selectedPackage, totalAmount) {
+    const data = {
+        package: selectedPackage,
+        totalAmount: totalAmount
+    };
+
+    console.log("Sending event data for section:", section);
+    console.log("Event Data:", data);
+
+    // Fetching user_id and ip_address metadata from the backend
+    fetch('/get_user_metadata')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(metadata => {
+        console.log("Metadata received:", metadata);
+        const eventDetails = {
+            event_name: `clientRegistration(${section})`, 
+            user_id: metadata.user_id,
+            ip_address: metadata.ip_address,
+            timestamp: new Date().toISOString(),
+            user_agent: navigator.userAgent,
+            current_section: section,
+            form_data: data  
+        };
+
+        console.log("Payload to be sent:", eventDetails);
+
+        // Sending the section data to the Flask backend
+        fetch('/client_register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(eventDetails),  
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+        })
+        .catch(error => {
+            console.error('Error sending data to Flask:', error);
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching user metadata:', error);
+    });
+}
