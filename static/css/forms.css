@@ -22,7 +22,7 @@ body, html {
     width: 100%;
 }
 
-.client-image-section {
+.shipper-image-section {
     background-image: url('/static/images/client.png');
     background-position: center left;
     background-size: cover;

@@ -145,3 +145,29 @@ input::placeholder {
 #submit-payment-button:hover {
     background-color: darkred;
 }
+
+.card-expiry {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.card-expiry {
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+/* Style the label */
+.card-expiry-label {
+    margin: 0; 
+    font-size: 14px; 
+}
+
+/* Style the date input */
+.card-expiry input[type="date"] {
+    width: 150px; 
+    padding: 5px;
+    font-size: 14px; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    box-sizing: border-box; 
+}
