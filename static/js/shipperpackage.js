@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Check if data was sent successfully
                         if (sentData) {
                             // Redirect only after the event data is successfully sent
-                            const url = `/transporter_package_selected?package=${encodeURIComponent(selectedPackage)}&amount=${totalAmount}`;
+                            const url = `/shipper_package_selected?package=${encodeURIComponent(selectedPackage)}&amount=${totalAmount}`;
                             console.log("Redirecting to:", url);
                             window.location.href = url;
                         } else {
@@ -93,7 +93,7 @@ async function sendEventData(section, selectedPackage, totalAmount) {
 
         // Prepare event details to be sent
         const eventDetails = {
-            event_name: `transporter(${section})`,
+            event_name: `shipper(${section})`,
             user_id: metadata.user_id,
             ip_address: metadata.ip_address,
             timestamp: new Date().toISOString(),
@@ -106,7 +106,7 @@ async function sendEventData(section, selectedPackage, totalAmount) {
         console.log("Payload to be sent:", eventDetails);
 
         // Sending event data to the backend for processing
-        const registerResponse = await fetch('register_transporter', {
+        const registerResponse = await fetch('/shipper_register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

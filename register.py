@@ -155,23 +155,23 @@ def register_transporter():
     return jsonify({"message": "Data submitted successfully"}), 200
 
  
-@app.route('/client-package')
-def client_package():
-    return render_template ('client_package.html')
+@app.route('/shipper-package')
+def shipper_package():
+    return render_template ('shipper_package.html')
 
 
-@app.route('/client_package_selected')
-def client_package_selected():
-    return render_template ('client_payment_package.html')
+@app.route('/shipper_package_selected')
+def shipper_package_selected():
+    return render_template ('shipper_payment_package.html')
 
-@app.route('/welcome-client')
-def welcome_client():
-    return render_template ('client_register.html')
+@app.route('/welcome-shipper')
+def welcome_shipper():
+    return render_template ('shipper_register.html')
 
 
 
-@app.route('/client_register', methods=['POST'])
-def client_register():
+@app.route('/shipper_register', methods=['POST'])
+def shipper_register():
     if request.is_json:
         payload = request.get_json()  
     else:
@@ -179,15 +179,15 @@ def client_register():
     
     # Debug: Print incoming JSON payload
     print("Incoming JSON Payload:", payload)
-    client_data = {
+    shipper_data = {
         **{key: payload[key] for key in payload if key not in ['form_data']} ,
         **{key: payload['form_data'][key] for key in payload['form_data']}
     } 
-    print("CLIENT DATA", client_data)
+    print("CLIENT DATA", shipper_data)
 
     
 
-    #files that are required for the client to register 
+    #files that are required for the shipper to register 
     file_fields = [
         'directorship', 'certificate_of_incorporation', 'proof_of_current_address', 'tax_clearance',
         'profile_picture',
@@ -218,13 +218,13 @@ def client_register():
                 file_uri = url_for('uploaded_file', filename=unique_filename, _external=True)
                 file_data[file_field] = file_uri
 
-    client_data.update(file_data)
+    shipper_data.update(file_data)
 
     # Password validation for Section 4
-    current_section = client_data.get('current_section')
+    current_section = shipper_data.get('current_section')
     if current_section == 'section4':
-        password = client_data.get('form_data', {}).get('password')
-        confirm_password = client_data.get('form_data', {}).get('confirm_password')
+        password = shipper_data.get('form_data', {}).get('password')
+        confirm_password = shipper_data.get('form_data', {}).get('confirm_password')
 
         # Check if passwords are provided and match
         if password and confirm_password:
@@ -232,7 +232,7 @@ def client_register():
                 return jsonify({"error": "Passwords do not match"}), 400
             else:
                 # Hash the password before storing it
-                client_data['form_data']['password'] = generate_password_hash(password)
+                shipper_data['form_data']['password'] = generate_password_hash(password)
     
 
 
@@ -248,14 +248,14 @@ def client_register():
 
 
     # Validate required fields
-    missing_fields = [field for field in required_fields_by_section.get(current_section, []) if field not in client_data]
+    missing_fields = [field for field in required_fields_by_section.get(current_section, []) if field not in shipper_data]
 
     if missing_fields:
         return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
     
     
 # Print transporter data before sending to the next service
-    print("Final transporter data being sent:", client_data)
+    print("Final transporter data being sent:", shipper_data)
   
 
     
@@ -264,10 +264,10 @@ def client_register():
     PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
     try:
         # Print the transporter_data before sending
-        print("Sending the following data to processing URL:", client_data)
+        print("Sending the following data to processing URL:", shipper_data)
         response = requests.post(
             PROCESSING_FLASK_URL,
-            json=client_data,
+            json=shipper_data,
             headers={'Content-Type': 'application/json'}
         )
         response_data = response.json()
@@ -275,7 +275,7 @@ def client_register():
     except requests.exceptions.RequestException as e:
         return jsonify({"error": str(e)}), 500
     
-    return jsonify({"message": "client registered successfully"}), 200
+    return jsonify({"message": "shipper registered successfully"}), 200
 
 
 if __name__ == '__main__':

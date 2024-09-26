@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const metadata = await metadataResponse.json();
     
             const eventDetails = {
-                event_name: `clientRegistration(${section})`,  
+                event_name: `shipperRegistration(${section})`,  
                 user_id: metadata.user_id,
                 ip_address: metadata.ip_address,
                 timestamp: new Date().toISOString(),
@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log("Payload to be sent:", eventDetails);
 
              // Sending the section data to the Flask backend
-             const response = await fetch('/client_register', {
+             const response = await fetch('/shipper_register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         confirmPasswordElement.classList.remove('error');
                         console.log("Passwords match.");
                         // Redirect to the desired URL upon successful validation
-                        window.location.href = '/client-package';
+                        window.location.href = '/shipper-package';
                     }
                 }
             }

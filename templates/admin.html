@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/css/alladmin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container"> 
+   <!-- Sidebar Navigation -->
+   <div class="sidebar">
+       <ul>
+           <li><a href="#" data-target="manage-users">Manage Users</a></li>
+           <li><a href="#" data-target="view-users">View Users</a></li>
+           <li><a href="#" data-target="view-history">View History</a></li>
+           <li><a href="#" data-target="view-loads">View Loads</a></li>
+           <li><a href="#" data-target="analytics">Analytics</a></li>
+           <li><a href="#" data-target="submissions">Submissions</a></li>
+       </ul>
+   </div>
+
+   <!-- Main Content -->
+   <div class="content">
+       <!-- Manage Users Section -->
+       <div id="manage-users" class="content-section active">
+           <h2>Manage Users</h2>
+           <table>
+               <thead>
+                   <tr>
+                       <th>Name</th>
+                       <th>Type</th>
+                       <th>Red-Flag</th>
+                       <th>Suspend</th>
+                       <th>De-register</th>
+                       <th>Activate</th>
+                   </tr>
+               </thead>
+               <tbody>
+                   {% for user in manage_users %}
+                   <tr data-username="{{ user.name }}">
+                       <td>{{ user.name }}</td>
+                       <td>{{ user.type }}</td>
+                       <td><button class="red-flag">Red Flag</button></td>
+                       <td><button class="suspend" onclick="suspendUser('{{ user.name }}')">Suspend</button></td>
+                       <td><button class="deregister" onclick="deregisterUser('{{ user.name }}')">De-register</button></td>
+                       <td><button class="activate" onclick="activateUser('{{ user.name }}')">Activate</button></td>
+                   </tr>
+                   {% endfor %}
+               </tbody>
+           </table>
+       </div>
+
+       <!-- View Users Section -->
+       <div id="view-users" class="content-section">
+           <h2>View Users</h2>
+           <table>
+               <thead>
+                   <tr>
+                       <th>Name</th>
+                       <th>Role</th>
+                       <th>Ranking</th>
+                       <th>History</th>
+                   </tr>
+               </thead>
+               <tbody>
+                   {% for user in users %}
+                   <tr>
+                       <td>{{ user.name }}</td>
+                       <td>{{ user.role }}</td>
+                       <td>{{ user.ranking }}</td>
+                       <td><a href="#">View History</a></td>
+                   </tr>
+                   {% endfor %}
+               </tbody>
+           </table>
+       </div>
+
+       <!-- View History Section -->
+       <div id="view-history" class="content-section" style="display: none;">
+           <h2>View History</h2>
+           <table>
+               <thead>
+                   <tr>
+                       <th>Load ID</th>
+                       <th>Route</th>
+                       <th>Rate</th>
+                       <th>Transporter</th>
+                       <th>Shipper</th>
+                   </tr>
+               </thead>
+               <tbody>
+                   {% for history in load_history %}
+                   <tr>
+                       <td>{{ history.load_id }}</td>
+                       <td>{{ history.route }}</td>
+                       <td>{{ history.rate }}</td>
+                       <td>{{ history.transporter }}</td>
+                       <td>{{ history.shipper }}</td>
+                   </tr>
+                   {% endfor %}
+               </tbody>
+           </table>
+       </div>
+
+       <!-- View Loads Section -->
+       <div id="view-loads" class="content-section" style="display: none;">
+           <h2>View Loads</h2>
+           <table>
+               <thead>
+                   <tr>
+                       <th>Load ID</th>
+                       <th>Route</th>
+                       <th>Rate</th>
+                       <th>Status</th>
+                       <th>Transporter</th>
+                       <th>Shipper</th>
+                   </tr>
+               </thead>
+               <tbody>
+                   {% for load in loads %}
+                   <tr>
+                       <td>{{ load.load_id }}</td>
+                       <td>{{ load.route }}</td>
+                       <td>{{ load.rate }}</td>
+                       <td>{{ load.status }}</td>
+                       <td>{{ load.transporter }}</td>
+                       <td>{{ load.shipper }}</td>
+                   </tr>
+                   {% endfor %}
+               </tbody>
+           </table>
+       </div>
+
+       <!-- Analytics Section -->
+       <div id="analytics" class="content-section" style="display: none;">
+           <h2>Analytics</h2>
+           <div id="graphs">
+               <p>Graph Placeholder</p>
+           </div>
+       </div>
+
+       <!-- Submissions Section -->
+       <div id="submissions" class="content-section" style="display: none;">
+           <h2>Submissions</h2>
+           <div class="submission-details">
+               <h3>{{ submission.company_name }}</h3>
+               <p>{{ submission.address }}</p>
+               <p>{{ submission.number_of_trucks }} Trucks</p>
+
+               <ul>
+                   {% for file in submission.files %}
+                   <li><a href="#">{{ file }}</a></li>
+                   {% endfor %}
+               </ul>
+
+               <div class="decision-buttons">
+                   <button class="accept">Accept</button>
+                   <button class="decline">Decline</button>
+               </div>
+           </div>
+
+           <div class="pagination">
+               <button>&lt;</button>
+               <button class="active">1</button>
+               <button>2</button>
+               <button>3</button>
+               <button>&gt;</button>
+           </div>
+       </div>
+
+       <!-- User Details Section -->
+       <div id="user-details" class="content-section" style="display: none;">
+           <h2>User Details</h2>
+           <p>Name: {{ user_details.name }}</p>
+           <p>Load History: {{ user_details.load_history }}</p>
+           <p>Ranking: {{ user_details.ranking }}</p>
+       </div>
+   </div>
+</div>
+
+   <script src="/static/js/admin.js"></script>
+</body>
+</html>
