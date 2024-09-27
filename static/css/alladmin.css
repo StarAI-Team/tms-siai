@@ -202,9 +202,30 @@ button.decline {
 
 /* Pagination */
 .pagination {
+    font-family: 'Montserrat Alternates', sans-serif;
     display: flex;
     justify-content: center;
     margin-top: 20px;
+  
+}
+.pagination button {
+    background-color: #f0f0f0; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    padding: 10px 15px; 
+    margin: 0 5px; 
+    font-size: 16px;
+    cursor: pointer; 
+    transition: background-color 0.3s;
+}
+
+.pagination button:hover {
+    background-color: #db3d3d; 
+}
+
+.pagination button.active {
+    background-color: #007bff; 
+    color: white; 
 }
 
 .page-item {

@@ -10,28 +10,32 @@ document.addEventListener("DOMContentLoaded", function() {
     const nextButtons = document.querySelectorAll('.next-button');
     const prevButtons = document.querySelectorAll('.prev-button');
     const formSteps = document.querySelectorAll('.form-step');
-    const togglePassword1 = document.getElementById('togglePassword1');
-    const togglePassword2 = document.getElementById('togglePassword2');
-
-
-    togglePassword1.addEventListener('click', function () {
-        const type = passwordInput.type === 'password' ? 'text' : 'password';
-        passwordInput.type = type;
-
-        // Toggle the eye / eye-slash icon
-        this.querySelector('i').classList.toggle('fa-eye');
-        this.querySelector('i').classList.toggle('fa-eye-slash');
+    const showPasswordCheckbox = document.getElementById('show_password');
+  
+    
+    document.getElementById('visibility_button1').addEventListener('click', function() {
+        toggleVisibility('password', 'icon1');
     });
-
-    togglePassword2.addEventListener('click', function () {
-        const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
-        confirmPasswordInput.type = type;
-
-        // Toggle the eye / eye-slash icon
-        this.querySelector('i').classList.toggle('fa-eye');
-        this.querySelector('i').classList.toggle('fa-eye-slash');
+    
+    document.getElementById('visibility_button2').addEventListener('click', function() {
+        toggleVisibility('confirm_password', 'icon2');
     });
-
+    
+    function toggleVisibility(inputId, iconId) {
+        const passwordInput = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+    
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.textContent = 'visibility_off';
+        } else {
+            passwordInput.type = 'password';
+            icon.textContent = 'visibility';
+        }
+    }
+    
+    
+    
     let currentStep = 0;
 
     function showStep(step) {

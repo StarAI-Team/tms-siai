@@ -270,18 +270,9 @@ input[type="file"] {
     display: none;
 }
 
-.password-container {
-    position: relative;
-}
 
-.toggle-password {
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
+i {
+    color: #ccc;
+    margin-left: -90px;
     cursor: pointer;
-}
-
-.toggle-password i {
-    font-size: 18px;
 }
