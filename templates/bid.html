@@ -17,21 +17,23 @@
             <h1>Auction Room</h1>
 
             <div class="auction-card">
-                <div class="star-flashing">
-                    <div class="star">Perfect Match!</div>
-                </div>
-
                 <div class="auction-details">
-                    <h2>Pelcravia</h2>
-                    <p><strong>Load:</strong> Wheat</p>
-                    <p><strong>Quantity:</strong> 2 Tonnes</p>
-                    <p><strong>Route:</strong> Harare RoadPort 8am - Manika Port Beira</p>
-                    <p><strong>Rate:</strong> $1300</p>
+                    <h2>{{ load_name }}</h2>
+                    <p><strong>Load:</strong> {{ load_name }}</p>
+                    <p><strong>Quantity:</strong> {{ quantity }}</p>
+                    <p><strong>Route:</strong> {{ route }}</p>
+                    <p><strong>Rate:</strong> ${{ rate }}</p>
                     <p><strong>Payment Duration:</strong> 60 Days</p>
                     <p><strong>Truck Type and Number:</strong> 10 tanker</p>
                 </div>
-            </div>
 
+                <!-- Show Perfect Match star if applicable -->
+                {% if perfect_match %}
+                <div class="star-flashing">
+                    <div class="star">Perfect Match!</div>
+                </div>
+                {% endif %}
+            </div>
             <!-- "Check out" Text with White Border -->
             <div class="view-text-container">
                 <div class="view-text">
@@ -56,8 +58,8 @@
 
             <!-- Action Buttons -->
             <div class="buttons">
-                <button class="back-button">Back</button>
-                <button class="bid-button" href="home.html">Bid</button>
+                <button class="back-button" onclick="window.location.href='/bid'"> Back</button>
+                <button class="bid-button"  onclick="window.location.href='/bid'">Bid</button>
             </div>
         </div>
     </div>

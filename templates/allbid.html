@@ -8,69 +8,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="bid-container">
-        <div class="left-side">
-            <img src="/static/images/bid-image.png" alt="Trucks in Sunset">
-        </div>
+    < <div class="bid-container">
+        <div class="left-side"></div>
+
         <div class="right-side">
-            <h1>LOADS</h1>
-            <div class="load-item perfect-match">
+            <!-- Dynamically load content from Flask -->
+            {% for load in loads %}
+            <div class="load-item {% if load.perfect_match %}perfect-match{% endif %}">
                 <div class="load-details">
-                    <p><span class="load-name">Pelcravía</span> <span class="stars">★★★★★</span> 46,890 <span class="member-status">Premium Member</span></p>
-                    <p>Wheat Harare - Beira</p>
+                    <p>
+                        <!-- Create a dynamic link to the bidding page for each load -->
+                        <a href="{{ url_for('place_bid', load_name=load.load_name, route=load.route, quantity=load.quantity, rate=load.price) }}">
+                            <span class="load-name">{{ load.load_name }}</span>
+                        </a>
+                        <span class="stars">{{ load.stars }}</span>
+                        {% if load.price %}${{ load.price }}{% endif %}
+                        <span class="member-status">{{ load.status }}</span>
+                    </p>
+                    {% if load.route %}
+                    <p>{{ load.route }}</p>
+                    {% endif %}
                 </div>
-                <div class="price">$1200</div>
-                <div class="perfect-match-tag">Perfect Match!</div>
+                <div class="price">{{ load.price }}</div>
+                {% if load.perfect_match %}
+                <div class="star-flashing">
+                    <div class="star">Perfect Match!</div>
+                </div>
+                {% endif %}
                 <button class="all-bid-button">Bid</button>
             </div>
-
-            <div class="load-item">
-                <div class="load-details">
-                    <p><span class="load-name">Ngwena</span> <span class="stars">★★★★★</span> <span class="member-status">Premium Member</span></p>
-                </div>
-                <div class="price">$1100</div>
-                <button class="all-bid-button">Bid</button>
-            </div>
-
-            <div class="load-item">
-                <div class="load-details">
-                    <p><span class="load-name">Nestle</span> <span class="stars">★★★★★</span> <span class="member-status">Premium Member</span></p>
-                </div>
-                <div class="price">$1250</div>
-                <button class="all-bid-button">Bid</button>
-            </div>
-
-            <div class="load-item">
-                <div class="load-details">
-                    <p><span class="load-name">Varun</span> <span class="stars">★★★★★</span> <span class="member-status">Ordinary Member</span></p>
-                </div>
-                <div class="price">$1200</div>
-                <button class="all-bid-button">Bid</button>
-            </div>
-
-            <div class="load-item">
-                <div class="load-details">
-                    <p><span class="load-name">BalckBot</span> <span class="stars">★★★★☆</span> <span class="member-status">Premium Member</span></p>
-                </div>
-                <div class="price">$1100</div>
-                <button class="all-bid-button">Bid</button>
-            </div>
-
-            <div class="load-item">
-                <div class="load-details">
-                    <p><span class="load-name">Olivine</span> <span class="stars">★★★★☆</span> <span class="member-status">Ordinary Member</span></p>
-                </div>
-                <div class="price">$950</div>
-                <button class="all-bid-button">Bid</button>
-            </div>
-
-            <div class="load-item">
-                <div class="load-details">
-                    <p><span class="load-name">Choppies</span> <span class="stars">★★★★☆</span> <span class="member-status">Ordinary Member</span></p>
-                </div>
-                <div class="price">$1200</div>
-                <button class="all-bid-button">Bid</button>
-            </div>
+            {% endfor %}
 
             <button class="upgrade-button">Upgrade to Bid All</button>
             <button class="all-back-button">Back</button>

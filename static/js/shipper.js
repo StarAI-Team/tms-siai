@@ -10,14 +10,29 @@ document.addEventListener("DOMContentLoaded", function() {
     const nextButtons = document.querySelectorAll('.next-button');
     const prevButtons = document.querySelectorAll('.prev-button');
     const formSteps = document.querySelectorAll('.form-step');
-    const showPasswordCheckbox = document.getElementById('show_password');
-    let currentStep = 0;
+    const togglePassword1 = document.getElementById('togglePassword1');
+    const togglePassword2 = document.getElementById('togglePassword2');
 
-    showPasswordCheckbox.addEventListener('change', () => {
-        const inputType = showPasswordCheckbox.checked ? 'text' : 'password';
-        passwordInput.type = inputType;
-        confirmPasswordInput.type = inputType;
+
+    togglePassword1.addEventListener('click', function () {
+        const type = passwordInput.type === 'password' ? 'text' : 'password';
+        passwordInput.type = type;
+
+        // Toggle the eye / eye-slash icon
+        this.querySelector('i').classList.toggle('fa-eye');
+        this.querySelector('i').classList.toggle('fa-eye-slash');
     });
+
+    togglePassword2.addEventListener('click', function () {
+        const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
+        confirmPasswordInput.type = type;
+
+        // Toggle the eye / eye-slash icon
+        this.querySelector('i').classList.toggle('fa-eye');
+        this.querySelector('i').classList.toggle('fa-eye-slash');
+    });
+
+    let currentStep = 0;
 
     function showStep(step) {
         formSteps.forEach((el, index) => {
