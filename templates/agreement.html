@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate of Agreement</title>
+    <link rel="stylesheet" href="/static/css/agreement.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="/static/js/signature_pad.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Certificate of Agreement</h1>
+        <form id="agreement-form">
+            {% for load in loads %}
+                <div class="form-group">
+                    <label for="load_{{ load.id }}">Load Wh Hire-Bel Str 01</label>
+                    <input type="text" id="load_{{ load.id }}" name="load" value="{{ load.load }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="quantity_{{ load.id }}">Quantity</label>
+                    <input type="text" id="quantity_{{ load.id }}" name="quantity" value="{{ load.quantity }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="route_{{ load.id }}">Route</label>
+                    <input type="text" id="route_{{ load.id }}" name="route" value="{{ load.route }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="truck-type_{{ load.id }}">Truck Type</label>
+                    <input type="text" id="truck-type_{{ load.id }}" name="truck-type" value="{{ load.truck_type }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="payment-days_{{ load.id }}">Payment Days</label>
+                    <input type="text" id="payment-days_{{ load.id }}" name="payment-days" value="{{ load.payment_days }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="amount_{{ load.id }}">Amount</label>
+                    <input type="text" id="amount_{{ load.id }}" name="amount" value="{{ load.amount }}" readonly>
+                </div>
+                <hr> <!-- Add a separator between loads -->
+            {% endfor %}
+            <div class="signature-section">
+                <p>Please sign to bind agreement</p>
+                <canvas id="signature-pad" class="signature-pad"></canvas>
+                <div class="signature-labels">
+                    <span>Pelcravia</span>
+                    <span>Star International</span>
+                </div>
+            </div>
+            <div class="button-container">
+                <button type="button" onclick="navigateTo('loadPool')">View Load Pool</button>
+                <button type="button" onclick="navigateTo('requests')">Requests</button>
+                <button type="button" onclick="navigateTo('done')">Done</button>
+            </div>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='signature_pad.min.js') }}"></script>
+    <script>
+        
+        // Initialize the signature pad
+        const canvas = document.getElementById('signature-pad');
+        const signaturePad = new SignaturePad(canvas);
+
+        // Ensure canvas is responsive
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext('2d').scale(ratio, ratio);
+            // Clear the canvas
+            signaturePad.clear();
+        }
+        resizeCanvas();
+
+        // Function to handle navigation
+        function navigateTo(page) {
+            // Logic to navigate to different pages
+            if (page === 'loadPool') {
+                window.location.href = '/loadPool'; 
+            } else if (page === 'requests') {
+                window.location.href = '/requests'; 
+            } else if (page === 'done') {
+                window.location.href = '/done'; 
+            }
+        }
+        
+    </script>
+</body>
+</html>

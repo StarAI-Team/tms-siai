@@ -5,19 +5,36 @@ document.addEventListener("DOMContentLoaded", function() {
         section3: ['tax_clearance_text', 'tax_clearance', 'tax_expiry', 'certificate_of_incorporation_text', 'certificate_of_incorporation','operators_licence_text', 'operators_licence', 'operators_expiry', 'permits_text', 'permits', 'permit_expiry', 'tracking_licence_text','tracking_licence', ],
         section4: ['number_of_trucks', 'num_of_trucks_text', 'num_of_trucks', 'reg_books_text','reg_books', 'certificate_of_fitness_text', 'certificate_of_fitness'],
         section5: ['user_name', 'profile_picture', 'password', 'confirm_password']
-    };
+    }
     const form = document.getElementById('multiStepForm');
     const nextButtons = document.querySelectorAll('.next-button');
     const prevButtons = document.querySelectorAll('.prev-button');
     const formSteps = document.querySelectorAll('.form-step');
     const showPasswordCheckbox = document.getElementById('show_password');
-    let currentStep = 0;
-
-    showPasswordCheckbox.addEventListener('change', () => {
-        const inputType = showPasswordCheckbox.checked ? 'text' : 'password';
-        passwordInput.type = inputType;
-        confirmPasswordInput.type = inputType;
+  
+    
+    document.getElementById('visibility_button1').addEventListener('click', function() {
+        toggleVisibility('password', 'icon1');
     });
+    
+    document.getElementById('visibility_button2').addEventListener('click', function() {
+        toggleVisibility('confirm_password', 'icon2');
+    });
+    
+    function toggleVisibility(inputId, iconId) {
+        const passwordInput = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+    
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.textContent = 'visibility_off';
+        } else {
+            passwordInput.type = 'password';
+            icon.textContent = 'visibility';
+        }
+    }
+    
+    let currentStep = 0;
 
     function showStep(step) {
         formSteps.forEach((el, index) => {
