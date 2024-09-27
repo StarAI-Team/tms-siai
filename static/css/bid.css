@@ -7,8 +7,9 @@
 }
 
 body, html {
-    height: 100%;
+    height: auto;
     margin: 0;
+    overflow-x: hidden;
 }
 
 body {
@@ -16,8 +17,9 @@ body {
     color: white;
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    align-items: flex-start;
+    height: auto;
+    overflow-y: auto;
 }
 
 .auction-room {
@@ -34,6 +36,7 @@ body {
     background-position: center;
     width: 50%; 
     height: 100%;
+    overflow: auto;
 }
 
 .container {
@@ -43,6 +46,7 @@ body {
     border-left: 2px solid #333;
     color: white; 
 }
+
 
 h1 {
     font-size: 36px;
@@ -214,6 +218,7 @@ body {
     width: 50%;
     background: url('/static/images/bid-image.png') no-repeat center center;
     background-size: cover;
+    overflow: auto;
 }
 
 .right-side {
@@ -237,6 +242,7 @@ h1 {
     margin-bottom: 10px;
     border: 1px solid red;
     position: relative;
+    border-radius: 90px;
 }
 
 .load-details {
@@ -271,31 +277,37 @@ h1 {
 .all-bid-button {
     background-color: transparent;
     color: white;
-    border: 2px solid red;
+    border: 1px solid red;
     padding: 10px 20px;
     cursor: pointer;
+    border-radius: 8px;
 }
 
 .upgrade-button {
-    width: 100%;
-    padding: 15px;
+    width: 50%;
+    padding: 10px;
     background-color: red;
     color: white;
-    border: none;
+    border-radius: 10px;
     font-size: 18px;
     margin: 20px 0;
     cursor: pointer;
+   
 }
 
 .all-back-button {
     background-color: black;
     color: white;
     border: 2px solid red;
-    padding: 15px 60px;
+    padding: 10px 90px;
     font-size: 16px;
     cursor: pointer;
     text-align: center;
+    border-radius: 10px;
+ 
 }
+
+
 
 .perfect-match {
     background-color: red;
@@ -307,14 +319,16 @@ h1 {
     color: black;
 }
 
-.perfect-match-tag {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: yellow;
-    color: black;
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 5px;
+
+a {
+    color: inherit; 
+    text-decoration: none; 
 }
+
+
+a:hover {
+    text-decoration: underline; 
+}
+
+
 
