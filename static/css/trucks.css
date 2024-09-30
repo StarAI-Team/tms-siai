@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap');
+.main h2 {
+    text-align: center;
+    font-family: 'Montserrat Alternates', sans-serif;;
+    padding: 30px;
+}
+
+.booked-trucks {
+    padding: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin: 20px 0;
+    color: #fff;
+}
+
+table, th, td {
+    border: 1px solid #555;
+}
+
+th, td {
+    padding: 10px;
+}
+
+thead {
+    background-color: #333;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #444;
+}
+
+tbody tr:hover {
+    background-color: #555;
+}
+
+footer .footer-nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+footer .footer-btn {
+    padding: 10px 30px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #333;
+    border: 2px solid #555;
+    cursor: pointer;
+}
+
+footer .footer-btn:hover {
+    background-color: #555;
+}

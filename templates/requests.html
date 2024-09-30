@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Requests</title>
+    <link rel="stylesheet" href="/static/css/requests.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Select Requests to Continue</h1>
+        </header>
+
+        <main>
+            <!-- Initial Request Selection Section -->
+            <div id="request-options" class="request-options">
+                <button class="request-btn" onclick="showSection('prefinancing')">Prefinancing</button>
+                <button class="request-btn" onclick="showSection('fuel')">Fuel</button>
+                <button class="request-btn" onclick="showSection('spare-parts')">Spare Parts</button>
+                <button class="request-btn" onclick="showSection('all')">All</button>
+            </div>
+
+            <!-- Prefinancing Section -->
+            <div id="prefinancing" class="hidden">
+                <h3>Enter Amount Requested:</h3>
+                <input type="number" placeholder="Enter amount">
+                <h4>Remaining Balance Duration:</h4>
+                <button>1-7 days 10%</button>
+                <button>8-14 days 5%</button>
+                <button>15 days and above 2%</button>
+                <button onclick="showSection('request-options')">Back</button> <!-- Added back button -->
+            </div>
+
+            <!-- Fuel Section -->
+            <div id="fuel" class="hidden">
+                <h3>Select Fuel Type:</h3>
+                <input type="text" placeholder="Enter fuel type">
+                <h3>Quantity:</h3>
+                <input type="number" placeholder="Enter quantity">
+                <button onclick="showSection('request-options')">Would you like anything else?</button> <!-- Added back button -->
+            </div>
+
+            <!-- Spare Parts Section -->
+            <div id="spare-parts" class="hidden">
+                <h3>Coming Soon</h3>
+                <button onclick="showSection('request-options')">Back</button> <!-- Added back button -->
+            </div>
+
+            <!-- All Requests Merged Section -->
+            <div id="all" class="hidden">
+                <h3>Prefinancing Request:</h3>
+                <input type="number" placeholder="Enter amount">
+                <h4>Remaining Balance Duration:</h4>
+                <button>1-7 days 10%</button>
+                <button>8-14 days 5%</button>
+                <button>15 days and above 2%</button>
+
+                <h3>Fuel Request:</h3>
+                <input type="text" placeholder="Enter fuel type">
+                <input type="number" placeholder="Enter quantity">
+
+                <h3>Spare Parts:</h3>
+                <p>Coming Soon</p>
+
+                <button onclick="showSection('request-options')">Back</button> <!-- Added back button -->
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>SiAi</h3>
+                    <p>AI powered Transport Management System. Post and Go...</p>
+                    <p><i>Contact: +123 456 3455</i></p>
+                </div>
+                <div class="footer-column">
+                    <h3>Menu</h3>
+                    <ul>
+                        <li>Products</li>
+                        <li>Services</li>
+                        <li>Analytics</li>
+                        <li>About Us</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Account</h3>
+                    <ul>
+                        <li>My Account</li>
+                        <li>Checkout</li>
+                        <li>My Cart</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Stay Connected</h3>
+                    <ul>
+                        <li>Facebook</li>
+                        <li>Instagram</li>
+                        <li>X</li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Function to show specific sections and hide others
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('main > div');
+            sections.forEach(section => {
+                if (section.id === sectionId) {
+                    section.classList.remove('hidden');
+                } else {
+                    section.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
