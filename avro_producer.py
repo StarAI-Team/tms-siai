@@ -46,6 +46,7 @@ class AvroProducer(ProducerClass):
     def send_message(self, key=None, value=None):
         try:
             if value:
+                logging.info(f"*** {value}")
                 byte_value = self.avro_serializer(
                     value, SerializationContext(self.topic, MessageField.VALUE)
                 )

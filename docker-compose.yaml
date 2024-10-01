@@ -2,30 +2,16 @@ version: '3.8'
 name: redpanda-services
 
 services:
-
   db:
-    image: mongo:latest
-    hostname: test_mongodb
+    image: postgres:13
     environment:
-      - MONGO_INITDB_DATABASE=animal_db
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=pass
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
     ports:
-      - 27017:27017
-      
-  mongo-express:
-    image: mongo-express:latest
-    container_name: mongo-express
-    environment:
-      - ME_CONFIG_MONGODB_SERVER=db
-      - ME_CONFIG_MONGODB_PORT=27017
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=pass
-    ports:
-      - 8081:8081
-    depends_on:
-      - db
-
+      - "5432:5432"
 
   redpanda-0:
     image: docker.redpanda.com/redpandadata/redpanda:v23.3.5
@@ -136,4 +122,15 @@ services:
     links:
       - db
 
-  
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=adminpassword
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
