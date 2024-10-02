@@ -1,5 +1,6 @@
 # from flask import Flask, jsonify
 # import psycopg2
+# from psycopg2 import OperationalError  
 # import logging
 # import os
 # from confluent_kafka import Consumer
@@ -14,14 +15,16 @@
 # app = Flask(__name__)
 
 # # Initialize PostgreSQL connection
-# conn = psycopg2.connect(
-#     dbname=os.environ.get('POSTGRES_DB'),
-#     user=os.environ.get('POSTGRES_USER'),
-#     password=os.environ.get('POSTGRES_PASSWORD'),
-#     host='db',
-#     port='5432'
-# )
-# cur = conn.cursor()
+# def create_connection():
+#     # try:
+#     conn = psycopg2.connect(
+#         dbname=os.environ.get('POSTGRES_DB'),
+#         user=os.environ.get('POSTGRES_USER'),
+#         password=os.environ.get('POSTGRES_PASSWORD'),
+#         host='db',
+#         port='5432'
+#     )
+#     return conn
 
 # @app.before_first_request
 # def start_consumer():
@@ -62,15 +65,30 @@
 
 #                 task_name = decoded_message['event_name'] if isinstance(decoded_message, dict) else decoded_message
 #                 if task_name:
-#                     logging.info(f"Received data for committing: {task_name}")
-#                     insert_query = """
-#                         INSERT INTO tasks (name)
-#                         VALUES (%s)
-#                         ON CONFLICT (name) DO NOTHING
-#                     """
-#                     cur.execute(insert_query, (task_name,))
-#                     conn.commit()
-#                     logging.info("Data inserted into PostgreSQL.")
+#                     if task_name == "transporterRegistration(Basic Details)":
+#                         logging.info(f"Received data for committing: {task_name}")
+                        
+#                         user_id = decoded_message["user_id"]
+#                         company_email = decoded_message["company_email"]
+#                         company_name = decoded_message["company_name"]
+#                         company_location = decoded_message["company_location"]
+#                         first_name = decoded_message["first_name"]
+#                         id_number = decoded_message["id_number"]
+#                         last_name = decoded_message["last_name"]
+#                         phone_number = decoded_message["phone_number"]
+
+#                         conn = create_connection()
+#                         with conn.cursor() as cur:
+#                             insert_query = """
+#                                 INSERT INTO client (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number)
+#                                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+#                                 ON CONFLICT (company_email) DO NOTHING
+#                             """
+
+#                             # Execute the insert with all values
+#                             cur.execute(insert_query, (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number))
+#                             conn.commit()
+#                             logging.info("Data inserted into client.")
 #                 else:
 #                     logging.warning("No valid task name received.")
 #         except KeyboardInterrupt:
@@ -84,15 +102,19 @@
 
 # @app.route('/')
 # def index():
-#     cur.execute("SELECT * FROM tasks")
-#     tasks = cur.fetchall()
-#     return jsonify({"message": "Tasks:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
+#     conn = create_connection()
+#     with conn.cursor() as cur:
+#         cur.execute("SELECT * FROM client")
+#         tasks = cur.fetchall()
+#         return jsonify({"message": "Tasks:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
 
 # if __name__ == '__main__':
+#     # init_database()
 #     app.run(host="0.0.0.0", port=7000, debug=True)
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import psycopg2
+from psycopg2 import OperationalError  
 import logging
 import os
 from confluent_kafka import Consumer
@@ -101,30 +123,24 @@ from confluent_kafka.serialization import MessageField, SerializationContext
 from schema_registry_client import SchemaClient
 import utils
 import threading
-from bson import ObjectId 
+# from bson import ObjectId 
 import logging_config
+from flask_wtf import CSRFProtect
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'starinternational_key'  # Replace with a randomly generated secret key
+csrf = CSRFProtect(app)
 
 # Initialize PostgreSQL connection
-conn = psycopg2.connect(
-    dbname=os.environ.get('POSTGRES_DB'),
-    user=os.environ.get('POSTGRES_USER'),
-    password=os.environ.get('POSTGRES_PASSWORD'),
-    host='db',
-    port='5432'
-)
-cur = conn.cursor()
-
-def init_database():
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS tasks (
-            id SERIAL PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL
-        );
-    """)
-    conn.commit()
-    logging.info("Database and tables initialized successfully")
+def create_connection():
+    conn = psycopg2.connect(
+        dbname=os.environ.get('POSTGRES_DB'),
+        user=os.environ.get('POSTGRES_USER'),
+        password=os.environ.get('POSTGRES_PASSWORD'),
+        host='db',
+        port='5432'
+    )
+    return conn
 
 @app.before_first_request
 def start_consumer():
@@ -165,15 +181,30 @@ def start_consumer():
 
                 task_name = decoded_message['event_name'] if isinstance(decoded_message, dict) else decoded_message
                 if task_name:
-                    logging.info(f"Received data for committing: {task_name}")
-                    insert_query = """
-                        INSERT INTO tasks (name)
-                        VALUES (%s)
-                        ON CONFLICT (name) DO NOTHING
-                    """
-                    cur.execute(insert_query, (task_name,))
-                    conn.commit()
-                    logging.info("Data inserted into PostgreSQL.")
+                    if task_name == "transporterRegistration(Basic Details)":
+                        logging.info(f"Received data for committing: {task_name}")
+                        
+                        user_id = decoded_message["user_id"]
+                        company_email = decoded_message["company_email"]
+                        company_name = decoded_message["company_name"]
+                        company_location = decoded_message["company_location"]
+                        first_name = decoded_message["first_name"]
+                        id_number = decoded_message["id_number"]
+                        last_name = decoded_message["last_name"]
+                        phone_number = decoded_message["phone_number"]
+
+                        conn = create_connection()
+                        with conn.cursor() as cur:
+                            insert_query = """
+                                INSERT INTO client (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                                ON CONFLICT (company_email) DO NOTHING
+                            """
+
+                            # Execute the insert with all values
+                            cur.execute(insert_query, (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number))
+                            conn.commit()
+                            logging.info("Data inserted into client.")
                 else:
                     logging.warning("No valid task name received.")
         except KeyboardInterrupt:
@@ -187,11 +218,20 @@ def start_consumer():
 
 @app.route('/')
 def index():
-    cur.execute("SELECT * FROM tasks")
-    tasks = cur.fetchall()
-    return jsonify({"message": "Tasks:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
+    conn = create_connection()
+    with conn.cursor() as cur:
+        cur.execute("SELECT * FROM client")
+        tasks = cur.fetchall()
+        return jsonify({"message": "Tasks:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
+
+@app.route('/api/v1/client', methods=['GET'])
+@csrf.exempt
+def get_client_data():
+    conn = create_connection()
+    with conn.cursor() as cur:
+        cur.execute("SELECT * FROM client")
+        tasks = cur.fetchall()
+        return jsonify({"message": "Client Data:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
 
 if __name__ == '__main__':
-    init_database()
     app.run(host="0.0.0.0", port=7000, debug=True)
-

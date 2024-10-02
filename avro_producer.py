@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 import logging
 import os
+import psycopg2
+from psycopg2 import OperationalError  
 from uuid import uuid4
 from confluent_kafka.schema_registry.avro import AvroSerializer
 from confluent_kafka.serialization import (
@@ -16,6 +18,63 @@ from schema_registry_client import SchemaClient
 from confluent_kafka import KafkaException
 
 app = Flask(__name__)
+
+# # Initialize PostgreSQL connection
+# def create_connection():
+#     # try:
+#     conn = psycopg2.connect(
+#         dbname=os.environ.get('POSTGRES_DB'),
+#         user=os.environ.get('POSTGRES_USER'),
+#         password=os.environ.get('POSTGRES_PASSWORD'),
+#         host='db',
+#         port='5432'
+#     )
+#     return conn
+# # except OperationalError as e:
+#         # logging.error(f"Could not connect to the database: {e}")
+#         # return None
+
+# def init_database():
+#     conn = create_connection()
+#     if conn is None:
+#         logging.error("Database connection was not established.")
+#         return
+
+#     try:
+#         with conn.cursor() as cur:
+#             # Create client table
+#             cur.execute("""
+#                 CREATE TABLE IF NOT EXISTS client (
+#                     id SERIAL PRIMARY KEY,
+#                     company_email TEXT UNIQUE NOT NULL,
+#                     company_location TEXT UNIQUE NOT NULL,
+#                     company_name TEXT UNIQUE NOT NULL,
+#                     first_name TEXT NOT NULL,
+#                     id_number TEXT UNIQUE NOT NULL,
+#                     last_name TEXT NOT NULL,
+#                     phone_number TEXT UNIQUE NOT NULL,
+#                     registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+#                 );
+#             """)
+#             logging.info("client table initialized successfully")
+
+#             # Create user table
+#             cur.execute("""
+#                 CREATE TABLE IF NOT EXISTS user (
+#                     id SERIAL PRIMARY KEY,
+#                     username TEXT UNIQUE NOT NULL,
+#                     email TEXT UNIQUE NOT NULL,
+#                     password TEXT NOT NULL,
+#                     registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+#                 );
+#             """)
+#             logging.info("user table initialized successfully")
+
+#         conn.commit()  # Commit the changes
+#     except Exception as e:
+#         logging.error(f"An error occurred while initializing the database: {e}")
+#     finally:
+#         conn.close()  # Ensure the connection is closed
 
 class AvroProducer(ProducerClass):
     def __init__(
@@ -102,6 +161,7 @@ def process_user():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
+    # init_database()
     utils.load_env()
     logging_config.configure_logging()
 
