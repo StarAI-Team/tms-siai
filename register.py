@@ -23,9 +23,22 @@ def uploaded_file(filename):
     """Serve the file from the file system """
     return f"File can be accessed at: /uploads/{filename}"
 
+@app.route('/get_user_metadata', methods=['GET'])
+def get_user_metadata():
+    user_id = str(uuid.uuid4())  
+    ip_address = request.remote_addr  
+    
+    metadata = {
+        'user_id': user_id,
+        'ip_address': ip_address
+    }
+    return jsonify(metadata)
+
 @app.route('/')
 def home():
     return render_template ('register.html')
+
+#TRANSPORT SECTION
 
 @app.route('/transporter-package')
 def transporter_package():
@@ -39,73 +52,6 @@ def transporter_package_selected():
 @app.route('/welcome-transporter')
 def welcome_transporter():
     return render_template ('transport_register.html')
-
-    
-@app.route('/get_user_metadata', methods=['GET'])
-def get_user_metadata():
-    user_id = str(uuid.uuid4())  
-    ip_address = request.remote_addr  
-    
-    metadata = {
-        'user_id': user_id,
-        'ip_address': ip_address
-    }
-    return jsonify(metadata)
-@app.route('/bid')
-def bid():
-    # Example data 
-    loads = [
-        {
-            'load_name': 'Pelcravía',
-            'stars': '★★★★★',
-            'price': '1200',
-            'route': 'Wheat Harare - Beira',
-            'status': 'Premium Member',
-            'perfect_match': True
-        },
-        {
-            'load_name': 'Ngwena',
-            'stars': '★★★★☆',
-            'price': '1100',
-            'route': 'Harare - Lusaka',
-            'status': 'Standard Member',
-            'perfect_match': False
-        },
-        {
-            'load_name': 'Nestle',
-            'stars': '★★★★★',
-            'price': '1250',
-            'route': 'Harare - Gaborone',
-            'status': 'Premium Member',
-            'perfect_match': False
-        },
-    ]
-    
-    return render_template('allbid.html', loads=loads)
-
-
-@app.route('/place_bid')
-def auction():
-    return render_template('bid.html')
-
-
-@app.route('/place_bid/<string:load_name>')
-def place_bid(load_name):
-
-    load_data = {
-        'Pelcravía': {'route': 'Wheat Harare - Beira', 'quantity': '2 Tonnes', 'rate': '1200', 'perfect_match':True},
-        'Ngwena': {'route': 'Harare - Lusaka', 'quantity': '3 Tonnes', 'rate': '1100', 'perfect_match':False},
-        'Nestle': {'route': 'Harare - Gaborone', 'quantity': '1.5 Tonnes', 'rate': '1250', 'perfect_match':False}
-    }
-
-    # Fetch the load details dynamically
-    load_details = load_data.get(load_name)
-
-    if load_details:
-        return render_template('bid.html', load_name=load_name, route=load_details['route'], quantity=load_details['quantity'], rate=load_details['rate'], perfect_match=load_details['perfect_match'])
-    else:
-        return "Load not found", 404
-
 
 
 @app.route('/register_transporter', methods=['POST'])
@@ -206,7 +152,67 @@ def register_transporter():
     return jsonify({"message": "Data submitted successfully"}), 200
 
 
- 
+
+#BID SECTION
+
+@app.route('/bid')
+def bid():
+    # Example data 
+    loads = [
+        {
+            'load_name': 'Pelcravía',
+            'stars': '★★★★★',
+            'price': '1200',
+            'route': 'Wheat Harare - Beira',
+            'status': 'Premium Member',
+            'perfect_match': True
+        },
+        {
+            'load_name': 'Ngwena',
+            'stars': '★★★★☆',
+            'price': '1100',
+            'route': 'Harare - Lusaka',
+            'status': 'Standard Member',
+            'perfect_match': False
+        },
+        {
+            'load_name': 'Nestle',
+            'stars': '★★★★★',
+            'price': '1250',
+            'route': 'Harare - Gaborone',
+            'status': 'Premium Member',
+            'perfect_match': False
+        },
+    ]
+    
+    return render_template('allbid.html', loads=loads)
+
+
+@app.route('/place_bid')
+def auction():
+    return render_template('bid.html')
+
+
+@app.route('/place_bid/<string:load_name>')
+def place_bid(load_name):
+
+    load_data = {
+        'Pelcravía': {'route': 'Wheat Harare - Beira', 'quantity': '2 Tonnes', 'rate': '1200', 'perfect_match':True},
+        'Ngwena': {'route': 'Harare - Lusaka', 'quantity': '3 Tonnes', 'rate': '1100', 'perfect_match':False},
+        'Nestle': {'route': 'Harare - Gaborone', 'quantity': '1.5 Tonnes', 'rate': '1250', 'perfect_match':False}
+    }
+
+    # Fetch the load details dynamically
+    load_details = load_data.get(load_name)
+
+    if load_details:
+        return render_template('bid.html', load_name=load_name, route=load_details['route'], quantity=load_details['quantity'], rate=load_details['rate'], perfect_match=load_details['perfect_match'])
+    else:
+        return "Load not found", 404
+
+
+
+#SHIPPER SECTION
 @app.route('/shipper-package')
 def shipper_package():
     return render_template ('shipper_package.html')
@@ -328,6 +334,56 @@ def shipper_register():
         return jsonify({"error": str(e)}), 500
     
     return jsonify({"message": "shipper registered successfully"}), 200
+
+
+
+#REQUESTS SECTION
+@app.route('/transporter_requests')
+def transporter_requests():
+    return render_template('requests.html')
+
+
+@app.route('/post_requests', methods=['POST'])
+def post_requests(): 
+    if request.is_json:
+        payload = request.get_json()  
+    else:
+        return jsonify({"error": "Invalid content type"}), 400
+    
+    # Debug: Print incoming JSON payload
+    print("Incoming JSON Payload:", payload)
+    request_data = { 
+        **{key: payload[key] for key in payload if key not in ['form_data']} ,
+        **{key: payload['form_data'][key] for key in payload['form_data']}
+    } 
+    print("REQUEST DATA", request_data)  
+
+
+
+    # Send the data to the processing Flask application or service
+    PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
+    try:
+        # Print the transporter_data before sending
+        print("Sending the following data to processing URL:", request_data)
+        response = requests.post(
+            PROCESSING_FLASK_URL,
+            json=request_data,
+            headers={'Content-Type': 'application/json'}
+        )
+        response_data = response.json()
+        print("Response status code:", response.status_code)
+        print("Response data:", response_data)
+        return jsonify(response_data), response.status_code
+    except requests.exceptions.RequestException as e:
+        print("Error occurred while sending to processing URL:", e)
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({"message": "Data submitted successfully"}), 200
+
+
+@app.route('/trucks')
+def trucks():
+    return render_template('trucks.html')
 
 
 if __name__ == '__main__':

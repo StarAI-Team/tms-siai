@@ -16,56 +16,96 @@
         <main>
             <!-- Initial Request Selection Section -->
             <div id="request-options" class="request-options">
-                <button class="request-btn" onclick="showSection('prefinancing')">Prefinancing</button>
-                <button class="request-btn" onclick="showSection('fuel')">Fuel</button>
-                <button class="request-btn" onclick="showSection('spare-parts')">Spare Parts</button>
-                <button class="request-btn" onclick="showSection('all')">All</button>
+                <button class="request-btn" onclick="handleRequest('prefinancing')">Prefinancing</button>
+                <button class="request-btn" onclick="handleRequest('fuel')">Fuel</button>
+                <button class="request-btn" onclick="handleRequest('spare-parts')">Spare Parts</button>
+                <button class="request-btn" onclick="handleRequest('all')">All</button>
             </div>
 
             <!-- Prefinancing Section -->
             <div id="prefinancing" class="hidden">
                 <h3>Enter Amount Requested:</h3>
-                <input type="number" placeholder="Enter amount">
+                <input type="number" id="prefinancing-amount" placeholder="Enter amount">
                 <h4>Remaining Balance Duration:</h4>
-                <button>1-7 days 10%</button>
-                <button>8-14 days 5%</button>
-                <button>15 days and above 2%</button>
-                <button onclick="showSection('request-options')">Back</button> <!-- Added back button -->
+                <button onclick="submitPrefinancing(7, 10)">1-7 days 10%</button>
+                <button onclick="submitPrefinancing(14, 5)">8-14 days 5%</button>
+                <button onclick="submitPrefinancing(15, 2)">15 days and above 2%</button>
+                <button onclick="showSection('request-options')">Back</button> 
             </div>
 
-            <!-- Fuel Section -->
-            <div id="fuel" class="hidden">
+             <!-- Fuel Section -->
+             <div id="fuel" class="hidden">
                 <h3>Select Fuel Type:</h3>
-                <input type="text" placeholder="Enter fuel type">
-                <h3>Quantity:</h3>
-                <input type="number" placeholder="Enter quantity">
-                <button onclick="showSection('request-options')">Would you like anything else?</button> <!-- Added back button -->
+                <select id="fuel-type">
+                    <option value="petrol">Petrol</option>
+                    <option value="diesel">Diesel</option>
+                </select>
+                <h3>Enter Quantity:</h3>
+                <input type="number" id="fuel-quantity" placeholder="Enter quantity">
+
+                <h4>Enter Specifications <span id="fuel-specs"></span>:</h4>
+                    <input type="text" id="fuel-specs-input" placeholder="e.g., unleaded...">
+                <button onclick="submitFuelRequest()">Submit Fuel Request</button>
+                <button onclick="showSection('request-options')">Back</button>
             </div>
 
-            <!-- Spare Parts Section -->
-            <div id="spare-parts" class="hidden">
-                <h3>Coming Soon</h3>
-                <button onclick="showSection('request-options')">Back</button> <!-- Added back button -->
-            </div>
-
-            <!-- All Requests Merged Section -->
+              <!-- All Section -->
             <div id="all" class="hidden">
-                <h3>Prefinancing Request:</h3>
-                <input type="number" placeholder="Enter amount">
-                <h4>Remaining Balance Duration:</h4>
-                <button>1-7 days 10%</button>
-                <button>8-14 days 5%</button>
-                <button>15 days and above 2%</button>
+                <h3>Select Options:</h3>
+                
+                <!-- Prefinancing Option -->
+                <div class="checkbox-option">
+                    <input type="checkbox" id="all-prefinancing-checkbox" onclick="toggleSection('all-prefinancing')">
+                    <label for="all-prefinancing-checkbox">Prefinancing</label>
+                </div>
+                <div id="all-prefinancing" class="hidden">
+                    <h4>Enter Amount:</h4>
+                    <input type="number" id="all-prefinancing-amount" placeholder="Enter amount">
+                    <h4>Remaining Balance Duration:</h4>
+                    <select id="all-prefinancing-duration">
+                        <option value="7">1-7 days 10%</option>
+                        <option value="14">8-14 days 5%</option>
+                        <option value="15">15 days and above 2%</option>
+                    </select>
+                </div>
 
-                <h3>Fuel Request:</h3>
-                <input type="text" placeholder="Enter fuel type">
-                <input type="number" placeholder="Enter quantity">
+                <!-- Fuel Option -->
+                <div class="checkbox-option">
+                    <input type="checkbox" id="all-fuel-checkbox" onclick="toggleSection('all-fuel')">
+                    <label for="all-fuel-checkbox">Fuel</label>
+                </div>
+                <div id="all-fuel" class="hidden">
+                    <h4>Select Fuel Type:</h4>
+                    <select id="all-fuel-type">
+                        <option value="petrol">Petrol</option>
+                        <option value="diesel">Diesel</option>
+                    </select>
 
-                <h3>Spare Parts:</h3>
-                <p>Coming Soon</p>
+                    <h4>Enter Quantity:</h4>
+                    <input type="number" id="all-fuel-quantity" placeholder="Enter quantity">
 
-                <button onclick="showSection('request-options')">Back</button> <!-- Added back button -->
+                    <h4>Fuel Specifications:</h4>
+                    <input type="text" id="all-fuel-specs" placeholder="Enter specifications (e.g., octane rating)">
+                </div>
+
+                <!-- Spare Parts Option -->
+                <div class="checkbox-option">
+                    <input type="checkbox" id="all-spare-checkbox" onclick="toggleSection('all-spare')">
+                    <label for="all-spare-checkbox">Spare Parts</label>
+                </div>
+                <div id="all-spare" class="hidden">
+                    <h4>Select Spare Parts Type:</h4>
+                    <select id="all-spare-type">
+                        <option value="tyres">Tyres</option>
+                        <option value="brakes">Brakes</option>
+                    </select>
+                    <input type="text" id="all-spare-specs" placeholder="Enter specs (e.g., size, brand)">
+                </div>
+
+                <button onclick="submitAllRequests()">Submit All Requests</button>
+                <button onclick="showSection('request-options')">Back</button>
             </div>
+
         </main>
 
         <footer>
@@ -116,6 +156,234 @@
                 }
             });
         }
+    
+        // Toggle visibility of a specific section (for checkboxes in the "all" section)
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.toggle('hidden');
+        }
+    
+        // Function to handle spare parts selection and specs input
+        function selectSparePart(partType) {
+            document.getElementById('spare-part-type').innerText = partType;
+            document.getElementById('spare-part-specs').classList.remove('hidden');
+        }
+    
+        // Function to handle dynamic request events (Prefinancing, Fuel, Spare Parts, All)
+        function handleRequest(requestType) {
+            fetch('/get_user_metadata')
+                .then(response => response.json())
+                .then(metadata => {
+                    const eventData = {
+                        event_name: `Transporter_Requests_${requestType}`,
+                        user_id: metadata.user_id,
+                        ip_address: metadata.ip_address,
+                        timestamp: new Date().toISOString(),
+                        user_agent: navigator.userAgent,
+                        current_section: requestType,
+                        form_data: {}
+                    };
+    
+                    // Send event data to the backend
+                    sendEvent(eventData);
+    
+                    // Show the selected section
+                    showSection(requestType);
+                })
+                .catch(error => {
+                    console.error("Error fetching user metadata:", error);
+                });
+        }
+    
+        // Function to submit Prefinancing data with specific duration and interestRate
+        function submitPrefinancing(duration, interestRate) {
+            const amount = document.getElementById('prefinancing-amount').value;
+            if (!amount) {
+                alert("Please enter an amount.");
+                return;
+            }
+    
+            // Get user metadata
+            fetch('/get_user_metadata')
+                .then(response => response.json())
+                .then(metadata => {
+                    // Prepare the event data
+                    const eventData = {
+                        event_name: 'Transporter_Request-Prefinancing',
+                        user_id: metadata.user_id,
+                        ip_address: metadata.ip_address,
+                        timestamp: new Date().toISOString(),
+                        user_agent: navigator.userAgent,
+                        current_section: 'prefinancing',
+                        form_data: {
+                            amount: amount,
+                            duration: duration,
+                            interestRate: interestRate
+                        }
+                    };
+    
+                    // Send the data to the Flask backend
+                    sendEvent(eventData);
+                })
+                .catch(error => {
+                    console.error("Error fetching user metadata:", error);
+                });
+        }
+    
+        // Function to submit Fuel request
+        function submitFuelRequest() {
+            const fuelType = document.getElementById('fuel-type').value;
+            const fuelQuantity = document.getElementById('fuel-quantity').value;
+            const fuelSpecs = document.getElementById('fuel-specs-input').value;
+    
+            // Validate input
+            if (!fuelType || !fuelQuantity || !fuelSpecs) {
+                alert("Please fill in all fuel details.");
+                return;
+            }
+    
+            // Get user metadata
+            fetch('/get_user_metadata')
+                .then(response => response.json())
+                .then(metadata => {
+                    // Prepare the event data
+                    const eventData = {
+                        event_name: 'Transporter_Request-Fuel',
+                        user_id: metadata.user_id,
+                        ip_address: metadata.ip_address,
+                        timestamp: new Date().toISOString(),
+                        user_agent: navigator.userAgent,
+                        current_section: 'fuel',
+                        form_data: {
+                            fuelType: fuelType,
+                            quantity: fuelQuantity,
+                            specs: fuelSpecs
+                        }
+                    };
+    
+                    // Send the data to the Flask backend
+                    sendEvent(eventData);
+                })
+                .catch(error => {
+                    console.error("Error fetching user metadata:", error);
+                });
+        }
+    
+        // Function to submit Spare Parts request
+        function submitSpareParts() {
+            const partType = document.getElementById('spare-part-type').innerText;
+            const specs = document.getElementById('spare-part-specs-input').value;
+            if (!specs) {
+                alert("Please enter the specifications.");
+                return;
+            }
+    
+            // Get user metadata
+            fetch('/get_user_metadata')
+                .then(response => response.json())
+                .then(metadata => {
+                    // Prepare the event data
+                    const eventData = {
+                        event_name: 'Transporter_Request-Spare_Parts',
+                        user_id: metadata.user_id,
+                        ip_address: metadata.ip_address,
+                        timestamp: new Date().toISOString(),
+                        user_agent: navigator.userAgent,
+                        current_section: 'spare-parts',
+                        form_data: {
+                            partType: partType,
+                            specs: specs
+                        }
+                    };
+    
+                    // Send the data to the Flask backend
+                    sendEvent(eventData);
+                })
+                .catch(error => {
+                    console.error("Error fetching user metadata:", error);
+                });
+        }
+    
+        // Function to submit All requests
+        function submitAllRequests() {
+    const form_data = {};
+
+    // Prefinancing
+    if (document.getElementById('all-prefinancing-checkbox').checked) {
+        form_data.prefinancing = {
+            amount: document.getElementById('all-prefinancing-amount').value,
+            duration: document.getElementById('all-prefinancing-duration').value
+        };
+    }
+
+    // Fuel
+    if (document.getElementById('all-fuel-checkbox').checked) {
+        form_data.fuel = {
+            fuelType: document.getElementById('all-fuel-type').value,
+            quantity: document.getElementById('all-fuel-quantity').value,
+            specs: document.getElementById('all-fuel-specs').value // added comma here
+        };
+    }
+
+    // Spare Parts
+    if (document.getElementById('all-spare-checkbox').checked) {
+        form_data.spare_parts = {
+            type: document.getElementById('all-spare-type').value,
+            specs: document.getElementById('all-spare-specs').value
+        };
+    }
+
+    // Validate that at least one option is selected
+    if (Object.keys(form_data).length === 0) {
+        alert("Please select at least one request option.");
+        return;
+    }
+
+    // Get user metadata
+    fetch('/get_user_metadata')
+        .then(response => response.json())
+        .then(metadata => {
+            // Send combined "All" event
+            const eventData = {
+                event_name: 'Transporter_Requests_All',
+                user_id: metadata.user_id,
+                ip_address: metadata.ip_address,
+                timestamp: new Date().toISOString(),
+                user_agent: navigator.userAgent,
+                current_section: 'all',
+                form_data: form_data
+            };
+            sendEvent(eventData);
+        })
+        .catch(error => {
+            console.error('Error fetching user metadata:', error);
+        });
+}
+
+        // Function to send event data to Flask backend
+        function sendEvent(eventData) {
+            fetch('http://127.0.0.1:8000/post_requests', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(eventData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Event sent successfully:', data);
+                alert("Your request has been submitted successfully!");
+            })
+            .catch(error => {
+                console.error('Error sending event:', error);
+                alert("There was an error submitting your request. Please try again.");
+            });
+        }
     </script>
-</body>
-</html>
+</body>  
+</html>  

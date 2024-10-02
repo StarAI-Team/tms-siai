@@ -1,8 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap');
+
+*{
+    font-family: 'Montserrat Alternates', sans-serif;
+    background-color: black;
+
+}
 .main h2 {
     text-align: center;
-    font-family: 'Montserrat Alternates', sans-serif;;
-    padding: 30px;
+    font-family: 'Montserrat Alternates', sans-serif;
+    padding: 300px;
 }
 
 .booked-trucks {
@@ -37,6 +43,58 @@ tbody tr:hover {
     background-color: #555;
 }
 
+
+
+header .navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: #000;
+}
+
+header .navbar ul {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+}
+
+header .navbar ul li {
+    padding: 10px;
+}
+
+header .navbar ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+.search-bar input {
+    padding: 5px;
+}
+
+footer {
+    background-color: #000;
+    padding: 20px;
+}
+
+footer .footer-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    font: white;
+}
+
+footer h3 {
+    color: #fff;
+}
+
+footer ul {
+    list-style: none;
+}
+
+footer ul li {
+    padding: 5px 0;
+}
+
 footer .footer-nav {
     display: flex;
     justify-content: space-between;
@@ -54,4 +112,8 @@ footer .footer-btn {
 
 footer .footer-btn:hover {
     background-color: #555;
+}
+
+footer .footer-column{
+    font: white;
 }
