@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const metadata = await metadataResponse.json();
     
             const eventDetails = {
-                event_name: `transporterRegistration(${section})`,  // Use the section name
+                event_name: `transporterRegistration_${section}`,  
                 user_id: metadata.user_id,
                 ip_address: metadata.ip_address,
                 timestamp: new Date().toISOString(),

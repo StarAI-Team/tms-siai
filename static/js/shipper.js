@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const metadata = await metadataResponse.json();
     
             const eventDetails = {
-                event_name: `shipperRegistration(${section})`,  
+                event_name: `shipperRegistration_${section}`,  
                 user_id: metadata.user_id,
                 ip_address: metadata.ip_address,
                 timestamp: new Date().toISOString(),
