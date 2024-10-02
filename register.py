@@ -380,10 +380,37 @@ def post_requests():
 
     return jsonify({"message": "Data submitted successfully"}), 200
 
-
 @app.route('/trucks')
 def trucks():
-    return render_template('trucks.html')
+    # Sample data for booked trucks
+    booked_trucks = [
+        {
+            'id': 1,
+            'truck_reg': 'AEF 1234',
+            'truck_type': 'Tanker',
+            'trailer1_reg': 'AEF 1234',
+            'trailer2_reg': 'AEF 1234',
+            'driver_name': 'J.MOYO',
+            'id_number': '522-CDR',
+            'passport_number': '522-CDR',
+            'license_number': '522-CDR',
+            'phone_number': '01258956'
+        },
+        {
+            'id': 2,
+            'truck_reg': 'AEF 5678',
+            'truck_type': 'Bulk',
+            'trailer1_reg': 'AEF 5678',
+            'trailer2_reg': 'AEF 5678',
+            'driver_name': 'Abisha Beta',
+            'id_number': '523-DEF',
+            'passport_number': '523-DEF',
+            'license_number': '523-DEF',
+            'phone_number': '01258957'
+        }
+    ]
+    return render_template('trucks.html', trucks=booked_trucks)
+
 
 
 if __name__ == '__main__':

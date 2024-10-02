@@ -44,44 +44,45 @@
                             <th>Passport Number</th>
                             <th>License Number</th>
                             <th>Phone Number</th>
+                            <th>Book</th>
+                            <th>Delete</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- Use Jinja loop to iterate through trucks -->
+                        {% for truck in trucks %}
                         <tr>
-                            <td>1</td>
-                            <td>AEF 1234</td>
-                            <td>Tanker</td>
-                            <td>AEF 1234</td>
-                            <td>AEF 1234</td>
-                            <td>J.MOYO</td>
-                            <td>522-CDR</td>
-                            <td>522-CDR</td>
-                            <td>522-CDR</td>
-                            <td>01258956</td>
+                            <td>{{ truck.id }}</td>
+                            <td>{{ truck.truck_reg }}</td>
+                            <td>{{ truck.truck_type }}</td>
+                            <td>{{ truck.trailer1_reg }}</td>
+                            <td>{{ truck.trailer2_reg }}</td>
+                            <td>{{ truck.driver_name }}</td>
+                            <td>{{ truck.id_number }}</td>
+                            <td>{{ truck.passport_number }}</td>
+                            <td>{{ truck.license_number }}</td>
+                            <td>{{ truck.phone_number }}</td>
+                            <td><input type="checkbox" name="book" value="{{ truck.id }}" id="book-{{ truck.id }}"></td>
+                            <td><input type="checkbox" name="delete" value="{{ truck.id }}" id="delete-{{ truck.id }}"></td>
                         </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>AEF 1234</td>
-                            <td>Bulk</td>
-                            <td>AEF 1234</td>
-                            <td>AEF 1234</td>
-                            <td>ABC</td>
-                            <td>522-CDR</td>
-                            <td>522-CDR</td>
-                            <td>522-CDR</td>
-                            <td>01258956</td>
-                        </tr>
-                        <!-- Add more rows as needed -->
+                        {% endfor %}
                     </tbody>
                 </table>
+            </div>
+            <div>
+                <button class="f-btn" onclick="handleAction('book')">Book Selected Trucks</button>
+                <button class="f-btn" onclick="handleAction('delete')">Delete Selected Trucks</button>
+                <button class="f-btn" onclick="addTruck()">Add Truck</button>
+            </div>
+            
+                <div class="footer-nav">
+                    <button class="footer-btn">Back</button>
+                    <button class="footer-btn">Send</button>
+                </div>
             </div>
         </main>
 
         <footer>
-            <div class="footer-nav">
-                <button class="footer-btn">Back</button>
-                <button class="footer-btn">Send</button>
-            </div>
             <div class="footer-container">
                 <div class="footer-column">
                     <h3>SiAi</h3>
@@ -116,5 +117,110 @@
             </div>
         </footer>
     </div>
+
+    <script>
+        // Function to handle book or delete actions
+        function handleAction(actionType) {
+            const selectedTrucks = [];
+            const checkboxes = document.querySelectorAll(`input[name=${actionType}]`);
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    selectedTrucks.push(checkbox.value);
+                }
+            });
+
+            if (selectedTrucks.length === 0) {
+                alert(`Please select trucks to ${actionType}`);
+                return;
+            }
+
+            // Fetch user metadata
+            fetch('/get_user_metadata')
+                .then(response => response.json())
+                .then(metadata => {
+                    // Prepare the event data
+                    const eventData = {
+                        event_name: actionType === 'book' ? 'Book_Truck' : 'Delete_Truck',
+                        user_id: metadata.user_id,
+                        ip_address: metadata.ip_address,
+                        timestamp: new Date().toISOString(),
+                        user_agent: navigator.userAgent,
+                        selected_trucks: selectedTrucks
+                    };
+
+                    // Send the data to the Flask backend
+                    sendEvent(eventData, actionType);
+                });
+        }
+
+        // Function to send event data to Flask backend
+        function sendEvent(eventData, actionType) {
+            fetch(`/trucks-${actionType}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(eventData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(`${actionType.charAt(0).toUpperCase() + actionType.slice(1)} event sent successfully:`, data);
+                alert(`The trucks have been ${actionType === 'book' ? 'booked' : 'deleted'} successfully!`);
+            })
+            .catch(error => {
+                console.error(`Error sending ${actionType} event:`, error);
+                alert(`There was an error trying to ${actionType} the trucks. Please try again.`);
+            });
+        }
+
+        // Function to add a new truck
+        function addTruck() {
+            const truckData = {
+                truck_reg: prompt("Enter Truck Registration"),
+                truck_type: prompt("Enter Truck Type"),
+                trailer1_reg: prompt("Enter Trailer 1 Registration"),
+                trailer2_reg: prompt("Enter Trailer 2 Registration"),
+                driver_name: prompt("Enter Driver Name"),
+                id_number: prompt("Enter ID Number"),
+                passport_number: prompt("Enter Passport Number"),
+                license_number: prompt("Enter License Number"),
+                phone_number: prompt("Enter Driver Phone Number")
+            };
+
+            if (!truckData.truck_reg || !truckData.truck_type || !truckData.driver_name) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            fetch('/add_truck', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(truckData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Truck added successfully:', data);
+                alert("Truck has been added successfully!");
+                window.location.reload(); 
+            })
+            .catch(error => {
+                console.error('Error adding truck:', error);
+                alert("There was an error adding the truck. Please try again.");
+            });
+        }
+    </script>
 </body>
 </html>
