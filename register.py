@@ -35,8 +35,9 @@ def get_user_metadata():
     return jsonify(metadata)
 
 @app.route('/')
-def home():
-    return render_template ('register.html')
+def index():
+    return render_template('register.html')
+
 
 #TRANSPORT SECTION
 
@@ -380,9 +381,11 @@ def post_requests():
 
     return jsonify({"message": "Data submitted successfully"}), 200
 
+#TRUCK SECTION
+
 @app.route('/trucks')
 def trucks():
-    # Sample data for booked trucks
+    # Sample data for  trucks
     booked_trucks = [
         {
             'id': 1,
@@ -410,6 +413,198 @@ def trucks():
         }
     ]
     return render_template('trucks.html', trucks=booked_trucks)
+
+@app.route('/trucks-book', methods=['POST'])
+def book_trucks():
+    data = request.json
+    selected_trucks = data.get('selected_trucks', [])
+    # Logic for booking trucks 
+    print(f"Booking trucks with IDs: {selected_trucks}")
+    return jsonify({"message": "Trucks booked successfully!"})
+
+@app.route('/trucks-delete', methods=['POST'])
+def delete_trucks():
+    data = request.json
+    selected_trucks = data.get('selected_trucks', [])
+    # Logic for deleting trucks (e.g., remove from database)
+    global trucks
+    trucks = [truck for truck in trucks if str(truck['id']) not in selected_trucks]
+    print(f"Deleted trucks with IDs: {selected_trucks}")
+    return jsonify({"message": "Trucks deleted successfully!"})
+
+@app.route('/add_truck', methods=['POST'])
+def add_truck():
+    truck_data = request.json
+    new_truck = {
+        "id": len(trucks) + 1,  
+        "truck_reg": truck_data['truck_reg'],
+        "truck_type": truck_data['truck_type'],
+        "trailer1_reg": truck_data['trailer1_reg'],
+        "trailer2_reg": truck_data['trailer2_reg'],
+        "driver_name": truck_data['driver_name'],
+        "id_number": truck_data['id_number'],
+        "passport_number": truck_data['passport_number'],
+        "license_number": truck_data['license_number'],
+        "phone_number": truck_data['phone_number']
+    }
+    trucks.append(new_truck)
+    return jsonify({"message": "Truck added successfully!"})
+
+@app.route('/truck_action', methods=['POST'])
+def truck_action():
+    if request.is_json:
+        payload = request.get_json()
+        print("Received payload:", payload)
+    else:
+        return jsonify({"error": "Invalid content type"}), 400
+    
+    # Extract and normalize event details
+    event_name = payload.get("event_name", "").strip().lower()  # CHANGED: Normalize the event_name to lowercase
+    print("Received event name:", event_name) 
+    selected_trucks = payload.get("selected_trucks", [])
+
+    truck_data = {
+        "event_name": payload.get("event_name"),
+        "user_id": payload.get("user_id"),
+        "ip_address": payload.get("ip_address"),
+        "timestamp": payload.get("timestamp"),
+        "user_agent": payload.get("user_agent"),
+        "selected_trucks": selected_trucks
+    }
+
+    # Process based on normalized event_name
+    if event_name == 'add_truck':  
+        # Logic to add trucks
+        print(f"Adding trucks: {selected_trucks}")
+        message = "Truck(s) added successfully!"
+    elif event_name == 'book_truck':  
+        # Logic to book trucks
+        print(f"Booking trucks: {selected_trucks}")
+        message = "Truck(s) booked successfully!"
+    elif event_name == 'delete_truck': 
+        # Logic to delete trucks
+        print(f"Deleting trucks: {selected_trucks}")
+        message = "Truck(s) deleted successfully!"
+    else:
+        return jsonify({"error": "Unknown event type"}), 400  
+
+    # Debug: Print the truck data before sending to the external service
+    print("TRUCK_DATA", truck_data)
+
+    # Send the truck data to the processing Flask service
+    PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
+    try:
+        print(f"Sending truck data to {PROCESSING_FLASK_URL}: {truck_data}")
+        response = requests.post(
+            PROCESSING_FLASK_URL,
+            json=truck_data,
+            headers={'Content-Type': 'application/json'}
+        )
+        response_data = response.json()
+        print("Response status code:", response.status_code)
+        print("Response data:", response_data)
+        return jsonify({"message": message, "processing_response": response_data}), response.status_code
+    except requests.exceptions.RequestException as e:
+        print(f"Error occurred while sending data to {PROCESSING_FLASK_URL}: {e}")
+        return jsonify({"error": str(e)}), 500
+    
+
+#load_pool
+loads_data = [
+    {
+        'load_id': 1,
+        'route': 'Harare-Gweru',
+        'date': '2024-09-30',
+        'coordinates': [29.8325, -18.9245],  
+        'rate': 100,
+        'load_type': 'Goods'
+    },
+    {
+        'load_id': 2,
+        'route': 'Kadoma-Gweru',
+        'date': '2024-09-30',
+        'coordinates': [29.9000, -18.3700],  
+        'rate': 200,
+        'load_type': 'Machinery'
+    }
+]
+
+
+@app.route('/load-pool')
+def loadpool():
+    return render_template('loadpool.html')
+
+@app.route('/api/loads')
+def get_loads():
+    return jsonify(loads_data)
+
+documents_data = [
+    {
+        'title': 'CROSS COUNTRY',
+        'files': [
+            {'name': 'Agreement.pdf', 'url': '/files/agreement.pdf'},
+            {'name': 'Invoice.pdf', 'url': '/files/invoice.pdf'},
+            {'name': 'P_O_D_scan.pdf', 'url': '/files/p_o_d_scan.pdf'},
+        ]
+    },
+    {
+        'title': 'CARGO CONNECT',
+        'files': [
+            {'name': 'Agreement.pdf', 'url': '/files/agreement.pdf'},
+            {'name': 'Invoice.pdf', 'url': '/files/invoice.pdf'},
+            {'name': 'P_O_D_scan.pdf', 'url': '/files/p_o_d_scan.pdf'},
+        ]
+    },
+    {
+        'title': 'TENGWA',
+        'files': [
+            {'name': 'Agreement.pdf', 'url': '/files/agreement.pdf'},
+            {'name': 'Invoice.pdf', 'url': '/files/invoice.pdf'},
+            {'name': 'P_O_D_scan.pdf', 'url': '/files/p_o_d_scan.pdf'},
+        ]
+    },
+]
+
+@app.route('/documents')
+def documents():
+    return render_template('docs.html', documents=documents_data)
+
+@app.route('/chat')
+def chat():
+    
+    messages = [
+        {'text': 'Hello, how can I help you?', 'type': 'incoming'},
+        {'text': 'I need information about the loads.', 'type': 'outgoing'},
+        {'text': 'Sure! Here are the details.', 'type': 'incoming'},
+    ]
+    return render_template('chat.html', messages=messages)
+
+@app.route('/analytics')
+def analytics():
+    # Placeholder for analytics data
+    return render_template('analytics.html')
+
+
+@app.route('/api/analytics-data')
+def analytics_data():
+    
+    return jsonify({
+        'labels': ['January', 'February', 'March', 'April', 'May'],
+        'data': [12, 19, 3, 5, 2],
+    })
+
+@app.route('/history')
+def view_history():
+    # Mock data for demonstration. In a real application, fetch from your database.
+    loads = [
+        {'load_id': '1', 'origin': 'City A', 'destination': 'City B', 'transport_date': '2024-09-01', 'status': 'Delivered'},
+        {'load_id': '2', 'origin': 'City C', 'destination': 'City D', 'transport_date': '2024-09-15', 'status': 'In Transit'},
+        # Add more loads as needed...
+    ]
+    
+    return render_template('history.html', loads=loads)
+    
+
 
 
 

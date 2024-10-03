@@ -85,6 +85,7 @@ tbody tr:hover {
 footer {
     background-color: #000;
     padding: 20px;
+    border: solid 1px rgb(80, 80, 80);
 }
 
 .footer-nav {

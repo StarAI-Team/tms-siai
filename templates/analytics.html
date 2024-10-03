@@ -8,20 +8,32 @@
     <title>Analytics</title>
 </head>
 <body>
-    <header>
-        <div class="logo">SIAi</div>
-        <nav>
-            <a href="/post_load">Post Load</a>
-            <a href="/view_transporters">View Transporters</a>
-            <a href="/view_history">View History</a>
-            <a href="/view_offers">View Offers</a>
-            <a href="/chat">Chat</a>
-            <a href="/analytics">Analytics</a>
-            <a href="/documents">Documents</a>
-            <a href="/service_providers">Service Providers</a>
-            <input type="text" placeholder="Search for Beira transporters">
-        </nav>
-    </header>
+    <div class="container">
+        <header>
+            <nav class="navbar">
+                <ul>
+                    <li>
+                        <a href="#">
+                            <div class="nav-title">
+                                <span class="main-title">SIAi</span><br>
+                                <span class="sub-title">TRANSPORTER</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li><a href="/trucks">View Trucks</a></li>
+                    <li><a href="/bid">Bid to Load</a></li>
+                    <li><a href="/history">View History</a></li>
+                    <li><a href="/load-pool">Load Pool</a></li>
+                    <li><a href="/chat">Chat</a></li>
+                    <li><a href="/analytics">Analytics</a></li>
+                    <li><a href="/documents">Documents</a></li>
+                    <li><a href="#">Online Market</a></li>
+                </ul>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search for Beira loads">
+                </div>
+            </nav>
+        </header>
     <main>
         <div class="analytics-chart">
             <h2>Analytics Overview</h2>
@@ -29,9 +41,43 @@
             <div class="chart" id="pie-chart"></div>
         </div>
     </main>
-    <footer>
-        <p>© 2024 SIAi. All rights reserved.</p>
-    </footer>
+</div>
+</main>
+
+<footer>
+<div class="footer-container">
+    <div class="footer-column">
+        <h3>SiAi</h3>
+        <p>AI powered Transport Management System. Post and Go...</p>
+        <p><i>Contact: +123 456 3455</i></p>
+    </div>
+    <div class="footer-column">
+        <h3>Menu</h3>
+        <ul>
+            <li>Products</li>
+            <li>Services</li>
+            <li>Analytics</li>
+            <li>About Us</li>
+        </ul>
+    </div>
+    <div class="footer-column">
+        <h3>Account</h3>
+        <ul>
+            <li>My Account</li>
+            <li>Checkout</li>
+            <li>My Cart</li>
+        </ul>
+    </div>
+    <div class="footer-column">
+        <h3>Stay Connected</h3>
+        <ul>
+            <li>Facebook</li>
+            <li>Instagram</li>
+            <li>X</li>
+        </ul>
+    </div>
+</div>
+</footer>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Insert your chart drawing logic here using Chart.js
