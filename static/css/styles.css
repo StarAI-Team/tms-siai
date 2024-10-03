@@ -1,104 +1,152 @@
+
+* {
+    font-family: 'Montserrat Alternates', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-    background-color: #000; /* Dark background */
-    color: #fff; /* White text for contrast */
-    font-family: 'Montserrat', sans-serif; /* Font family */
+    background-color: #000; 
+    color: #fff; 
+    font-family: 'Montserrat', sans-serif; 
     margin: 0;
 }
 
-header {
-    display: flex; /* Flexbox for layout */
-    justify-content: space-between; /* Space between logo and nav */
-    padding: 20px; /* Padding around header */
-    background-color: #111; /* Dark header background */
-}
-
-.logo {
-    font-size: 24px; /* Logo font size */
-    color: #fff; /* White color for logo */
-}
-
-nav {
-    display: flex; /* Flexbox for navigation links */
-    align-items: center; /* Center items vertically */
-}
-
-nav a {
-    color: #fff; /* White color for links */
-    margin: 0 15px; /* Margin between links */
-    text-decoration: none; /* No underline for links */
-}
-
-nav input[type="text"] {
-    padding: 5px; /* Padding for search input */
-    margin-left: 20px; /* Space from other nav items */
-    border: none; /* No border */
-    border-radius: 5px; /* Rounded corners */
-    background-color: #222; /* Dark background for input */
-    color: #fff; /* White text */
-}
-
-nav input[type="text"]::placeholder {
-    color: #fff; /* White placeholder text */
-}
 
 .document-list, .chat-window, .analytics-chart {
-    padding: 20px; /* Padding for main content */
+    padding: 20px; 
+}
+
+.document-list a {
+    color: rgb(254, 154, 154);  
 }
 
 .document-item, .chat-message {
-    border: 1px solid #444; /* Dark border */
-    padding: 15px; /* Padding for document/chat items */
-    margin: 10px 0; /* Margin between items */
-    border-radius: 5px; /* Rounded corners */
+    border: 1px solid #444; 
+    padding: 15px; 
+    margin: 10px 0; 
+    border-radius: 5px; 
 }
 
 .document-item h2 {
-    margin: 0 0 10px; /* Margin for document title */
-    color: #fff; /* White color for document titles */
-}
-
-footer {
-    text-align: center; /* Centered footer text */
-    padding: 20px; /* Padding for footer */
-    background-color: #111; /* Dark footer background */
-    position: relative; /* Positioning for fixed footer */
-    bottom: 0; /* Stick to bottom */
-    width: 100%; /* Full width */
+    margin: 0 0 10px; 
+    color: #fff; 
 }
 
 /* Chat-specific styles */
 .chat-window {
-    height: 400px; /* Fixed height for chat window */
-    overflow-y: auto; /* Scrollable if content exceeds height */
+    height: 400px; 
+    overflow-y: auto; 
 }
 
 .chat-message {
-    margin: 5px 0; /* Margin between messages */
+    margin: 5px 0; 
 }
 
 .chat-message.incoming {
-    text-align: left; /* Align incoming messages to the left */
-    color: #fff; /* White for incoming messages */
+    text-align: left; 
+    color: #fff; 
 }
 
 .chat-message.outgoing {
-    text-align: right; /* Align outgoing messages to the right */
-    color: #fff; /* White for outgoing messages */
+    text-align: right; 
+    color: #fff; 
 }
 
 /* Analytics chart styles */
 .analytics-chart {
-    display: flex; /* Flexbox for layout */
-    flex-direction: column; /* Stack charts vertically */
-    align-items: center; /* Center items */
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
 }
 
 .chart {
-    width: 80%; /* Chart width */
-    height: 300px; /* Fixed height for charts */
-    margin: 20px 0; /* Margin between charts */
-    border: 1px solid #444; /* Dark border around charts */
-    border-radius: 5px; /* Rounded corners */
-    background-color: #222; /* Dark background for charts */
-    color: #fff; /* White text for charts */
+    width: 80%; 
+    height: 300px; 
+    margin: 20px 0; 
+    border: 1px solid #444; 
+    border-radius: 5px; 
+    background-color: #222; 
+    color: #fff; 
+}
+
+header .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #000;
+}
+
+header .navbar ul {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+}
+
+header .navbar ul li {
+    padding: 10px;
+}
+
+header .navbar ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+.search-bar input {
+    padding: 5px;
+}
+
+footer {
+    background-color: #000;
+    border: solid 1px rgb(80, 80, 80);
+    padding: 20px;
+}
+
+.footer-nav {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.footer-btn {
+    padding: 10px 150px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #d30b0b;
+    border: 2px solid #555;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-top: 200px;
+    margin-bottom: 20px;
+    
+  
+}
+
+.footer-btn:hover {
+    background-color: #555;
+}
+
+footer .footer-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+footer h3 {
+    color: #fff;
+}
+
+footer ul {
+    list-style: none;
+    padding: 0;
+}
+
+footer ul li {
+    padding: 5px 0;
+}
+
+footer .footer-column {
+    color: white;
 }

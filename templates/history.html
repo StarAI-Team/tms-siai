@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TView History</title>
+    <link rel="stylesheet" href="/static/css/trucks.css">
+</head>
+<div class="container">
+    <header>
+        <nav class="navbar">
+            <ul>
+                <li>
+                    <a href="#">
+                        <div class="nav-title">
+                            <span class="main-title">SIAi</span><br>
+                            <span class="sub-title">TRANSPORTER</span>
+                        </div>
+                    </a>
+                </li>
+                <li><a href="/trucks">View Trucks</a></li>
+                <li><a href="/bid">Bid to Load</a></li>
+                <li><a href="/history">View History</a></li>
+                <li><a href="/load-pool">Load Pool</a></li>
+                <li><a href="/chat">Chat</a></li>
+                <li><a href="/analytics">Analytics</a></li>
+                <li><a href="/documents">Documents</a></li>
+                <li><a href="#">Online Market</a></li>
+            </ul>
+            <div class="search-bar">
+                <input type="text" placeholder="Search for Beira loads">
+            </div>
+        </nav>
+    </header>
+
+            <main>
+        <h1>Transport History</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Load ID</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                    <th>Transport Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for load in loads %}
+                <tr>
+                    <td>{{ load.load_id }}</td>
+                    <td>{{ load.origin }}</td>
+                    <td>{{ load.destination }}</td>
+                    <td>{{ load.transport_date }}</td>
+                    <td>{{ load.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-column">
+            <h3>SiAi</h3>
+            <p>AI powered Transport Management System. Post and Go...</p>
+            <p><i>Contact: +123 456 3455</i></p>
+        </div>
+        <div class="footer-column">
+            <h3>Menu</h3>
+            <ul>
+                <li>Products</li>
+                <li>Services</li>
+                <li>Analytics</li>
+                <li>About Us</li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h3>Account</h3>
+            <ul>
+                <li>My Account</li>
+                <li>Checkout</li>
+                <li>My Cart</li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h3>Stay Connected</h3>
+            <ul>
+                <li>Facebook</li>
+                <li>Instagram</li>
+                <li>X</li>
+            </ul>
+        </div>
+    </div>
+</footer>
+    </div>
+</body>
+</html>
