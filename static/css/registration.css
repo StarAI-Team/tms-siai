@@ -51,3 +51,42 @@ body, html {
     background-color: rgba(0, 0, 0, 0.9);
     border-color: white;
 }
+
+.info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.stat {
+    background-color: #2e2e2e;
+    padding: 15px;
+    border-radius: 5px;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.countdown {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.updates-section {
+    margin-top: 20px;
+}
+
+.updates-section .update {
+    background-color: #3e3e3e;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

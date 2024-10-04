@@ -23,10 +23,22 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 
 
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    """Serve the file from the file system """
-    return f"File can be accessed at: /uploads/{filename}"
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return "No file part", 400
+    file = request.files['file']
+    if file.filename == '':
+        return "No selected file", 400
+
+    # Send the file to the second Flask app (MinIO handler)
+    files = {'file': (file.filename, file.stream, file.mimetype)}
+    response = requests.post('http://localhost:6000/upload-file', files=files)
+
+    if response.status_code == 200:
+        return f"File uploaded successfully. File stored at: {response.text}"
+    else:
+        return f"Failed to upload file. Error: {response.text}", response.status_code
 
 @app.route('/get_user_metadata', methods=['GET'])
 def get_user_metadata():
@@ -613,6 +625,9 @@ def view_history():
     return render_template('history.html', loads=loads)
     
 
+@app.route('/transporter_dashboard')
+def transporter_dashboard():
+    return render_template('transporterdashboard.html')
 
 
 
