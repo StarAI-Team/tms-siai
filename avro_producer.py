@@ -76,6 +76,47 @@ app = Flask(__name__)
 #     finally:
 #         conn.close()  # Ensure the connection is closed
 
+# Configure MinIO client
+from minio import Minio
+from minio.error import S3Error
+
+minio_client = Minio(
+    "minio:9000",
+    access_key="minioadmin",
+    secret_key="minioadmin",
+    secure=False
+)
+
+# Ensure bucket exists
+bucket_name = "uploads"
+if not minio_client.bucket_exists(bucket_name):
+    minio_client.make_bucket(bucket_name)
+
+@app.route('/upload-file', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return "No file part", 400
+    file = request.files['file']
+    if file.filename == '':
+        return "No selected file", 400
+
+    # Save the file to MinIO
+    try:
+        file_path = file.filename
+        minio_client.put_object(
+            bucket_name, 
+            file_path, 
+            file.stream, 
+            length=-1, 
+            part_size=10*1024*1024,  # 10MB part size
+            content_type=file.mimetype
+        )
+        # Generate file URL
+        file_url = f"http://minio:9000/{bucket_name}/{file_path}"
+        return file_url, 200
+    except S3Error as e:
+        return f"Failed to upload file: {e}", 500
+
 class AvroProducer(ProducerClass):
     def __init__(
         self,
@@ -149,6 +190,9 @@ def process_user():
         
         # Generate a unique ID if not provided in the JSON
         user_id = user_data.get('user_id', str(uuid4()))
+
+        # if field is a file, store in file server and sned url to kafka instead
+        logging.info(f"user data: {user_data}")
 
         # Produce message to Kafka
         

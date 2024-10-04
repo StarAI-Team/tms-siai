@@ -196,7 +196,7 @@ def start_consumer():
                         conn = create_connection()
                         with conn.cursor() as cur:
                             insert_query = """
-                                INSERT INTO client (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number)
+                                INSERT INTO transporter (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number)
                                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                                 ON CONFLICT (company_email) DO NOTHING
                             """
@@ -204,7 +204,7 @@ def start_consumer():
                             # Execute the insert with all values
                             cur.execute(insert_query, (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number))
                             conn.commit()
-                            logging.info("Data inserted into client.")
+                            logging.info("Data inserted into transporter.")
                 else:
                     logging.warning("No valid task name received.")
         except KeyboardInterrupt:
@@ -220,7 +220,7 @@ def start_consumer():
 def index():
     conn = create_connection()
     with conn.cursor() as cur:
-        cur.execute("SELECT * FROM client")
+        cur.execute("SELECT * FROM transporter")
         tasks = cur.fetchall()
         return jsonify({"message": "Tasks:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
 
