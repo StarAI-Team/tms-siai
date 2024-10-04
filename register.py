@@ -5,6 +5,7 @@ import os
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
+import base64
 from flask_cors import CORS
 
 
@@ -16,6 +17,10 @@ CORS(app)
 #upload folder path
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
 
 
 @app.route('/uploads/<filename>')
@@ -61,6 +66,9 @@ def register_transporter():
         payload = request.get_json()  
     else:
         return jsonify({"error": "Invalid content type"}), 400
+    
+     # Debug: Check if files are in request.files
+    print("Files in request:", request.files)
     
     # Debug: Print incoming JSON payload
     print("Incoming JSON Payload:", payload)
