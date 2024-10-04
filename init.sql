@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS client (
+CREATE TABLE IF NOT EXISTS transporter (
                     user_id TEXT PRIMARY KEY,
                     company_email TEXT UNIQUE NOT NULL,
                     company_location TEXT UNIQUE NOT NULL,
@@ -9,3 +9,4 @@ CREATE TABLE IF NOT EXISTS client (
                     phone_number TEXT UNIQUE NOT NULL,
                     registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
+
