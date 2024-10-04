@@ -1,0 +1,143 @@
+body {
+    font-family: 'Montserrat Alternates', sans-serif;
+    background-color: #121212;
+    color: #fff;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+main {
+    display: flex;
+    flex-direction:row;
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.map {
+    width: 60%;
+    height: 400px;
+    background-color: #555; 
+}
+
+.info-section {
+    display: flex;
+    gap: 20px;
+    width: 40%;
+    padding-left: 20px;
+}
+
+.stats {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.stat {
+    background-color: #2e2e2e;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.countdown {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.updates {
+    margin-top: 20px;
+}
+
+.update {
+    background-color: #3e3e3e;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #000;
+}
+
+header .navbar ul {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+}
+
+header .navbar ul li {
+    padding: 10px;
+}
+
+header .navbar ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+.search-bar input {
+    padding: 5px;
+}
+
+footer {
+    background-color: #000;
+    border: solid 1px rgb(80, 80, 80);
+    padding: 20px;
+}
+
+.footer-nav {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.footer-btn {
+    padding: 10px 150px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #d30b0b;
+    border: 2px solid #555;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-top: 200px;
+    margin-bottom: 20px;
+    
+  
+}
+
+.footer-btn:hover {
+    background-color: #555;
+}
+
+footer .footer-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+footer h3 {
+    color: #fff;
+}
+
+footer ul {
+    list-style: none;
+    padding: 0;
+}
+
+footer ul li {
+    padding: 5px 0;
+}
+
+footer .footer-column {
+    color: white;
+}
