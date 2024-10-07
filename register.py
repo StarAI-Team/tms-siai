@@ -7,38 +7,48 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 import base64
 from flask_cors import CORS
+import logging
 
 
 
 
 app = Flask(__name__)
 CORS(app) 
+logging.basicConfig(level=logging.DEBUG)
 
-#upload folder path
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
-
-
-
+""" 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    print("Upload route called")  # Debugging statement to indicate the upload route is accessed
+
     if 'file' not in request.files:
+        print("No file part in the request")  # Debugging statement for missing file
         return "No file part", 400
+
     file = request.files['file']
     if file.filename == '':
+        print("No selected file")  # Debugging statement for no file selected
         return "No selected file", 400
 
-    # Send the file to the second Flask app (MinIO handler)
-    files = {'file': (file.filename, file.stream, file.mimetype)}
-    response = requests.post('http://localhost:6000/upload-file', files=files)
+    print(f"File received: {file.filename}")  # Debugging statement for the file received
 
-    if response.status_code == 200:
-        return f"File uploaded successfully. File stored at: {response.text}"
-    else:
-        return f"Failed to upload file. Error: {response.text}", response.status_code
+    # Prepare to send the file to the second Flask app (MinIO handler)
+    files = {'file': (file.filename, file.stream, file.mimetype)}
+    print(f"Preparing to send file to MinIO: {files}")  # Debugging statement before sending
+
+    try:
+        response = requests.post('http://localhost:6000/upload-file', files=files)
+        print(f"Response from MinIO: Status Code - {response.status_code}, Response Text - {response.text}")  # Debugging response from MinIO
+
+        if response.status_code == 200:
+            print("File uploaded successfully")  # Debugging statement for successful upload
+            return f"File uploaded successfully. File stored at: {response.text}"
+        else:
+            print(f"Failed to upload file. Error: {response.text}")  # Debugging statement for failed upload
+            return f"Failed to upload file. Error: {response.text}", response.status_code
+    except Exception as e:
+        print(f"Exception occurred while uploading file: {str(e)}")  # Debugging statement for exception handling
+        return "Internal server error", 500 """
 
 @app.route('/get_user_metadata', methods=['GET'])
 def get_user_metadata():
@@ -74,21 +84,17 @@ def welcome_transporter():
 
 @app.route('/register_transporter', methods=['POST'])
 def register_transporter():
-    if request.is_json:
-        payload = request.get_json()  
-    else:
-        return jsonify({"error": "Invalid content type"}), 400
-    
-     # Debug: Check if files are in request.files
+    if request.method == 'POST':
+        transporter_data = {}
+        file_data = {}
+    print("Initial transporter data received :", transporter_data)
     print("Files in request:", request.files)
+
     
-    # Debug: Print incoming JSON payload
-    print("Incoming JSON Payload:", payload)
-    transporter_data = {
-        **{key: payload[key] for key in payload if key not in ['form_data']} ,
-        **{key: payload['form_data'][key] for key in payload['form_data']}
-    } 
-    print("TRANSPORTER DATA", transporter_data)
+    # Process form data and files
+    inputs = request.form  # Contains form data only
+    for key, value in inputs.items():
+        transporter_data[key] = value 
 
 
     # Files that are required for the transporter to register
@@ -110,18 +116,24 @@ def register_transporter():
     # Handling file uploads
     file_data = {}
     for file_field in file_fields:
-        if file_field in request.files:
-            file = request.files[file_field]
-            if file:
-                # Create a secure filename and store it in the uploads folder
-                filename = secure_filename(file.filename)
-                unique_filename = str(uuid.uuid4()) + "_" + filename
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-                file.save(file_path)  # Save the file to the disk
+        file = request.files.get(file_field)
+        logging.debug(f"Received file for field '{file_field}': {file.filename if file else 'No file'}")
+        if file and file.filename:
+                try:
+                    # Directly uploading the file to the MinIO service
+                    files = {'file': (file.filename, file.stream, file.mimetype)}
+                    logging.debug(f"Uploading file: {file.filename}, MIME type: {file.mimetype}")
 
-                # Generate URI to access this file
-                file_uri = url_for('uploaded_file', filename=unique_filename, _external=True)
-                file_data[file_field] = file_uri
+                    response = requests.post('http://localhost:6000/upload-file', files=files)
+                    logging.debug(f"Response from MinIO upload for '{file_field}': {response.status_code}, {response.text}")
+
+                    if response.status_code == 200:
+                        file_data[file_field] = response.text 
+                        logging.debug(f"Successfully uploaded {file_field}: {file_data[file_field]}")
+                    else:
+                        return jsonify({"error": f"Failed to upload {file_field}: {response.text}"}), response.status_code
+                except Exception as e:
+                    return jsonify({"error": f"Error uploading {file_field}: {str(e)}"}), 500
 
     # Merging form data with file data if files exist
     transporter_data.update(file_data)
@@ -171,6 +183,22 @@ def register_transporter():
         return jsonify({"error": str(e)}), 500
 
     return jsonify({"message": "Data submitted successfully"}), 200
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    print("Upload route called")
+
+    if 'file' not in request.files:
+        return "No file part", 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return "No selected file", 400
+
+    try:
+        response = requests.post('http://localhost:6000/upload-file', files={'file': (file.filename, file.stream, file.mimetype)})
+        return f"File uploaded successfully. File stored at: {response.text}" if response.status_code == 200 else f"Failed to upload file. Error: {response.text}", response.status_code
+    except Exception as e:
+        return f"Exception occurred while uploading file: {str(e)}", 500
 
 
 

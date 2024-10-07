@@ -114,59 +114,64 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     async function sendEventData(section, shouldRedirect) {
-        const data = {};
+        const formData = new FormData();
         const inputs = formSteps[currentStep].querySelectorAll('input, textarea');
     
         // Collecting form data from inputs in the current section
         inputs.forEach(input => {
-            if (input.name && input.value) {
-                data[input.name] = input.value; 
+            if (input.name) {
+                if (input.type === 'file') {
+                    // Append files to FormData
+                    const files = input.files;
+                    for (let i = 0; i < files.length; i++) {
+                        formData.append(input.name, files[i]);
+                    }
+                } else {
+                    // Append other input values
+                    formData.append(input.name, input.value);
+                }
             }
         });
     
-        console.log("Form data for section:", section, data);
+    
+        console.log("Form data for section:", section, formData);
     
         // Fetching user_id and ip_address metadata from the backend
         try {
             const metadataResponse = await fetch('/get_user_metadata');
             const metadata = await metadataResponse.json();
     
-            const eventDetails = {
-                event_name: `transporterRegistration_${section}`,  
-                user_id: metadata.user_id,
-                ip_address: metadata.ip_address,
-                timestamp: new Date().toISOString(),
-                user_agent: navigator.userAgent,
-                current_section: section,
-                form_data: data  
-            };
+            // Adding user metadata to FormData
+        formData.append('event_name', `transporterRegistration_${section}`);
+        formData.append('user_id', metadata.user_id);
+        formData.append('ip_address', metadata.ip_address);
+        formData.append('timestamp', new Date().toISOString());
+        formData.append('user_agent', navigator.userAgent);
+        formData.append('current_section', section);
     
-            console.log("Payload to be sent:", eventDetails);
-    
-            // Sending the section data to the Flask backend
-            const response = await fetch('/register_transporter', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(eventDetails),  // Sending JSON payload
-            });
-    
-            const responseData = await response.json();
-            console.log('Response data:', responseData);
-            
-            if (responseData.error) {
-                alert(`Error: ${responseData.error}`);
-                return false;  // Return false if there's an error
-            } else {
-                return true;  // Return true for a successful submission
-            }
-        } catch (error) {
-            console.error('Error sending data:', error);
-            alert('There was a problem submitting your data. Please try again.');
-            return false;  // Return false on catch
+        console.log("Payload to be sent:", Array.from(formData.entries()));;
+        // Sending the section data to the Flask backend
+        const response = await fetch('/register_transporter', {
+            method: 'POST',
+            body: formData,  // Use FormData for the body
+        });
+
+        const responseData = await response.json();
+        console.log('Response data:', responseData);
+
+        if (responseData.error) {
+            alert(`Error: ${responseData.error}`);
+            return false;  // Return false if there's an error
+        } else {
+            return true;  // Return true for a successful submission
         }
+    } catch (error) {
+        console.error('Error sending data:', error);
+        alert('There was a problem submitting your data. Please try again.');
+        return false;  // Return false on catch
     }
+}
+    
     
     // Attaching event listener
     nextButtons.forEach(button => {
