@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Documents</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav class="navbar">
+                <ul>
+                    <li>
+                        <a href="#">
+                            <div class="nav-title">
+                                <span class="main-title">SIAi</span><br>
+                                <span class="sub-title">SHIPPER</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li><a href="/load">Post Load</a></li>
+                    <li><a href="/view-transporters">View Transporters</a></li>
+                    <li><a href="/shipper-history">View History</a></li>
+                    <li><a href="/view_offers">View Offers</a></li>
+                    <li><a href="/shipper_chat">Chat</a></li>
+                    <li><a href="/shipper_analytics">Analytics</a></li>
+                    <li><a href="/shipper_documents">Documents</a></li>
+                    <li><a href="#">Online Market</a></li>
+                </ul>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search for Beira loads">
+                </div>
+            </nav>
+        </header>
+    <main>
+        <div class="document-list">
+            {% for document in documents %}
+                <div class="document-item">
+                    <h2>{{ document.title }}</h2>
+                    {% for file in document.files %}
+                        <a href="{{ file.url }}">{{ file.name }}</a>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+    <div class="footer-nav">
+        <button class="footer-btn">Back</button>
+    </div>
+</div>
+</main>
+
+<footer>
+<div class="footer-container">
+    <div class="footer-column">
+        <h3>SiAi</h3>
+        <p>AI powered Transport Management System. Post and Go...</p>
+        <p><i>Contact: +123 456 3455</i></p>
+    </div>
+    <div class="footer-column">
+        <h3>Menu</h3>
+        <ul>
+            <li>Products</li>
+            <li>Services</li>
+            <li>Analytics</li>
+            <li>About Us</li>
+        </ul>
+    </div>
+    <div class="footer-column">
+        <h3>Account</h3>
+        <ul>
+            <li>My Account</li>
+            <li>Checkout</li>
+            <li>My Cart</li>
+        </ul>
+    </div>
+    <div class="footer-column">
+        <h3>Stay Connected</h3>
+        <ul>
+            <li>Facebook</li>
+            <li>Instagram</li>
+            <li>X</li>
+        </ul>
+    </div>
+</div>
+</footer>
+</body>
+</html>
