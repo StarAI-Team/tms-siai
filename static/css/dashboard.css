@@ -1,3 +1,9 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+}
 body {
     font-family: 'Montserrat Alternates', sans-serif;
     background-color: #121212;
@@ -5,10 +11,16 @@ body {
     margin: 0;
 }
 
+body, html {
+    height: 100%;
+    margin: 0;
+}
+
+
 .container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 main {
@@ -16,29 +28,35 @@ main {
     flex-direction:row;
     padding: 20px;
     flex-grow: 1;
+    overflow-y: auto;
+}
+main, .info-section, .carousel-section {
+    flex: 1;
+    padding: 20px;
 }
 
 .map {
-    width: 60%;
+    width: 80%;
     height: 400px;
     background-color: #555; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 3;
 }
 
 
 .info-section {
-    flex-basis: 100%; 
-    gap: 20px;
-    padding-left: 20px; 
-    width: 100%;
-    position: relative;
+    padding: 20px; 
     margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+    width: 66%;
+  
 }
 
 .updates-section {
-    width: 40%; 
-    padding-left: 20px; 
-    margin-top: 20px;
-    position: relative;
+    flex:1;
+    margin-left: 190px;
     
 }
 
@@ -69,6 +87,10 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.updates-section{
+    flex: 1;
 }
 
 .countdown {
@@ -155,3 +177,82 @@ footer ul li {
 footer .footer-column {
     color: white;
 }
+
+.carousel-section {
+    overflow-y: auto;
+    position: relative;
+    padding: 20px 0;
+    text-align: center;
+    overflow: hidden;
+    height: 150px;
+}
+
+.carousel {
+    display: flex;
+    width: 100%;
+    overflow: hidden; 
+    gap: 20px;
+}
+
+.carousel-inner {
+    display: flex;
+    width: max-content;
+    animation: scroll 15s linear infinite; 
+}
+
+.carousel-image {
+    width: 500px; /* Adjust image width */
+    height: auto;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.carousel-image:hover {
+    transform: scale(1.05); /* Slightly enlarges the image on hover */
+}
+.carousel-image.active {
+    opacity: 1; 
+}
+@keyframes scroll {
+    0% {
+        transform: translateX(0); 
+    }
+    100% {
+        transform: translateX(-300%); 
+    }
+}
+
+.carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 24px;
+}
+
+.prev {
+    left: 10px;
+}
+
+.next {
+    right: 10px;
+}
+
+.logistics-news-section {
+    margin-top: 20px;
+    padding: 15px;
+}
+
+.logistics-news-section h2 {
+    font-size: 1.5em;
+}
+
+.news-item {
+    margin-bottom: 10px;
+}
+
+
+
