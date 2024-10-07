@@ -1,10 +1,8 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from main import *
-import json
-import requests
-import os
-import uuid
+from google.oauth2.service_account import Credentials
+import json,os,gspread,uuid,requests
+import pandas as pd
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -35,7 +33,8 @@ def login():
     username = data.get('username')
     password = data.get('password')
     role = data.get('role')  # Capture role from JSON
-
+    eventName = data.get('event_name') #Capture event Name from JSON
+    
     try:
         # Hash the password before sending it to Redpanda service
         hashed_password = generate_password_hash(password)
@@ -44,15 +43,17 @@ def login():
         payload = {
             "username": username,
             "password": hashed_password,  # Send the hashed password
-            "role": role
+            "role": role,
+            "event_name": eventName
         }
+        #print(payload)
 
         # Send the payload with the hashed password to the Redpanda service
         response = requests.post(
             PROCESSING_FLASK_URL,  # External backend URL (Redpanda service)
-            json=payload,
-            headers={'Content-Type': 'application/json'}
+            json=payload
         )
+        #print(response)
 
         # Check if the username exists and password is correct
         if username in users and check_password_hash(users[username], password):
@@ -65,6 +66,7 @@ def login():
             return jsonify({"message": "Login failed. Please check your credentials and try again."}), 401
     except requests.exceptions.RequestException as e:
         return jsonify({"error": str(e)}), 500
+
 class GoogleSheetUpdater:
     def __init__(self, service_account_file, document_id, sheet_index=0):
         self.service_account_file = service_account_file
@@ -87,7 +89,7 @@ class GoogleSheetUpdater:
         return pd.DataFrame(records)
 
 # Usage
-SERVICE_ACCOUNT_FILE = './data-extraction-tool-433301-eaef27c2bac9.json'
+SERVICE_ACCOUNT_FILE = './star-chatbot-admin-ff7178990f12.json'
 DOCUMENT_ID = '1h2dNYqfsyHtwv-E7Q2tUvrBRQnzXYjjrLPR_ogPuG0c'
 
 updater = GoogleSheetUpdater(SERVICE_ACCOUNT_FILE, DOCUMENT_ID)
@@ -100,7 +102,7 @@ def fetch_transporters():
         
         # Convert the DataFrame to a list of dictionaries
         transporters = df.to_dict(orient="records")
-
+        #print(transporters)
         # Return the data as JSON
         return jsonify(transporters)
     except Exception as e:
@@ -139,6 +141,11 @@ def favorite(transporter_id):
     
     session['favorites'] = favorites
     return redirect(url_for('transporters'))
+
+@app.route('/search', methods = ['POST'])
+def search():
+        print(search)
+        return redirect(url_for('login'))
 
 # Route to view favorites
 @app.route('/favorites', methods=['GET'])

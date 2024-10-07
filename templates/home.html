@@ -4,25 +4,256 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <!-- Include any map-related scripts or styles -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background-color: #000;
+            padding: 14px;
+            color: white;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-grow: 1;
+        }
+
+        .navbar li {
+            margin-right: 15px;
+        }
+
+        .navbar li a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+        }
+
+        .navbar li a:hover {
+            background-color: #575757;
+            border-radius: 4px;
+        }
+
+        /* Search bar */
+        .search-bar {
+            margin-left: auto;
+        }
+
+        .search-bar input[type="text"] {
+            padding: 6px;
+            border-radius: 4px;
+            border: none;
+        }
+
+        /* Flex container for sidebar and content */
+        .container {
+            display: flex;
+            flex-grow: 1;
+            height: calc(100vh - 60px); /* Ensures height minus navbar */
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 300px;
+            background-color: #000;
+            padding: 20px;
+            box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar h3 {
+            margin-top: 0;
+            color: #ff0000;
+        }
+
+        .notification {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .notification:hover {
+            background-color: #f9f9f9;
+        }
+
+        .logistics-trends, .client-updates {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        /* Main content (map slider) */
+        .main-content {
+            flex-grow: 1;
+            background-color: #000;
+            position: relative;
+            height: 50vh; /* Set height to 50% of the viewport */
+           
+            
+        }
+
+        .map-slider {
+            position: relative;
+            height: 100%;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .map-controls {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .map-controls button {
+        background-color: #575757;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+
+    .map-controls button:hover {
+        background-color: #333;
+    }
+
+        .map-name {
+            color: #ff0000;
+            font-size: 16px;
+            padding-top: 10px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
+    <!-- Navbar -->
     <div class="navbar">
         <ul>
             <li><a href="{{ url_for('form') }}">Post Load</a></li>
             <li><a href="{{ url_for('view_transporters') }}">View Transporters</a></li>
         </ul>
+        <!-- Search bar -->
+        <div class="search-bar">
+            <form action="{{ url_for('search') }}" method="GET">
+                <input type="text" name="search" placeholder="Search...">
+            </form>
+        </div>
     </div>
 
-    <div class="main-content">
-        <!-- Main map and widgets -->
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4439.859761951858!2d30.98305831136774!3d-17.879917783023224!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1931a1e270c0f677%3A0x5228d0be8510364b!2sInsburg%20Freight%20Logistics!5e1!3m2!1sen!2ses!4v1726760741608!5m2!1sen!2ses" width="1200" height="650" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <!-- Main container for content and sidebar -->
+    <div class="container">
+        <!-- Main content area (Map Slider) -->
+<div class="main-content">
+    <div class="map-slider" id="map-slider">
+        <iframe id="map-frame" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4439.859761951858!2d30.98305831136774!3d-17.879917783023224!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1931a1e270c0f677%3A0x5228d0be8510364b!2sInsburg%20Freight%20Logistics!5e1!3m2!1sen!2ses!4v1726760741608!5m2!1sen!2ses"></iframe>
+        
+        <!-- Display map name beneath the map -->
+        <div class="map-name" id="map-name" textcolor = 'black'>Insburg Freight Logistics</div>
+        
+        <div class="map-controls">
+            <button onclick="prevMap()">Previous</button>
+            <button onclick="nextMap()">Next</button>
+        </div>  
+    </div>
+</div>
+
+
+         <!-- Sidebar -->
+         <div class="sidebar">
+            <div class="logistics-trends">
+                <h3>Logistics Trends</h3>
+                <!-- Example clickable notifications -->
+                <div class="notification" onclick="window.location.href='{{ url_for('login') }}';">
+                    New logistics technology: Autonomous trucks!
+                </div>
+                <div class="notification" onclick="window.location.href='{{ url_for('login') }}';">
+                    Global supply chain report - 2024 Q3.
+                </div>
+                <div class="notification" onclick="window.location.href='{{ url_for('login') }}';">
+                    Eco-friendly logistics solutions.
+                </div>
+            </div>
+            
+            <div class="client-updates">
+                <h3>Client Updates</h3>
+                <!-- Example client-specific notifications -->
+                <div class="notification">
+                    Load #12345 has been accepted by Transporter X.
+                </div>
+                <div class="notification">
+                    Load #54321 has been delivered.
+                </div>
+                <div class="notification">
+                    Transporter Y is ready for pickup.
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="sidebar">
-        <h3>Logistics Trends</h3>
-        <!-- Add sidebar content for updates -->
-    </div>
+    <script>
+        // Array of maps with map URLs and names
+        const maps = [
+            {
+                src: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4439.859761951858!2d30.98305831136774!3d-17.879917783023224!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1931a1e270c0f677%3A0x5228d0be8510364b!2sInsburg%20Freight%20Logistics!5e1!3m2!1sen!2ses!4v1726760741608!5m2!1sen!2ses",
+                name: "Insburg Freight Logistics"
+            },
+            {
+                src: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3155.197292618736!2d-122.08385108467996!3d37.38605197983362!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb0a791c06f53%3A0x2f5d8b8a7e57696!2sGoogleplex!5e1!3m2!1sen!2ses!4v1726760841102!5m2!1sen!2ses",
+                name: "Googleplex, Mountain View"
+            },
+            {
+                src: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d193571.438631143!2d-74.11808616120991!3d40.70583161984781!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0x9608acb0b58a4a79!2sNew%20York%20City!5e1!3m2!1sen!2ses!4v1726760941602!5m2!1sen!2ses",
+                name: "New York City"
+            }
+        ];
+
+        let currentMapIndex = 0;
+
+        // Function to load the map based on index
+        function loadMap(index) {
+            const mapFrame = document.getElementById("map-frame");
+            const mapName = document.getElementById("map-name");
+            mapFrame.src = maps[index].src;
+            mapName.innerHTML = maps[index].name;
+        }
+
+        // Go to the previous map
+        function prevMap() {
+            if (currentMapIndex > 0) {
+                currentMapIndex--;
+                loadMap(currentMapIndex);
+            }
+        }
+
+        // Go to the next map
+        function nextMap() {
+            if (currentMapIndex < maps.length - 1) {
+                currentMapIndex++;
+                loadMap(currentMapIndex);
+            }
+        }
+    </script>
 </body>
 </html>
