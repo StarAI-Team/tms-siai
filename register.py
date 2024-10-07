@@ -656,7 +656,6 @@ def view_history():
         {'load_id': '2', 'origin': 'City C', 'destination': 'City D', 'transport_date': '2024-09-15', 'status': 'In Transit'},
         # Add more loads as needed...
     ]
-    
     return render_template('history.html', loads=loads)
     
 
@@ -666,24 +665,34 @@ def transporter_dashboard():
 
 
 #LOAD SECTION 
+
+@app.route('/sign-in')
+def sign_in():
+    return render_template('login.html')
+
 @app.route('/login', methods=['POST'])
 def login():
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username = request.json.get('username')  # Use request.json since you're sending JSON
+    password = request.json.get('password')
+    role = request.json.get('role')
 
     if username in users and users[username] == password:
         session['client_id'] = username  # Use the username as the client ID
         session['session_id'] = str(uuid.uuid4())  # Generate a session ID
-        return '', 200  # Successful login, empty response body
+        return jsonify({"message": "Login successful"}), 200  # Return success message in JSON
     else:
-        return 'Login failed. Please check your credentials and try again.', 401
+        return jsonify({"message": "Login failed. Please check your credentials and try again."}), 401  # Return JSON error
+    
+@app.route('/shipper-dashboard')
+def shipper_dashboard():
+    if 'client_id' in session:
+        return render_template('shipperdashboard.html')
+    else:
+        return redirect(url_for('index'))
 
 @app.route('/load')
 def post_load_page():
-    if 'client_id' in session:
-        return render_template('load.html')
-    else:
-        return redirect(url_for('index'))
+    return render_template('load.html')
 
 @app.route('/post_load', methods=['POST'])
 def post_load():
@@ -719,8 +728,71 @@ def post_load():
     except requests.exceptions.RequestException as e:
         return jsonify({"error": str(e)}), 500
 
-    return jsonify({"message": "Load details received", "load":load_data}), 200
 
+
+@app.route('/view-transporters')
+def view_transporters():
+    return render_template('transporterslist.html')
+
+
+
+@app.route('/shipper-history')
+def view_shipper_history():
+    
+    loads = [
+        {'load_id': '1', 'origin': 'City A', 'destination': 'City B', 'transport_date': '2024-09-01', 'status': 'Delivered'},
+        {'load_id': '2', 'origin': 'City C', 'destination': 'City D', 'transport_date': '2024-09-15', 'status': 'In Transit'},
+        # Add more loads as needed...
+    ]
+    return render_template('shipperhistory.html', loads=loads)
+    
+@app.route('/shipper_analytics')
+def shipper_analytics():
+    # Placeholder for analytics data
+    return render_template('shipperanalytics.html')
+
+
+documents_data = [
+    {
+        'title': 'CROSS COUNTRY',
+        'files': [
+            {'name': 'Agreement.pdf', 'url': '/files/agreement.pdf'},
+            {'name': 'Invoice.pdf', 'url': '/files/invoice.pdf'},
+            {'name': 'P_O_D_scan.pdf', 'url': '/files/p_o_d_scan.pdf'},
+        ]
+    },
+    {
+        'title': 'CARGO CONNECT',
+        'files': [
+            {'name': 'Agreement.pdf', 'url': '/files/agreement.pdf'},
+            {'name': 'Invoice.pdf', 'url': '/files/invoice.pdf'},
+            {'name': 'P_O_D_scan.pdf', 'url': '/files/p_o_d_scan.pdf'},
+        ]
+    },
+    {
+        'title': 'TENGWA',
+        'files': [
+            {'name': 'Agreement.pdf', 'url': '/files/agreement.pdf'},
+            {'name': 'Invoice.pdf', 'url': '/files/invoice.pdf'},
+            {'name': 'P_O_D_scan.pdf', 'url': '/files/p_o_d_scan.pdf'},
+        ]
+    },
+]
+
+@app.route('/shipper_documents')
+def shipper_documents():
+    return render_template('shipperdocs.html', documents=documents_data)
+
+
+@app.route('/shipper_chat')
+def shipper_chat():
+    
+    messages = [
+        {'text': 'Hello, how can I help you?', 'type': 'incoming'},
+        {'text': 'I need information about the loads.', 'type': 'outgoing'},
+        {'text': 'Sure! Here are the details.', 'type': 'incoming'},
+    ]
+    return render_template('shipperchat.html', messages=messages)
 
 
 

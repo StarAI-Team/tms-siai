@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <title>Chat</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav class="navbar">
+                <ul>
+                    <li>
+                        <a href="#">
+                            <div class="nav-title">
+                                <span class="main-title">SIAi</span><br>
+                                <span class="sub-title">SHIPPER</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li><a href="/load">Post Load</a></li>
+                    <li><a href="/view-transporters">View Transporters</a></li>
+                    <li><a href="/shipper-history">View History</a></li>
+                    <li><a href="/view_offers">View Offers</a></li>
+                    <li><a href="/shipper_chat">Chat</a></li>
+                    <li><a href="/shipper_analytics">Analytics</a></li>
+                    <li><a href="/shipper_documents">Documents</a></li>
+                    <li><a href="#">Online Market</a></li>>
+                </ul>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search for Beira loads">
+                </div>
+            </nav>
+        </header>
+    <main>
+        <div class="chat-window">
+            <h2>STAR INTERNATIONAL</h2>
+            <div class="chat-messages">
+                {% for message in messages %}
+                    <div class="{{ message.type }}">{{ message.text }}</div>
+                {% endfor %}
+            </div>
+            <input type="text" placeholder="Type your message...">
+        </div>
+    </main>
+    <footer>
+        <p>© 2024 SIAi. All rights reserved.</p>
+    </footer>
+</body>
+</html>
