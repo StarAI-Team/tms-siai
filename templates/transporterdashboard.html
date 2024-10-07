@@ -40,29 +40,6 @@
                 <!-- Map Placeholder -->
             </div>
         
-            <section class="info-section">
-                <div class="stats">
-                    <div class="stat">
-                        <h2>Route Planning</h2>
-                        <p>Traffic: <span>30%</span></p>
-                        <p>Fuel: <span>2000L</span></p>
-                    </div>
-                    <div class="stat">
-                        <h2>ETA</h2>
-                        <p>Traffic: <span>30%</span></p>
-                        <p>Road Quality: <span>30%</span></p>
-                        <p>Weather: <span>2%</span></p>
-                        <div class="countdown">Countdown to arrival: <span>22h 5m 20s remaining</span></div>
-                    </div>
-                    <div class="stat">
-                        <h2>Predicted Risks</h2>
-                        <p>Delays: <span>15%</span></p>
-                        <p>Accidents: <span>0.2%</span></p>
-                        <p>Theft: <span>90%</span></p>
-                    </div>
-                </div>
-            </section>
-        
             <section class="updates-section">
                 <h2>Updates</h2>
                 <div class="update">Pelcavria Accepted Offer - Description <span>9:41 AM</span></div>
@@ -71,13 +48,55 @@
                 <div class="update">Done - Send Documents <span>9:41 AM</span><button>Upload</button></div>
                 <div class="update">Pending Payment <span>9:41 AM</span></div>
                 <div class="update">Completed <span>9:41 AM</span></div>
-            </section>
-        </main>        
+            </section>             
+            
+        </main>  
+
+        <section class="logistics-news-section">
+            <h2>Logistics News</h2>
+            <div class="news-item">News Headline 1 - Description <span>9:41 AM</span></div>
+            <div class="news-item">News Headline 2 - Description <span>10:30 AM</span></div>
+            <div class="news-item">News Headline 3 - Description <span>11:15 AM</span></div>
+        </section>
+
+        <section class="info-section">
+            <div class="stats">
+                <div class="stat">
+                    <h2>Route Planning</h2>
+                    <p>Traffic: <span>30%</span></p>
+                    <p>Fuel: <span>2000L</span></p>
+                </div>
+                <div class="stat">
+                    <h2>ETA</h2>
+                    <p>Traffic: <span>30%</span></p>
+                    <p>Road Quality: <span>30%</span></p>
+                    <p>Weather: <span>2%</span></p>
+                    <div class="countdown">Countdown to arrival: <span>22h 5m 20s remaining</span></div>
+                </div>
+                <div class="stat">
+                    <h2>Predicted Risks</h2>
+                    <p>Delays: <span>15%</span></p>
+                    <p>Accidents: <span>0.2%</span></p>
+                    <p>Theft: <span>90%</span></p>
+                </div>
+            </div>
+        </section>   
+        <section class="carousel-section">
+            <div class="carousel">
+                <div class="carousel-inner">
+                    <a href="#"><img src="/static/images/onlinestore1.png" alt="Description 1" class="carousel-image"></a>
+                    <a href="#"><img src="/static/images/onlinestore2.png" alt="Description 2" class="carousel-image"></a>
+                    <a href="#"><img src="/static/images/onlinestore3.png" alt="Description 3" class="carousel-image"></a>
+                </div>
+                <button class="carousel-button prev" onclick="changeSlide(-1)">&#10094;</button>
+                <button class="carousel-button next" onclick="changeSlide(1)">&#10095;</button>
+            </div>
+        </section>   
 
         <footer>
             <div class="footer-container">
                 <div class="footer-column">
-                    <h3>SiAi</h3>
+                    <h3>SIAi</h3>
                     <p>AI powered Transport Management System. Post and Go...</p>
                     <p><i>Contact: +123 456 3455</i></p>
                 </div>
@@ -109,5 +128,41 @@
             </div>
         </footer>
     </div>
+    <script>
+    let currentIndex = 0;
+    const images = document.querySelectorAll('.carousel-image');
+
+    function changeSlide(direction) {
+        images[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + direction + images.length) % images.length;
+        images[currentIndex].classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        images[currentIndex].classList.add('active');
+        const carousel = document.querySelector('.carousel');
+        let isHovered = false;
+        let scrollAnimation;
+
+        setInterval(() => {
+            if (!isHovered) {
+                carousel.scrollBy({
+                    left: carousel.offsetWidth,
+                    behavior: 'smooth'
+                });
+                // If we've scrolled to the end, scroll back to the start
+                if (carousel.scrollLeft + carousel.offsetWidth >= carousel.scrollWidth) {
+                    carousel.scrollTo({ left: 0, behavior: 'smooth' });
+                }
+            }
+        }, 1000); // Adjusted timing for smoother transition
+
+        carousel.addEventListener('mouseover', stopCarousel);
+        carousel.addEventListener('mouseout', startCarousel);
+
+        // Start the carousel when the page loads
+        startCarousel();
+    });
+</script>
 </body>
 </html>
