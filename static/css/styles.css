@@ -1,0 +1,104 @@
+body {
+    background-color: #000; /* Dark background */
+    color: #fff; /* White text for contrast */
+    font-family: 'Montserrat', sans-serif; /* Font family */
+    margin: 0;
+}
+
+header {
+    display: flex; /* Flexbox for layout */
+    justify-content: space-between; /* Space between logo and nav */
+    padding: 20px; /* Padding around header */
+    background-color: #111; /* Dark header background */
+}
+
+.logo {
+    font-size: 24px; /* Logo font size */
+    color: #fff; /* White color for logo */
+}
+
+nav {
+    display: flex; /* Flexbox for navigation links */
+    align-items: center; /* Center items vertically */
+}
+
+nav a {
+    color: #fff; /* White color for links */
+    margin: 0 15px; /* Margin between links */
+    text-decoration: none; /* No underline for links */
+}
+
+nav input[type="text"] {
+    padding: 5px; /* Padding for search input */
+    margin-left: 20px; /* Space from other nav items */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #222; /* Dark background for input */
+    color: #fff; /* White text */
+}
+
+nav input[type="text"]::placeholder {
+    color: #fff; /* White placeholder text */
+}
+
+.document-list, .chat-window, .analytics-chart {
+    padding: 20px; /* Padding for main content */
+}
+
+.document-item, .chat-message {
+    border: 1px solid #444; /* Dark border */
+    padding: 15px; /* Padding for document/chat items */
+    margin: 10px 0; /* Margin between items */
+    border-radius: 5px; /* Rounded corners */
+}
+
+.document-item h2 {
+    margin: 0 0 10px; /* Margin for document title */
+    color: #fff; /* White color for document titles */
+}
+
+footer {
+    text-align: center; /* Centered footer text */
+    padding: 20px; /* Padding for footer */
+    background-color: #111; /* Dark footer background */
+    position: relative; /* Positioning for fixed footer */
+    bottom: 0; /* Stick to bottom */
+    width: 100%; /* Full width */
+}
+
+/* Chat-specific styles */
+.chat-window {
+    height: 400px; /* Fixed height for chat window */
+    overflow-y: auto; /* Scrollable if content exceeds height */
+}
+
+.chat-message {
+    margin: 5px 0; /* Margin between messages */
+}
+
+.chat-message.incoming {
+    text-align: left; /* Align incoming messages to the left */
+    color: #fff; /* White for incoming messages */
+}
+
+.chat-message.outgoing {
+    text-align: right; /* Align outgoing messages to the right */
+    color: #fff; /* White for outgoing messages */
+}
+
+/* Analytics chart styles */
+.analytics-chart {
+    display: flex; /* Flexbox for layout */
+    flex-direction: column; /* Stack charts vertically */
+    align-items: center; /* Center items */
+}
+
+.chart {
+    width: 80%; /* Chart width */
+    height: 300px; /* Fixed height for charts */
+    margin: 20px 0; /* Margin between charts */
+    border: 1px solid #444; /* Dark border around charts */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #222; /* Dark background for charts */
+    color: #fff; /* White text for charts */
+}

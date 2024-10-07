@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat Alternates', sans-serif;
+    background-color: #181818;
+    color: #fff;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+}
+
+header .navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: #000;
+}
+
+header .navbar ul {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+}
+
+header .navbar ul li {
+    padding: 10px;
+}
+
+header .navbar ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+.search-bar input {
+    padding: 5px;
+}
+
+.map-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 20px;
+    padding: 20px;
+    
+}
+
+.map-container .route-selection {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.map-container .map-display img {
+    max-width: 100%;
+}
+
+.route-selection .destination {
+    display: flex;
+    flex-direction: column; 
+}
+
+
+.key .dot {
+    width: 10px; 
+    height: 10px; 
+    border-radius: 50%; 
+    display: inline-block; 
+}
+
+.dot-loads {
+    background-color: yellow; 
+    border: solid 1px red;
+}
+
+
+.dot-routes {
+    background-color: rgb(103, 228, 103); 
+    border: solid 1px rgb(237, 36, 70);
+}
+
+
+.route-selection input[type="text"] {
+    background-color: #363635; 
+    border: 1px solid #fcfafa; 
+    color: #f3f0f0; 
+    margin-bottom: 20px;
+    margin-top: 10px;
+    border-radius: 8px;
+    padding: 10px;
+    font-family: 'Montserrat Alternates', sans-serif;
+}
+
+#highlight-route-btn {
+    background-color: rgb(240, 17, 17); 
+    color: white; 
+    border: solid 1px red; 
+    padding: 10px 10px; 
+    cursor: pointer;
+    font-family: 'Montserrat Alternates', sans-serif;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.loads-route, .key {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+footer {
+    background-color: #000; /* Black background */
+    padding: 20px; /* Padding around the footer */
+}
+
+footer .footer-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.footer-btn {
+    background-color: #da2020; /* Red button background */
+    color: #fff; /* White text */
+    padding: 10px 20px; /* Button padding */
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+footer .footer-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+    gap: 20px; /* Space between columns */
+}
+
+footer h3 {
+    color: #fff; /* White text for headings */
+}
+
+footer ul {
+    list-style: none; /* Remove bullet points */
+    padding: 0; /* Remove default padding */
+}
+
+footer ul li {
+    padding: 5px 0; /* Space between list items */
+    color: #fff; /* White text for list items */
+}
+
+footer p {
+    color: #fff; /* White text for paragraphs */
+}

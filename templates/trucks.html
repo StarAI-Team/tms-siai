@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booked Trucks</title>
+    <link rel="stylesheet" href="/static/css/trucks.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav class="navbar">
+                <ul>
+                    <li><a href="#">SIAi</a></li>
+                    <li><a href="#">View Trucks</a></li>
+                    <li><a href="#">Bid to Load</a></li>
+                    <li><a href="#">View History</a></li>
+                    <li><a href="#">View Offers</a></li>
+                    <li><a href="#">Chat</a></li>
+                    <li><a href="#">Analytics</a></li>
+                    <li><a href="#">Documents</a></li>
+                    <li><a href="#">Online Market</a></li>
+                </ul>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search for Beira transporters">
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div class="booked-trucks">
+                <h2>Booked Trucks</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Truck Reg</th>
+                            <th>Truck Type</th>
+                            <th>Trailer 1 Reg</th>
+                            <th>Trailer 2 Reg</th>
+                            <th>Driver Name</th>
+                            <th>ID Number</th>
+                            <th>Passport Number</th>
+                            <th>License Number</th>
+                            <th>Phone Number</th>
+                            <th>Book</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Use Jinja loop to iterate through trucks -->
+                        {% for truck in trucks %}
+                        <tr>
+                            <td>{{ truck.id }}</td>
+                            <td>{{ truck.truck_reg }}</td>
+                            <td>{{ truck.truck_type }}</td>
+                            <td>{{ truck.trailer1_reg }}</td>
+                            <td>{{ truck.trailer2_reg }}</td>
+                            <td>{{ truck.driver_name }}</td>
+                            <td>{{ truck.id_number }}</td>
+                            <td>{{ truck.passport_number }}</td>
+                            <td>{{ truck.license_number }}</td>
+                            <td>{{ truck.phone_number }}</td>
+                            <td><input type="checkbox" name="book" value="{{ truck.id }}" id="book-{{ truck.id }}"></td>
+                            <td><input type="checkbox" name="delete" value="{{ truck.id }}" id="delete-{{ truck.id }}"></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <button class="f-btn" onclick="handleAction('book')">Book Selected Trucks</button>
+                <button class="f-btn" onclick="handleAction('delete')">Delete Selected Trucks</button>
+                <button class="f-btn" onclick="addTruck()">Add Truck</button>
+            </div>
+            
+                <div class="footer-nav">
+                    <button class="footer-btn">Back</button>
+                    <button class="footer-btn">Send</button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>SiAi</h3>
+                    <p>AI powered Transport Management System. Post and Go...</p>
+                    <p><i>Contact: +123 456 3455</i></p>
+                </div>
+                <div class="footer-column">
+                    <h3>Menu</h3>
+                    <ul>
+                        <li>Products</li>
+                        <li>Services</li>
+                        <li>Analytics</li>
+                        <li>About Us</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Account</h3>
+                    <ul>
+                        <li>My Account</li>
+                        <li>Checkout</li>
+                        <li>My Cart</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Stay Connected</h3>
+                    <ul>
+                        <li>Facebook</li>
+                        <li>Instagram</li>
+                        <li>X</li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Function to handle book or delete actions
+        function handleAction(actionType) {
+            const selectedTrucks = [];
+            const checkboxes = document.querySelectorAll(`input[name=${actionType}]`);
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    selectedTrucks.push(checkbox.value);
+                }
+            });
+
+            if (selectedTrucks.length === 0) {
+                alert(`Please select trucks to ${actionType}`);
+                return;
+            }
+
+            // Fetch user metadata
+            fetch('/get_user_metadata')
+                .then(response => response.json())
+                .then(metadata => {
+                    // Prepare the event data
+                    const eventData = {
+                        event_name: actionType === 'book' ? 'Book_Truck' : 'Delete_Truck',
+                        user_id: metadata.user_id,
+                        ip_address: metadata.ip_address,
+                        timestamp: new Date().toISOString(),
+                        user_agent: navigator.userAgent,
+                        selected_trucks: selectedTrucks
+                    };
+
+                    // Send the data to the Flask backend
+                    sendEvent(eventData, actionType);
+                });
+        }
+
+        // Function to send event data to Flask backend
+        function sendEvent(eventData, actionType) {
+            fetch(`/trucks-${actionType}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(eventData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(`${actionType.charAt(0).toUpperCase() + actionType.slice(1)} event sent successfully:`, data);
+                alert(`The trucks have been ${actionType === 'book' ? 'booked' : 'deleted'} successfully!`);
+            })
+            .catch(error => {
+                console.error(`Error sending ${actionType} event:`, error);
+                alert(`There was an error trying to ${actionType} the trucks. Please try again.`);
+            });
+        }
+
+        // Function to add a new truck
+        function addTruck() {
+            const truckData = {
+                truck_reg: prompt("Enter Truck Registration"),
+                truck_type: prompt("Enter Truck Type"),
+                trailer1_reg: prompt("Enter Trailer 1 Registration"),
+                trailer2_reg: prompt("Enter Trailer 2 Registration"),
+                driver_name: prompt("Enter Driver Name"),
+                id_number: prompt("Enter ID Number"),
+                passport_number: prompt("Enter Passport Number"),
+                license_number: prompt("Enter License Number"),
+                phone_number: prompt("Enter Driver Phone Number")
+            };
+
+            if (!truckData.truck_reg || !truckData.truck_type || !truckData.driver_name) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            fetch('/add_truck', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(truckData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Truck added successfully:', data);
+                alert("Truck has been added successfully!");
+                window.location.reload(); 
+            })
+            .catch(error => {
+                console.error('Error adding truck:', error);
+                alert("There was an error adding the truck. Please try again.");
+            });
+        }
+    </script>
+</body>
+</html>

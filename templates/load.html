@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Load</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="image-section"></div>
+        <div class="form-container">
+            <h1>Post Load</h1>
+            <form id="multiStepForm" action="{{ url_for('post_load') }}" method="POST">
+                <!-- Section 1 -->
+                <div class="form-step">
+                    <input type="text" id="load_name" name="load_name" placeholder="Load Name" required>
+                    <input type="number" id="quantity" name="quantity" placeholder="Quantity in tonnes" required>
+                    <input type="text" id="pickup_place" name="pickup_place" placeholder="Pickup Place" required>
+                    <input type="datetime-local" id="pickup_time" name="pickup_time" placeholder="What is the Pickup Time" required>
+                    <input type="text" id="destination" name="destination" placeholder="Destination" required>
+                    <input type="text" id="clearing_agency" name="clearing_agency" placeholder="Clearing Agency " required>
+                    <input type="number" id="clearing_agency_contact" name="clearing_agency_contact" placeholder="Clearing Agency Contact" required>
+                    <button type="button" class="next-button">Next</button>
+                </div>
+                
+                <!-- Section 2 -->
+                <div class="form-step" style="display:none;">
+                    <input type="text" id="truck_type" name="truck_type" placeholder="Type of Truck" required>
+                    <input type="number" id="number_of_trucks" name="number_of_trucks" placeholder="Number of Trucks" required>
+                    <input type="text" id="payment_method" name="payment_method" placeholder="Payment Method" required>
+                    <input type="number" id="payment_days" name="payment_days" placeholder="Payment Days" required>
+                    <input type="text" id="proof_of_delivery_requirements" name="proof_of_delivery_requirements" placeholder="P.O.D Requirements" required>
+                    <div class="form-group">
+                        <div class="tooltip-container">
+                            <input type="number" id="delivery_duration" name="delivery_duration" placeholder="Preferred Delivery Duration" required>
+                            <span class="custom-tooltip">This is the time you expect your load to be delivered. e.g. load to be delivered between 20-June to 5-July</span>
+                        </div>
+                    </div>                    
+                    <input type="text" id="additional_instructions" name="additional_instructions" placeholder="Additional Instructions">
+                    <input type="number" id="recommended_price" name="recommended_price" placeholder="Recommended Price" required>
+                    <button type="button" class="prev-button">Previous</button>
+                    <button type="submit" class="submit-button">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="sessionData" data-session-id="{{ session['session_id'] }}" data-client-id="{{ session['client_id'] }}"></div>
+    <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Route</title>
+    <link rel="stylesheet" href="/static/css/loadpool.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+    <script 
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB9ZT92YUbJcDdGz7Na3o9Px5tOf80Fmuo&callback=initMap"
+        async
+        defer>
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav class="navbar">
+                <ul>
+                    <li><a href="#">Post Load</a></li>
+                    <li><a href="#">View Transporters</a></li>
+                    <li><a href="#">View History</a></li>
+                    <li><a href="#">View Offers</a></li>
+                    <li><a href="#">Chat</a></li>
+                    <li><a href="#">Analytics</a></li>
+                    <li><a href="#">Documents</a></li>
+                    <li><a href="#">Service Providers</a></li>
+                </ul>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search for transporters">
+                </div>
+            </nav>
+        </header>
+        
+        <main>
+            <div class="map-container">
+                <div class="route-selection">
+                    <h3>Select route</h3>
+                    <label for="starting-point">Starting Point</label>
+                    <input type="text" id="starting-point">
+                    <label for="destination">Destination</label>
+                    <input type="text" id="destination">
+                    <label for="date">Date</label>
+                    <input type="date" id="date">
+                    <button id="highlight-route-btn">Highlight Route</button> 
+                </div>
+
+                <!-- Map display section -->
+                <div class="map-display">
+                    <div id="map" style="width: 100%; height: 500px;"></div>
+                </div>
+
+                <!-- Loads in route section -->
+                <div class="loads-route">
+                    <h3>Loads in route</h3>
+                    <ul id="loads-list">
+                        <!-- Loads will be dynamically inserted here -->
+                    </ul>
+                </div>
+
+                <!-- Key section -->
+                <div class="key">
+                    <h3>Key</h3>
+                    <ul id="key-list">
+                        <li><span class="dot dot-loads"></span> Loads available</li>
+                        <li><span class="dot dot-routes"></span> Route nodes</li>
+                        <li>Alternate Routes:</li>
+                        <ul id="alternate-routes"></ul> 
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>SiAi</h3>
+                    <p>AI powered Transport Management System. Post and Go...</p>
+                    <p><i>Contact: +123 456 3455</i></p>
+                </div>
+                <div class="footer-column">
+                    <h3>Menu</h3>
+                    <ul>
+                        <li>Products</li>
+                        <li>Services</li>
+                        <li>Analytics</li>
+                        <li>About Us</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Account</h3>
+                    <ul>
+                        <li>My Account</li>
+                        <li>Checkout</li>
+                        <li>My Cart</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Stay Connected</h3>
+                    <ul>
+                        <li>Facebook</li>
+                        <li>Instagram</li>
+                        <li>X</li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        let map;
+        let directionsService;
+        let directionsRenderer;
+
+        // Initialize the Google Map
+        window.initMap = function() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -17.824858, lng: 31.053028 }, // Set initial map location
+                zoom: 7
+            });
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+        }
+
+        // Highlight the route between two locations
+        function highlightRoute(start, dest) {
+            const request = {
+                origin: start,
+                destination: dest,
+                travelMode: google.maps.TravelMode.DRIVING,
+                provideRouteAlternatives: true // This will provide alternate routes
+            };
+
+            directionsService.route(request, (response, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(response);
+                    const alternateRoutes = response.routes;
+
+                    // Clear previous distances
+                    const alternateRoutesList = document.getElementById('alternate-routes');
+                    alternateRoutesList.innerHTML = '';
+
+                    // Loop through each route and display it
+                    alternateRoutes.forEach((route, index) => {
+                        const routeDistance = route.legs[0].distance.text; // Get distance for the route
+                        alternateRoutesList.innerHTML += `<li>${index + 1}. ${routeDistance}</li>`; // Show distances
+                    });
+
+                    // Fetch loads in the selected route
+                    fetchLoads(); // Call fetchLoads to update the loads list
+                } else {
+                    alert('Directions request failed due to ' + status);
+                }
+            });
+        }
+
+        // Function to fetch loads from the API
+        function fetchLoads() {
+            fetch('/api/loads')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const loadsList = document.getElementById('loads-list');
+                    loadsList.innerHTML = ''; // Clear existing loads
+                    
+                    // Iterate through loads and display them
+                    data.forEach(load => {
+                        const li = document.createElement('li');
+                        li.textContent = `Load ID: ${load.load_id}, Route: ${load.route}, Rate: $${load.rate}, Type: ${load.load_type}`;
+                        loadsList.appendChild(li);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        }
+
+        // Add event listener to the button
+        document.getElementById('highlight-route-btn').addEventListener('click', function() {
+            const start = document.getElementById('starting-point').value;
+            const dest = document.getElementById('destination').value;
+            highlightRoute(start, dest);
+        });
+    </script>    
+</body> 
+</html>

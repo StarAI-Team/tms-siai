@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Packages</title>
+    <link rel="stylesheet" href="/static/css/package2.css"> 
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+</head>
+<body>
+    <div class="text-container">
+        <h1>Select Packages</h1>
+        <div class="packages">
+            <!-- Trial Package -->
+            <div class="package trial">
+                <h2>Trial Package</h2>
+                <p class="validity">valid for 7 days</p>
+                <ul>
+                    <li>Can only accept 5 loads</li>
+                    <li>Can only accept 5 bids</li>
+                    <li>Route Planning for 1 trip</li>
+                </ul>
+                 <a href="/welcome-transporter" class="btn">Register</a>
+            </div>
+
+            <!-- Standard Package -->
+            <div class="package standard">
+                <h2>Standard Package</h2>
+                <div class="button-container">
+                <a href="#" data-package="Monthly Standard Package" data-amount="10" class="btn select-package"> $10 per month </a>
+                <a href="#" data-package="Annual Standard Package" data-amount="115" class="btn select-package"> $115 per year </a>
+
+                </div>
+
+                <ul>
+                    <li>Can post 5 loads per month</li>
+                    <li>Limited price to bid on loads</li>
+                    <li>Pre-financing for 2 loads per month</li>
+                    <li>Limited route planning</li>
+                    <li>Limited Analytics</li>
+                    <li>Pay per use for extra services:
+                        <input list="services" name="services" id="extra-services" placeholder="View Prices">
+                        <datalist id="services">
+                          <option value="Advanced Analytics ($15)" data-value="15">Advanced Analytics ($15)</option>
+                          <option value="Hire a driver ($5)" data-value="5">Hire a driver ($5)</option>
+                          <option value="Load Pool ($20)" data-value="20">Load Pool ($20)</option>
+                          <option value="Bid on Load ($10)" data-value="10">Bid on Load ($10)</option>
+                          </datalist>
+                      </li>
+                </ul>
+            </div>
+
+            <!-- Premium Package -->
+            <div class="package premium">
+                <h2>Premium Package</h2>
+                <div class="button-container">
+                    <a href="/transporter_package_selected?package=Monthly Premium Package" class="btn"> $15 per month </a>
+                    <a href="/transporter_package_selected?package=Annual Premium Package" class="btn"> $150 per year </a>
+                    </div>
+    
+                <ul>
+                    <li>Bid on unlimited loads per month</li>
+                    <li>Unlimited price to bid on loads</li>
+                    <li>Get  pre-financing for any amount</li>
+                    <li>All features of route planning</li>
+                    <li>Marketing agent chatbot</li>
+                    <li>Advanced Analytics and business intelligence</li>
+                    <li>24/7 support</li>
+                    <li>Fleet Management</li>
+                    <li>Load Management</li>
+                    <li>Get unlimited fuel on credit</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="/static/js/transportpackage.js"></script>
+</body>
+</html>

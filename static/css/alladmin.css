@@ -1,0 +1,350 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: 'Montserrat Alternates', sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    flex-direction: row;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+    width: 220px;
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+    flex-shrink: 0;
+    height: 100vh;
+    overflow-y: auto; 
+}
+.sidebar ul {
+    list-style-type: none;
+}
+
+.sidebar ul li {
+    margin-bottom: 15px;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    padding: 12px;
+    border-radius: 8px;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.sidebar ul li a.active, 
+.sidebar ul li a:hover {
+    background-color: #ccc;
+    color: #000;
+}
+
+/* Main Content */
+.content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+    height: 100vh;
+    background-color: #f9f9f9;
+}
+
+.content-section {
+    display: none; /* Keep this for non-active sections */
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    width: 100%;
+    height: auto; /* Allow for flexible content height */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.content-section.active {
+    display: block; /* Show active section */
+}
+
+.content-section.active {
+    display: block; 
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+    font-weight: 600;
+}
+
+/* Common Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    padding: 12px 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+thead {
+    background-color: #f2f2f2;
+}
+
+thead th {
+    font-size: 16px;
+}
+
+tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+tbody td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+tbody a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+tbody a:hover {
+    text-decoration: underline;
+}
+
+/* User Table Container */
+.user-table-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Submission Details */
+.submission-details {
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.submission-details h3 {
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.submission-details ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.submission-details ul li {
+    margin: 10px 0;
+}
+
+.submission-details ul li a {
+    text-decoration: none;
+    color: #0066cc;
+}
+
+.submission-details ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Decision Buttons */
+.decision-buttons {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.decision-buttons button {
+    font-family: 'Montserrat Alternates', sans-serif;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 200px;
+}
+
+button.accept {
+    background-color: #28a745;
+    color: white;
+}
+
+button.decline {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Pagination */
+.pagination {
+    font-family: 'Montserrat Alternates', sans-serif;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  
+}
+.pagination button {
+    background-color: #f0f0f0; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    padding: 10px 15px; 
+    margin: 0 5px; 
+    font-size: 16px;
+    cursor: pointer; 
+    transition: background-color 0.3s;
+}
+
+.pagination button:hover {
+    background-color: #db3d3d; 
+}
+
+.pagination button.active {
+    background-color: #007bff; 
+    color: white; 
+}
+
+.page-item {
+    margin: 0 5px;
+    padding: 10px 15px;
+    background-color: #f2f2f2;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.page-item.active {
+    background-color: #333;
+    color: white;
+}
+
+.page-item:hover {
+    background-color: #ddd;
+}
+
+/* Action Buttons */
+.action-buttons {
+    text-align: center;
+}
+
+.action-buttons button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button.done {
+    background-color: #007bff;
+    color: white;
+}
+
+button.back {
+    background-color: #0f1010;
+    color: white;
+}
+/* Red Flag Button */
+.red-flag {
+    font-family: 'Montserrat Alternates', sans-serif;
+    background-color: #ce1023; 
+    border-radius: 7px;
+    width: 120px;
+    height: 25px;
+    color: white;
+    border: 1px solid #680505;
+}
+
+.red-flag:hover {
+    background-color: #74000c; 
+}
+
+/* Suspend Button */
+.suspend {
+    font-family: 'Montserrat Alternates', sans-serif;
+    background-color: #e9690d; 
+    border-radius: 7px;
+    width: 120px;
+    height: 25px;
+    color: white;
+    border: 1px solid #e64c0a;
+}
+
+.suspend:hover {
+    background-color: #b84305; /* Darker Yellow */
+}
+
+/* De-register Button */
+.deregister {
+    font-family: 'Montserrat Alternates', sans-serif;
+    background-color: #17a2b8; /* Teal */
+    color: white;
+    border-radius: 7px;
+    width: 120px;
+    height: 25px;
+    color: white;
+    border: 1px solid #048f81;
+}
+
+.deregister:hover {
+    background-color: #138496; /* Darker Teal */
+}
+
+/* Activate Button */
+.activate {
+    font-family: 'Montserrat Alternates', sans-serif;
+    background-color: #28a745; /* Green */
+    color: white;
+    color: white;
+    border-radius: 7px;
+    width: 120px;
+    height: 25px;
+    color: white;
+    border: 1px solid #055309;
+}
+
+.activate:hover {
+    background-color: #076019; 
+}
+
+/* Sidebar Customization */
+.sidebar ul li {
+    padding: 10px;
+}
+
+.sidebar ul li a.active {
+    font-weight: bold;
+}
+
+.sidebar ul li a:hover {
+    background-color: #ddd;
+    color: #000;
+}
+
+.sidebar ul li a {
+    transition: background-color 0.3s ease;
+}

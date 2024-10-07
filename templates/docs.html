@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Documents</title>
+</head>
+<body>
+    <header>
+        <div class="logo">SIAi</div>
+        <nav>
+            <a href="/post_load">Post Load</a>
+            <a href="/view_transporters">View Transporters</a>
+            <a href="/view_history">View History</a>
+            <a href="/view_offers">View Offers</a>
+            <a href="/chat">Chat</a>
+            <a href="/analytics">Analytics</a>
+            <a href="/documents">Documents</a>
+            <a href="/service_providers">Service Providers</a>
+            <input type="text" placeholder="Search for Beira transporters">
+        </nav>
+    </header>
+    <main>
+        <div class="document-list">
+            {% for document in documents %}
+                <div class="document-item">
+                    <h2>{{ document.title }}</h2>
+                    {% for file in document.files %}
+                        <a href="{{ file.url }}">{{ file.name }}</a>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+    <footer>
+        <p>© 2024 SIAi. All rights reserved.</p>
+    </footer>
+</body>
+</html>

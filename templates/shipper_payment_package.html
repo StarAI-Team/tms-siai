@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package Selected</title>
+    <link rel="stylesheet" href="/static/css/payment_package.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="package-box">
+            <div class="package-info">
+                <h2 id="package-name">Package Name</h2>
+                <p id="package-price">$0</p>
+            </div>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div class="package-box2">
+            <div id="select-payment-method">Select Payment Method</div>
+            <div class="payment-methods">
+                <!-- Mobile Payment Icons -->
+                <a href="#" class="payment-option" data-method="omari"><img src="/static/images/omari.webp" alt="O'mari"></a>
+                <a href="#" class="payment-option" data-method="ecocash"><img src="/static/images/ecocash.png" alt="EcoCash"></a>
+                <a href="#" class="payment-option" data-method="1money"><img src="/static/images/1money.png" alt="OneMoney"></a>
+                <a href="#" class="payment-option" data-method="innbucks"><img src="/static/images/innbucks.png" alt="InnBucks"></a>
+            </div>
+
+            <div class="payment-methods">
+                <!-- Card Payment Icons -->
+                <a href="#" class="payment-option" data-method="visa"><img src="/static/images/visa-logo-visa-icon-free-free-vector.jpg" alt="VISA"></a>
+                <a href="#" class="payment-option" data-method="mastercard"><img src="/static/images/Mastercard_new_logo-1200x865.webp" alt="MasterCard"></a>
+                <a href="#" class="payment-option" data-method="zimswitch"><img src="/static/images/zimswitch.jpeg" alt="ZimSwitch"></a>
+            </div>
+
+            <!-- Hidden Payment Details Form -->
+            <div id="payment-form" class="payment-form" style="display:none;">
+                <form id="payment-details-form">
+                    <div id="mobile-payment" style="display:none;">
+                        <h3>Mobile Payment</h3>
+                        <input type="text" id="phone-number" placeholder="Enter Phone Number">
+                        <input type="password" id="pin" placeholder="Enter PIN">
+                    </div>
+
+                    <div id="card-payment" style="display:none;">
+                        <h3>Card Payment</h3>
+                        <input type="text" id="card-number" placeholder="Enter Card Number">
+                        <input type="password" id="cvv" placeholder="Enter CVV">
+                        <div class="card-expiry">
+                            <label for="card-expiry">Enter Card Expiry Date</label> 
+                            <input type="month" id="card-expiry" name="expiry" required>
+                        </div>
+                        <input type="text" id="card-holder-name" placeholder="Enter Card Holder Name">
+                    </div>
+
+                    <!-- Submit Payment Button -->
+                    <button type="button" id="submit-payment-button" class="button">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get query parameters from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedPackage = urlParams.get('package');
+        const selectedAmount = urlParams.get('amount');
+    
+        // Set the package name and price dynamically
+        document.getElementById('package-name').textContent = selectedPackage;
+        document.getElementById('package-price').textContent = selectedAmount ? `$${selectedAmount}` : '$0';
+    
+        // Payment Method Selection Logic
+        let selectedPaymentMethod = null;
+        const paymentOptions = document.querySelectorAll('.payment-option');
+        const paymentForm = document.getElementById('payment-form');
+        const mobilePayment = document.getElementById('mobile-payment');
+        const cardPayment = document.getElementById('card-payment');
+    
+        paymentOptions.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                selectedPaymentMethod = this.getAttribute('data-method');
+    
+                // Show the payment form
+                paymentForm.style.display = 'block';
+    
+                // Reset visibility
+                mobilePayment.style.display = 'none';
+                cardPayment.style.display = 'none';
+    
+                // Show corresponding payment inputs
+                if (selectedPaymentMethod === 'visa' || selectedPaymentMethod === 'mastercard' || selectedPaymentMethod === 'zimswitch') {
+                    cardPayment.style.display = 'block';
+                } else {
+                    mobilePayment.style.display = 'block';
+                }
+            });
+        });
+    
+        // Handle payment submission
+        document.getElementById('submit-payment-button').addEventListener('click', async function() {
+            // Simple validation
+            if (mobilePayment.style.display === 'block') {
+                const phoneNumber = document.getElementById('phone-number').value;
+                const pin = document.getElementById('pin').value;
+                if (!phoneNumber || !pin) {
+                    alert('Please enter phone number and PIN for mobile payment.');
+                    return;
+                }
+            } else if (cardPayment.style.display === 'block') {
+                const cardNumber = document.getElementById('card-number').value;
+                const cvv = document.getElementById('cvv').value;
+                const cardExpiry = document.getElementById('card-expiry').value;
+                const cardHolderName = document.getElementById('card-holder-name').value;
+                if (!cardNumber || !cvv || !cardExpiry || !cardHolderName) { 
+                    alert('Please enter all details for card payment.');
+                    return;
+                }
+            }
+    
+            // Function to send event data to the backend
+            async function sendPaymentData() {
+                const data = {};
+
+                // Collecting payment data from inputs
+                if (cardPayment.style.display === 'block') {
+                    data.card_number = document.getElementById('card-number').value;
+                    data.cvv = document.getElementById('cvv').value;
+                    data.expiry = document.getElementById('card-expiry').value;
+                    data.card_holder_name = document.getElementById('card-holder-name').value;
+                } else if (mobilePayment.style.display === 'block') {
+                    data.phone_number = document.getElementById('phone-number').value;
+                    data.pin = document.getElementById('pin').value;
+                }
+    
+                console.log("Payment data:", data);
+    
+                // Fetching user_id and ip_address metadata from the backend
+                try {
+                    const metadataResponse = await fetch('/get_user_metadata');
+                    const metadata = await metadataResponse.json();
+    
+                    const eventDetails = {
+                        event_name: 'shipperPayment',
+                        user_id: metadata.user_id,
+                        ip_address: metadata.ip_address,
+                        timestamp: new Date().toISOString(),
+                        user_agent: navigator.userAgent,
+                        form_data: data,
+                        payment_method: selectedPaymentMethod 
+                    };
+    
+                    console.log("Payload to be sent:", eventDetails);
+    
+                    // Sending the payment data to the Flask backend
+                    const response = await fetch('/shipper_register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(eventDetails),
+                    });
+    
+                    const responseData = await response.json();
+                    console.log('Response data:', responseData);
+    
+                    if (responseData.error) {
+                        alert(`Error: ${responseData.error}`);
+                        return false;  
+                    } else {
+                        return true;  
+                    }
+                } catch (error) {
+                    console.error('Error sending data:', error);
+                    alert('There was a problem submitting your data. Please try again.');
+                    return false;  
+                }
+            }
+    
+            // Call the function to send payment data
+            const success = await sendPaymentData();
+    
+            if (success) {
+                alert('Payment details submitted successfully!');
+                // Redirect to the desired URL upon successful submission
+                window.location.href = '/welcome-shipper';  
+            }
+        });
+    </script>    
+</body>
+</html>
