@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, url_for
+from flask import Flask, request, jsonify, render_template, url_for, redirect, session
 import json
 import requests
 import os
@@ -12,9 +12,16 @@ import logging
 
 
 
+
 app = Flask(__name__)
 CORS(app) 
 logging.basicConfig(level=logging.DEBUG)
+app.secret_key = os.urandom(24)  
+
+users = {
+    "user1": "password1",
+    "user2": "password2"
+}
 
 """ 
 @app.route('/upload', methods=['POST'])
@@ -643,7 +650,7 @@ def analytics_data():
 
 @app.route('/history')
 def view_history():
-    # Mock data for demonstration. In a real application, fetch from your database.
+    # Mock data for demonstration
     loads = [
         {'load_id': '1', 'origin': 'City A', 'destination': 'City B', 'transport_date': '2024-09-01', 'status': 'Delivered'},
         {'load_id': '2', 'origin': 'City C', 'destination': 'City D', 'transport_date': '2024-09-15', 'status': 'In Transit'},
@@ -656,6 +663,65 @@ def view_history():
 @app.route('/transporter_dashboard')
 def transporter_dashboard():
     return render_template('transporterdashboard.html')
+
+
+#LOAD SECTION 
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    if username in users and users[username] == password:
+        session['client_id'] = username  # Use the username as the client ID
+        session['session_id'] = str(uuid.uuid4())  # Generate a session ID
+        return '', 200  # Successful login, empty response body
+    else:
+        return 'Login failed. Please check your credentials and try again.', 401
+
+@app.route('/load')
+def post_load_page():
+    if 'client_id' in session:
+        return render_template('load.html')
+    else:
+        return redirect(url_for('index'))
+
+@app.route('/post_load', methods=['POST'])
+def post_load():
+    load_data = request.get_json() 
+    print(load_data)
+    #print("Form data received:", load_data)  # Debugging line
+
+    if not load_data:
+        print("No data received from the form.")
+        return jsonify({"error": "No data received"}), 400
+    
+    required_fields = [
+        'load_name', 'quantity', 'pickup_time', 'pickup_place', 'destination',
+        'clearing_agency', 'clearing_agency_contact', 'number_of_trucks', 'truck_type',
+        'payment_days', 'payment_method', 'proof_of_delivery_requirements', 'delivery_duration',
+        'additional_instructions', 'recommended_price' 
+    ]
+
+    missing_fields = [field for field in required_fields if field not in load_data]
+    if missing_fields:
+        return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
+
+    PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
+    try:
+        response = requests.post(
+            PROCESSING_FLASK_URL,
+            json=load_data,
+            headers={'Content-Type': 'application/json'}
+        )
+        response_data = response.json()
+        print(response_data)
+        return jsonify(response_data), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({"message": "Load details received", "load":load_data}), 200
+
+
 
 
 
