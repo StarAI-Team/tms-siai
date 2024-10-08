@@ -2,6 +2,8 @@ FROM python:3.12.7-slim
 
 WORKDIR ./app
 
+COPY worker.sh .
+
 COPY . .
 
 RUN chmod a+x worker.sh

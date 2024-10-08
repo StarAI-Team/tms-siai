@@ -134,8 +134,8 @@ services:
     depends_on:
       - redpanda-0
     command: python avro_consumer.py
-    ports:
-      - 7000:7000
+    # ports:
+    #   - 7000:7000
     volumes:
       - .:/app
     links:

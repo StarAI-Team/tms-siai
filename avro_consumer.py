@@ -127,9 +127,9 @@ import threading
 import logging_config
 from flask_wtf import CSRFProtect
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'starinternational_key' 
-csrf = CSRFProtect(app)
+# app = Flask(__name__)
+# app.config['SECRET_KEY'] = 'starinternational_key' 
+# csrf = CSRFProtect(app)
 
 # Initialize PostgreSQL connection
 def create_connection():
@@ -142,7 +142,7 @@ def create_connection():
     )
     return conn
 
-@app.before_first_request
+# @app.before_first_request
 def start_consumer():
     utils.load_env()
     logging_config.configure_logging()
@@ -230,6 +230,58 @@ def start_consumer():
                             conn.commit()
                             logging.info("transporterRegistration_Company Details inserted")
 
+                    if task_name == "transporterRegistration_Company Documentation":
+                         # Extract relevant fields
+                        user_id = decoded_message["user_id"]
+                        certificate_of_incorporation = decoded_message.get("certificate_of_incorporation", "")
+                        operators_licence = decoded_message.get("operators_licence", "")
+                        operators_expiry = decoded_message.get("operators_expiry", "")
+                        permit_expiry = decoded_message.get("permit_expiry", "")
+                        permits = decoded_message.get("permits", "")
+                        tax_clearance = decoded_message.get("tax_clearance", "")
+                        tax_expiry = decoded_message.get("tax_expiry", "")
+                        tracking_licence = decoded_message.get("tracking_licence", "")
+
+                        conn = create_connection()
+                        with conn.cursor() as cur:
+                            insert_query = """
+                                INSERT INTO transporter_documentation (user_id, certificate_of_incorporation,operators_licence,  operators_expiry, permit_expiry, permits, tax_clearance,tax_expiry, tracking_licence)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                ON CONFLICT (user_id) DO NOTHING
+                            """
+
+                            # Execute the insert with all values
+                            cur.execute(insert_query, (user_id, certificate_of_incorporation, operators_licence, operators_expiry, permit_expiry, permits, tax_clearance,tax_expiry, tracking_licence))
+                            conn.commit()
+                            logging.info("transporterRegistration_Company Documentation inserted")
+
+                    if task_name == "transporterRegistration_Fleet Management":
+                        user_id = decoded_message.get("user_id", "")
+                        certificate_of_fitness = decoded_message.get("certificate_of_fitness", "")
+                        num_of_trucks = decoded_message.get("num_of_trucks", "")
+                        number_of_trucks = decoded_message.get("number_of_trucks", "")
+                        reg_books = decoded_message.get("reg_books", "")
+
+                        conn = create_connection()
+                        with conn.cursor() as cur:
+                            insert_query = """
+                                INSERT INTO transporter_fleet (user_id, certificate_of_fitness, num_of_trucks, number_of_trucks, reg_books)
+                                VALUES (%s, %s, %s, %s, %s)
+                                ON CONFLICT (user_id) DO NOTHING
+                            """
+
+                            # Execute the insert with all values
+                            cur.execute(insert_query, (user_id, certificate_of_fitness, num_of_trucks, number_of_trucks, reg_books))
+                            conn.commit()
+                            logging.info("transporterRegistration_Fleet Management inserted")
+
+                    if task_name == "transporterRegistration_Security":
+                        user_id = decoded_message.get("user_id", "")
+                        user_name = decoded_message.get("user_name", "")
+                        profile_picture = decoded_message.get("profile_picture", "")
+                        password = decoded_message.get("password", "")
+                        confirm_password = decoded_message.get("confirm_password", "")
+
                 else:
                     logging.warning("No valid task name received.")
         except KeyboardInterrupt:
@@ -241,22 +293,26 @@ def start_consumer():
     consumer_thread.start()
     logging.info("Consumer started automatically on application startup.")
 
-@app.route('/')
-def index():
-    conn = create_connection()
-    with conn.cursor() as cur:
-        cur.execute("SELECT * FROM transporter")
-        tasks = cur.fetchall()
-        return jsonify({"message": "Tasks:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
+try:
+    start_consumer()
+except Exception as e:
+    logging.info(e)
+# @app.route('/')
+# def index():
+#     conn = create_connection()
+#     with conn.cursor() as cur:
+#         cur.execute("SELECT * FROM transporter")
+#         tasks = cur.fetchall()
+#         return jsonify({"message": "Tasks:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
 
-@app.route('/api/v1/client', methods=['GET'])
-@csrf.exempt
-def get_client_data():
-    conn = create_connection()
-    with conn.cursor() as cur:
-        cur.execute("SELECT * FROM client")
-        tasks = cur.fetchall()
-        return jsonify({"message": "Client Data:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
+# @app.route('/api/v1/client', methods=['GET'])
+# @csrf.exempt
+# def get_client_data():
+#     conn = create_connection()
+#     with conn.cursor() as cur:
+#         cur.execute("SELECT * FROM client")
+#         tasks = cur.fetchall()
+#         return jsonify({"message": "Client Data:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=7000, debug=True)
+# if __name__ == '__main__':
+#     app.run(host="0.0.0.0", port=7000, debug=True)

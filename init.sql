@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS transporter (
     id_number TEXT UNIQUE NOT NULL,
     last_name TEXT NOT NULL,
     phone_number TEXT UNIQUE NOT NULL,
-    registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 
 CREATE TABLE IF NOT EXISTS transporter_account_information (
@@ -28,7 +28,6 @@ CREATE TABLE IF NOT EXISTS transporter_documentation (
     operators_licence TEXT NOT NULL,
     permit_expiry DATE NOT NULL,
     permits TEXT NOT NULL,
-    permits_text TEXT NOT NULL,
     tax_clearance TEXT NOT NULL,
     tax_expiry DATE NOT NULL,
     tracking_licence TEXT NOT NULL,
