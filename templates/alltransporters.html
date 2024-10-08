@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Transporters</title>
+    <link rel="stylesheet" href="/static/css/trucks.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .star {
+            color: grey;
+            cursor: pointer;
+        }
+
+        .star.filled {
+            color: gold;
+        }
+
+        .fav-button {
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .heart-icon {
+            font-size: 1.5em;
+        }
+
+        .favourited {
+            color: red;
+        }
+
+        .not-favourited {
+            color: grey;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav class="navbar">
+                <ul>
+                    <li>
+                        <a href="#">
+                            <div class="nav-title">
+                                <span class="main-title">SIAi</span><br>
+                                <span class="sub-title">SHIPPER</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li><a href="/load">Post Load</a></li>
+                    <li><a href="/view-transporters">View Transporters</a></li>
+                    <li><a href="/shipper-history">View History</a></li>
+                    <li><a href="/view_offers">View Offers</a></li>
+                    <li><a href="/shipper_chat">Chat</a></li>
+                    <li><a href="/shipper_analytics">Analytics</a></li>
+                    <li><a href="/shipper_documents">Documents</a></li>
+                    <li><a href="#">Online Market</a></li>
+                </ul>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search for transporters" id="name-filter" oninput="filterTransporters()">
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div class="booked-trucks">
+                <h2>Fleet Management</h2>
+                <div class="filter-options">
+                    <label for="rating-filter">Rating:</label>
+                    <select id="rating-filter" onchange="filterTransporters()">
+                        <option value="">All</option>
+                        <option value="5">5 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="3">3 Stars</option>
+                        <option value="2">2 Stars</option>
+                        <option value="1">1 Star</option>
+                    </select>
+
+                    <label for="ranking-filter">Ranking:</label>
+                    <select id="ranking-filter" onchange="filterTransporters()">
+                        <option value="">All</option>
+                        <option value="premium">Premium</option>
+                        <option value="standard">Standard</option>
+                    </select>
+
+                    <label for="git-filter">G.I.T:</label>
+                    <select id="git-filter" onchange="filterTransporters()">
+                        <option value="">All</option>
+                        <option value="1800">1800</option>
+                        <option value="2000">2000</option>
+                    </select>
+
+                    <label for="fleet-size-filter">Fleet Size:</label>
+                    <input type="number" id="fleet-size-filter" placeholder="Min Fleet Size" oninput="filterTransporters()">
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Fleet Size</th>
+                            <th>G.I.T</th>
+                            <th>Ranking</th>
+                            <th>Rating</th>
+                            <th>Add Favourite</th>         
+                        </tr>
+                    </thead>
+                    <tbody id="transporter-table">
+                        <!-- Use Jinja loop to iterate through transporters -->
+                        {% for transporter in transporters %}
+                        <tr data-name="{{ transporter.name }}" data-rating="{{ transporter.rating }}" data-ranking="{{ transporter.ranking }}" data-git="{{ transporter.git }}" data-fleet="{{ transporter.fleet_size }}">
+                            <td>{{ loop.index }}</td>
+                            <td>{{ transporter.name }}</td>
+                            <td>{{ transporter.fleet_size }}</td>
+                            <td>{{ transporter.git }}</td>
+                            <td>{{ transporter.ranking }}</td>
+                            <td>
+                                <!-- Display star ratings -->
+                                {% for i in range(1, 6) %}
+                                    <span class="star {% if i <= transporter.rating %}filled{% endif %}">&#9733;</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <button class="fav-button" onclick="toggleFavourite(' + transporter.id + ')">
+                                    <span class="heart-icon {% if transporter.is_favourite %}favourited{% else %}not-favourited{% endif %}" id="heart-{{ transporter.id }}">&#9829;</span>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="footer-nav">
+                <button class="footer-btn">Back</button>
+               
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>SiAi</h3>
+                    <p>AI powered Transport Management System. Post and Go...</p>
+                    <p><i>Contact: +123 456 3455</i></p>
+                </div>
+                <div class="footer-column">
+                    <h3>Menu</h3>
+                    <ul>
+                        <li>Products</li>
+                        <li>Services</li>
+                        <li>Analytics</li>
+                        <li>About Us</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Account</h3>
+                    <ul>
+                        <li>My Account</li>
+                        <li>Checkout</li>
+                        <li>My Cart</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Stay Connected</h3>
+                    <ul>
+                        <li>Facebook</li>
+                        <li>Instagram</li>
+                        <li>X</li>
+                    </ul>
+                </div>
+            </div>
+            </footer>
+    </div>
+    <script>
+        function filterTransporters() {
+            const nameFilter = document.getElementById('name-filter').value.toLowerCase();
+            const ratingFilter = document.getElementById('rating-filter').value;
+            const rankingFilter = document.getElementById('ranking-filter').value;
+            const gitFilter = document.getElementById('git-filter').value;
+            const fleetSizeFilter = document.getElementById('fleet-size-filter').value;
+
+            const rows = document.querySelectorAll('#transporter-table tr');
+
+            rows.forEach(row => {
+                const name = row.getAttribute('data-name').toLowerCase();
+                const rating = row.getAttribute('data-rating');
+                const ranking = row.getAttribute('data-ranking');
+                const git = row.getAttribute('data-git');
+                const fleetSize = row.getAttribute('data-fleet');
+
+                const nameMatch = name.includes(nameFilter);
+                const ratingMatch = ratingFilter === '' || rating === ratingFilter;
+                const rankingMatch = rankingFilter === '' || ranking === rankingFilter;
+                const gitMatch = gitFilter === '' || git === gitFilter;
+                const fleetSizeMatch = fleetSizeFilter === '' || parseInt(fleetSize) >= parseInt(fleetSizeFilter);
+
+                if (nameMatch && ratingMatch && rankingMatch && gitMatch && fleetSizeMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleFavourite(transporterId) {
+    const heartIcon = document.getElementById(`heart-${transporterId}`);
+    const isCurrentlyFavourited = heartIcon.classList.contains('favourited');
+    
+    // Toggle favourite icon color class
+    heartIcon.classList.toggle('favourited');
+    heartIcon.classList.toggle('not-favourited');
+
+    // Send the favourite action to Flask
+    fetch('/toggle_favourite', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            transporter_id: transporterId, 
+            is_favourite: !isCurrentlyFavourited 
+        }) // Ensure no trailing commas here
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Favourite status updated:', data);
+    })
+    .catch(error => {
+        console.error('Error updating favourite status:', error);
+    });
+}
+
+
+</script>    
+</body>
+</html>
