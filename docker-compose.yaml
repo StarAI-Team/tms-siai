@@ -11,7 +11,9 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-      - ${PWD}/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ${PWD}/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
     networks:
       - postgres-network
     ports:
@@ -130,7 +132,6 @@ services:
     networks:
       - postgres-network
     depends_on:
-      # - db
       - redpanda-0
     command: python avro_consumer.py
     ports:

@@ -128,7 +128,7 @@ import logging_config
 from flask_wtf import CSRFProtect
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'starinternational_key'  # Replace with a randomly generated secret key
+app.config['SECRET_KEY'] = 'starinternational_key' 
 csrf = CSRFProtect(app)
 
 # Initialize PostgreSQL connection
@@ -181,7 +181,7 @@ def start_consumer():
 
                 task_name = decoded_message['event_name'] if isinstance(decoded_message, dict) else decoded_message
                 if task_name:
-                    if task_name == "transporterRegistration(Basic Details)":
+                    if task_name == "transporterRegistration_Representative Details":
                         logging.info(f"Received data for committing: {task_name}")
                         
                         user_id = decoded_message["user_id"]
@@ -205,6 +205,31 @@ def start_consumer():
                             cur.execute(insert_query, (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number))
                             conn.commit()
                             logging.info("Data inserted into transporter.")
+                            
+
+                            # return response to client (succefful insertion or cokmpany already exists)
+                    if task_name == "transporterRegistration_Company Details":
+                        user_id  = decoded_message["user_id"]
+                        account_name = decoded_message["account_name"]
+                        account_number = decoded_message["account_number"]
+                        bank_name = decoded_message["bank_name"]
+                        company_contact = decoded_message["company_contact"]
+                        directorship = decoded_message["directorship"]
+                        proof_of_current_address = decoded_message["proof_of_current_address"]
+
+                        conn = create_connection()
+                        with conn.cursor() as cur:
+                            insert_query = """
+                                INSERT INTO transporter_account_information (user_id, account_name, account_number, bank_name, company_contact, directorship, proof_of_current_address)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                                ON CONFLICT (user_id) DO NOTHING
+                            """
+
+                            # Execute the insert with all values
+                            cur.execute(insert_query, (user_id, account_name,  account_number, bank_name, company_contact, directorship, proof_of_current_address))
+                            conn.commit()
+                            logging.info("transporterRegistration_Company Details inserted")
+
                 else:
                     logging.warning("No valid task name received.")
         except KeyboardInterrupt:

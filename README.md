@@ -5,4 +5,13 @@ Instructions:
 3. pip install -r requirements.txt
 4. docker-compose up --build
 
-http://localhost:8080/
+# Redpanda - kafka 
+http://localhost:8080/  
+
+# pgadmin - postgres
+http://localhost:5050/
+
+# file server - minio
+http://localhost:9001/
+
+
