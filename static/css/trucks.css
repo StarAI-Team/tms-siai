@@ -143,3 +143,124 @@ footer ul li {
 footer .footer-column {
     color: white;
 }
+
+.filter-options {
+    margin-top: 20px;
+    color: #fff;
+
+}
+
+.inner-container {
+    border-radius: 10px;
+    border: solid 1px grey;
+    padding: 50px;
+    background-color: #1a1a1a;
+    color: white;
+    max-width: 800px;
+    margin: auto;
+}
+
+#reviews-section {
+    margin-top: 30px;
+}
+
+#review-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#review-list li {
+    background-color: #333;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+#review-text {
+    width: 100%;
+    height: 80px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #2a2a2a;
+    color: white;
+}
+
+#review-rating {
+    padding: 5px;
+    background-color: #2a2a2a;
+    color: white;
+    border-radius: 5px;
+}
+
+button.footer-btn, button {
+    background-color: #e91919;
+    color: white;
+    border: none;
+    padding: 10px 100px;
+    border-radius: 10px;
+    cursor: pointer;
+
+}
+
+button.footer-btn:hover, button:hover {
+    background-color: #8e0404;
+}
+
+#review-list li small {
+    color: #999;
+    display: block;
+    margin-top: 5px;
+    font-size: 0.9em;
+}
+
+#rating-section {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.star {
+    font-size: 30px; /* Adjust size as needed */
+    color: lightgray; /* Default color */
+    cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+input[type="radio"] {
+    display: none; /* Hide radio buttons */
+}
+
+input[type="radio"]:checked ~ .star {
+    color: gold; /* Color for selected star */
+}
+
+.star:hover,
+.star:hover ~ .star {
+    color: gold; /* Color on hover */
+}
+
+.star {
+    color: grey;
+    cursor: pointer;
+}
+
+.star.filled {
+    color: gold;
+}
+
+.fav-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.heart-icon {
+    font-size: 1.5em;
+}
+
+.favourited {
+    color: red;
+}
+
+.not-favourited {
+    color: grey;
+}

@@ -16,7 +16,16 @@ import logging
 app = Flask(__name__)
 CORS(app) 
 logging.basicConfig(level=logging.DEBUG)
-app.secret_key = os.urandom(24)  
+app.secret_key = os.urandom(24) 
+# Configuration
+app.config['UPLOAD_FOLDER'] = 'uploads'  # Folder where files will be saved
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit the max size to 16MB
+
+# Ensure the upload folder exists
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
+
 
 users = {
     "user1": "password1",
@@ -94,93 +103,102 @@ def register_transporter():
     if request.method == 'POST':
         transporter_data = {}
         file_data = {}
-        
-        # Get the current section from the form data
-        current_section = request.form.get('current_section')
-        print(f"Processing {current_section}...")
+    print("Initial transporter data received :", transporter_data)
+    print("Files in request:", request.files)
 
-        # Log the incoming form data and files
-        print("Form data received:", request.form)
-        print("Files in request:", request.files)
+    
+    # Process form data and files
+    inputs = request.form  # Contains form data only
+    for key, value in inputs.items():
+        transporter_data[key] = value 
 
-        # Form fields for each section
-        required_fields_by_section = {
-            'section1': ['first_name', 'last_name', 'phone_number', 'id_number', 'company_name', 'company_location', 'company_email'],
-            'section2': ['company_contact', 'bank_name', 'account_name', 'account_number', 'directorship_text', 'directorship', 'proof_of_current_address_text', 'proof_of_current_address'],
-            'section3': ['tax_clearance_text', 'tax_clearance', 'tax_expiry', 'certificate_of_incorporation_text', 'certificate_of_incorporation', 'operators_licence_text', 'operators_licence', 'operators_expiry', 'permits_text', 'permits', 'permit_expiry', 'tracking_licence_text', 'tracking_licence'],
-            'section4': ['number_of_trucks', 'num_of_trucks_text', 'num_of_trucks', 'reg_books_text', 'reg_books', 'certificate_of_fitness_text', 'certificate_of_fitness'],
-            'section5': ['user_name', 'profile_picture', 'password', 'confirm_password']
-        }
 
-        # Validate required fields based on the current section
-        missing_fields = [field for field in required_fields_by_section.get(current_section, []) if field not in request.form]
+    # Files that are required for the transporter to register
+    file_fields = [
+        'directorship', 'certificate_of_incorporation', 'proof_of_current_address', 'tax_clearance', 'operators_licence',
+        'permits', 'tracking_licence', 'num_of_trucks', 'reg_books', 'certificate_of_fitness',
+        'profile_picture'
+    ]
 
-        if missing_fields:
-            return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
+    # Segregated required fields by section
+    required_fields_by_section = {
+        'section1': ['first_name', 'last_name', 'phone_number', 'id_number', 'company_name', 'company_location', 'company_email'],
+        'section2': ['company_contact', 'bank_name', 'account_name', 'account_number', 'directorship_text', 'directorship', 'proof_of_current_address_text', 'proof_of_current_address'],
+        'section3': ['tax_clearance_text', 'tax_clearance', 'tax_expiry', 'certificate_of_incorporation_text', 'certificate_of_incorporation', 'operators_licence_text', 'operators_licence', 'operators_expiry', 'permits_text', 'permits', 'permit_expiry', 'tracking_licence_text', 'tracking_licence'],
+        'section4': ['number_of_trucks', 'num_of_trucks_text', 'num_of_trucks', 'reg_books_text', 'reg_books', 'certificate_of_fitness_text', 'certificate_of_fitness'],
+        'section5': ['user_name', 'profile_picture', 'password', 'confirm_password']
+    }
 
-        # Process form fields and store them in transporter_data
-        inputs = request.form
-        for key, value in inputs.items():
-            transporter_data[key] = value
+    # Handling file uploads
+    file_data = {}
+    for file_field in file_fields:
+        file = request.files.get(file_field)
+        logging.debug(f"Received file for field '{file_field}': {file.filename if file else 'No file'}")
+        if file and file.filename:
+                try:
+                    # Directly uploading the file to the MinIO service
+                    files = {'file': (file.filename, file.stream, file.mimetype)}
+                    logging.debug(f"Uploading file: {file.filename}, MIME type: {file.mimetype}")
 
-        # Process file uploads only for sections that have file fields
-        file_fields = [
-            'directorship', 'certificate_of_incorporation', 'proof_of_current_address', 'tax_clearance', 'operators_licence',
-            'permits', 'tracking_licence', 'reg_books', 'certificate_of_fitness', 'profile_picture'
-        ]
+                    response = requests.post('http://localhost:6000/upload-file', files=files)
+                    logging.debug(f"Response from MinIO upload for '{file_field}': {response.status_code}, {response.text}")
 
-        if current_section in ['section2', 'section3', 'section4', 'section5']:
-            for file_field in file_fields:
-                if file_field in request.files:
-                    file = request.files[file_field]
-                    if file.filename == '':
-                        return jsonify({"error": f"No selected file for {file_field}"}), 400
-                    if file:
-                        # Create a secure filename and store the file
-                        filename = secure_filename(file.filename)
-                        unique_filename = str(uuid.uuid4()) + "_" + filename
-                        
-                        # Upload file to external endpoint or save it locally
-                        files = {'file': (unique_filename, file.stream, file.mimetype)}
-                        response = requests.post('http://localhost:6000/upload-file', files=files)
-                        if response.status_code == 200:
-                            file_data[file_field] = response.text
-                        else:
-                            return jsonify({"error": f"Failed to upload file {file_field}. Error: {response.text}"}), response.status_code
+                    if response.status_code == 200:
+                        file_data[file_field] = response.text 
+                        logging.debug(f"Successfully uploaded {file_field}: {file_data[file_field]}")
+                    else:
+                        return jsonify({"error": f"Failed to upload {file_field}: {response.text}"}), response.status_code
+                except Exception as e:
+                    return jsonify({"error": f"Error uploading {file_field}: {str(e)}"}), 500
 
-        # Merge the file data with the form data
-        transporter_data.update(file_data)
+    # Merging form data with file data if files exist
+    transporter_data.update(file_data)
 
-        # Password validation for Section 5
-        if current_section == 'section5':
-            password = transporter_data.get('password')
-            confirm_password = transporter_data.get('confirm_password')
+    # Password validation for Section 5 
+    current_section = transporter_data.get('current_section')
+    if current_section == 'section5':
+        password = transporter_data.get('form_data', {}).get('password')
+        confirm_password = transporter_data.get('form_data', {}).get('confirm_password')
 
-            if password and confirm_password:
-                if password != confirm_password:
-                    return jsonify({"error": "Passwords do not match"}), 400
-                else:
-                    # Hash the password before storing
-                    transporter_data['password'] = generate_password_hash(password)
+        # Check if passwords are provided and match
+        if password and confirm_password:
+            if password != confirm_password:
+                return jsonify({"error": "Passwords do not match"}), 400
+            else:
+                # Hash the password before storing it
+                transporter_data['form_data']['password'] = generate_password_hash(password)
 
-        # Print the final transporter data being processed
-        print("Final transporter data being sent:", transporter_data)
 
-        # Send the data to the processing Flask application or service
-        PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
-        try:
-            response = requests.post(
-                PROCESSING_FLASK_URL,
-                json=transporter_data,
-                headers={'Content-Type': 'application/json'}
-            )
-            response_data = response.json()
-            return jsonify(response_data), response.status_code
-        except requests.exceptions.RequestException as e:
-            return jsonify({"error": str(e)}), 500
+
+     # Validate required fields
+    missing_fields = [field for field in required_fields_by_section.get(current_section, []) if field not in transporter_data]
+
+    if missing_fields:
+        return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
+    
+    # Print transporter data before sending to the next service
+    print("Final transporter data being sent:", transporter_data)
+
+
+    # Send the data to the processing Flask application or service
+    PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
+    try:
+        # Print the transporter_data before sending
+        print("Sending the following data to processing URL:", transporter_data)
+        response = requests.post(
+            PROCESSING_FLASK_URL,
+            json=transporter_data,
+            headers={'Content-Type': 'application/json'}
+        )
+        response_data = response.json()
+        print("Response status code:", response.status_code)
+        print("Response data:", response_data)
+        return jsonify(response_data), response.status_code
+    except requests.exceptions.RequestException as e:
+        print("Error occurred while sending to processing URL:", e)
+        return jsonify({"error": str(e)}), 500
 
     return jsonify({"message": "Data submitted successfully"}), 200
-
 
 
 
@@ -310,28 +328,21 @@ def shipper_register():
         'section4': ['user_name', 'profile_picture', 'password', 'confirm_password']
     }
 
-   # Handling file uploads
+    # Handling file uploads
     file_data = {}
     for file_field in file_fields:
-        if 'file' not in request.files:
-            return "No file part", 400
-        file = request.files['file']
-        if file.filename == '':
-            return "No selected file", 400
         if file_field in request.files:
             file = request.files[file_field]
             if file:
                  # creating a secure filename and storing it in the uploads folder
                 filename = secure_filename(file.filename)
                 unique_filename = str(uuid.uuid4()) + "_" + filename
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                file.save(file_path) # Save the file to the disk
 
-                files = {'file': (unique_filename, file.stream, file.mimetype)}
-                response = requests.post('http://localhost:6000/upload-file', files=files)
-                if response.status_code == 200:
-                    return f"File uploaded successfully. File stored at: {response.text}"
-                else:
-                    return f"Failed to upload file. Error: {response.text}", response.status_code
-                file_data[file_field] = response.text
+                #generating URI to access this file 
+                file_uri = url_for('uploaded_file', filename=unique_filename, _external=True)
+                file_data[file_field] = file_uri
 
     shipper_data.update(file_data)
 
@@ -793,14 +804,21 @@ def shipper_chat():
 
 # Mock database of transporters for demonstration
 transporters = [
-    {"id": 1, "name": "Cargo Sync", "is_favourite": False, "fleet_size": 10, "rating": 4, "ranking": "premium", "git": "1800"},
-    {"id": 2, "name": "FleetJoy", "is_favourite": True, "fleet_size": 5, "rating": 3, "ranking": "standard", "git": "2000"},
+    {"id": 1, "name": "Cargo Sync", "is_favourite": False, "fleet_size": 10, "rating": 4, "ranking": "premium", "git": "1800", "routes": "Harare-Bulawayo""Mbare-Kwekwe", "reviews": ["Could be better"]},
+    {"id": 2, "name": "FleetJoy", "is_favourite": True, "fleet_size": 5, "rating": 3, "ranking": "standard", "git": "2000", "routes": "Harare-Mutare", "reviews": ["Great service!"]},
     # Add more transporter objects as needed
 ]
+
 @app.route('/view-transporters')
 def view_transporters():
-    print(transporters)
     return render_template('alltransporters.html', transporters=transporters)
+
+@app.route('/get_transporter_details/<int:transporter_id>')
+def get_transporter_details(transporter_id):
+    transporter = next((t for t in transporters if t['id'] == transporter_id), None)
+    if transporter:
+        return jsonify(transporter)
+    return jsonify({'error': 'Transporter not found'}), 404
 
 @app.route('/toggle_favourite', methods=['POST'])
 def toggle_favourite():
@@ -816,7 +834,17 @@ def toggle_favourite():
 
     return jsonify({'success': True, 'transporter_id': transporter_id, 'new_favourite_status': is_favourite})
 
+@app.route('/submit_review', methods=['POST'])
+def submit_review():
+    data = request.json
+    transporter_id = int(data.get('transporter_id'))
+    review_data = data.get('review')
 
+    # Find transporter and add the review
+    for transporter in transporters:
+        if transporter['id'] == transporter_id and review_data:
+            transporter['reviews'].append(review_data)
+            return jsonify({'success': True})
 
 if __name__ == '__main__':
     app.run(debug = True, port=8000)
