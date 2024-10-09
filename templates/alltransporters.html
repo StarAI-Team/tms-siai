@@ -6,34 +6,7 @@
     <title>View Transporters</title>
     <link rel="stylesheet" href="/static/css/trucks.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        .star {
-            color: grey;
-            cursor: pointer;
-        }
-
-        .star.filled {
-            color: gold;
-        }
-
-        .fav-button {
-            border: none;
-            background: none;
-            cursor: pointer;
-        }
-
-        .heart-icon {
-            font-size: 1.5em;
-        }
-
-        .favourited {
-            color: red;
-        }
-
-        .not-favourited {
-            color: grey;
-        }
-    </style>
+    
 </head>
 <body>
     <div class="container">
@@ -122,7 +95,7 @@
                                 {% endfor %}
                             </td>
                             <td>
-                                <button class="fav-button" onclick="toggleFavourite(' + transporter.id + ')">
+                                <button class="fav-button" onclick="toggleFavourite('{{ transporter.id }}')">
                                     <span class="heart-icon {% if transporter.is_favourite %}favourited{% else %}not-favourited{% endif %}" id="heart-{{ transporter.id }}">&#9829;</span>
                                 </button>
                             </td>
@@ -169,9 +142,6 @@
         ★
     </label>
 </div>
-
-
-
 
 <button onclick="submitReview()">Submit Review</button>
 
@@ -222,6 +192,7 @@
     // Get elements
     const transporterNameElement = document.getElementById('transporter-name');
     const transporterRoutesElement = document.getElementById('transporter-routes');
+    const detailsContainer = document.getElementById('transporter-details');
 
     // Check if elements exist before setting properties
     if (!transporterNameElement || !transporterRoutesElement) {
@@ -264,7 +235,7 @@
                         console.error('Transporter name or routes element not found.');
                     }
                     
-                    const reviewList = document.getElementById('review-section');
+                    const reviewList = document.getElementById('reviews-section');
                     reviewList.innerHTML = ''; // Clear existing reviews
                     data.reviews.forEach(review => {
                         const li = document.createElement('li');
@@ -331,7 +302,7 @@ function submitReview() {
         return;
     }
 
-    const reviewText = document.getElementById('review-text').value; // Get review text
+    const reviewText = document.getElementById('review-text').value; 
 
     // Get the selected rating
     const ratingInputs = document.querySelectorAll('input[name="rating"]');
@@ -351,7 +322,7 @@ function submitReview() {
         transporterId: selectedTransporter,
         rating: selectedRating,
         review: reviewText,
-        timestamp: new Date().toLocaleString() // Human-readable format
+        timestamp: new Date().toLocaleString() 
     };
 
     // Send review to the Flask backend
@@ -370,7 +341,7 @@ function submitReview() {
         if (data.success) {
             alert("Review submitted successfully!");
             // Clear the form and reset ratings
-            document.getElementById('reviewText').value = ''; // Clear the review text
+            document.getElementById('review-text').value = ''; // Clear the review text
             setRating(0); // Reset star display
         } else {
             alert("Failed to submit review.");
