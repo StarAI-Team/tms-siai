@@ -282,6 +282,19 @@ def start_consumer():
                         password = decoded_message.get("password", "")
                         confirm_password = decoded_message.get("confirm_password", "")
 
+                        conn = create_connection()
+                        with conn.cursor() as cur:
+                            insert_query = """
+                                INSERT INTO transporter_profile (user_id, user_name, profile_picture, password, confirm_password)
+                                VALUES (%s, %s, %s, %s, %s)
+                                ON CONFLICT (user_id) DO NOTHING
+                            """
+
+                            # Execute the insert with all values
+                            cur.execute(insert_query, (user_id, user_name, profile_picture, password, confirm_password))
+                            conn.commit()
+                            logging.info("transporterRegistration_Security inserted")
+
                 else:
                     logging.warning("No valid task name received.")
         except KeyboardInterrupt:
