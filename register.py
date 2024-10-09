@@ -839,12 +839,15 @@ def submit_review():
     data = request.json
     transporter_id = int(data.get('transporter_id'))
     review_data = data.get('review')
+    rating = data.get('rating')
 
     # Find transporter and add the review
     for transporter in transporters:
         if transporter['id'] == transporter_id and review_data:
             transporter['reviews'].append(review_data)
             return jsonify({'success': True})
+        #code to send review to kafka
+        
 
 if __name__ == '__main__':
     app.run(debug = True, port=8000)

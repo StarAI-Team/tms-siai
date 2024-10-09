@@ -144,14 +144,16 @@
        <!-- Submissions Section -->
        <div id="submissions" class="content-section" style="display: none;">
            <h2>Submissions</h2>
+           {% for sub in submission %}
+           
            <div class="submission-details">
-               <h3>{{ submission.company_name }}</h3>
-               <p>{{ submission.address }}</p>
-               <p>{{ submission.number_of_trucks }} Trucks</p>
+               <h3>{{ sub.company_name }}</h3>
+               <p>{{ sub.address }}</p>
+               <p>{{ sub.number_of_trucks }} Trucks</p>
 
                <ul>
-                   {% for file in submission.files %}
-                   <li><a href="#">{{ file }}</a></li>
+                   {% for file in sub.files %}
+                   <li><a href="{{ file }}">{{ file }}</a></li>
                    {% endfor %}
                </ul>
 
@@ -160,6 +162,7 @@
                    <button class="decline">Decline</button>
                </div>
            </div>
+           {% endfor %}
 
            <div class="pagination">
                <button>&lt;</button>
