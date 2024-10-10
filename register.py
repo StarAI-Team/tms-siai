@@ -298,18 +298,17 @@ def welcome_shipper():
 
 @app.route('/shipper_register', methods=['POST'])
 def shipper_register():
-    if request.is_json:
-        payload = request.get_json()  
-    else:
-        return jsonify({"error": "Invalid content type"}), 400
+    if request.method == 'POST':
+        shipper_data = {}
+        file_data = {}
+    print("Initial transporter data received :", shipper_data)
+    print("Files in request:", request.files)
+
     
-    # Debug: Print incoming JSON payload
-    print("Incoming JSON Payload:", payload)
-    shipper_data = {
-        **{key: payload[key] for key in payload if key not in ['form_data']} ,
-        **{key: payload['form_data'][key] for key in payload['form_data']}
-    } 
-    print("CLIENT DATA", shipper_data)
+    # Process form data and files
+    inputs = request.form  # Contains form data only
+    for key, value in inputs.items():
+        shipper_data[key] = value 
 
     
 
@@ -331,18 +330,24 @@ def shipper_register():
     # Handling file uploads
     file_data = {}
     for file_field in file_fields:
-        if file_field in request.files:
-            file = request.files[file_field]
-            if file:
-                 # creating a secure filename and storing it in the uploads folder
-                filename = secure_filename(file.filename)
-                unique_filename = str(uuid.uuid4()) + "_" + filename
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-                file.save(file_path) # Save the file to the disk
+        file = request.files.get(file_field)
+        logging.debug(f"Received file for field '{file_field}': {file.filename if file else 'No file'}")
+        if file and file.filename:
+                try:
+                    # Directly uploading the file to the MinIO service
+                    files = {'file': (file.filename, file.stream, file.mimetype)}
+                    logging.debug(f"Uploading file: {file.filename}, MIME type: {file.mimetype}")
 
-                #generating URI to access this file 
-                file_uri = url_for('uploaded_file', filename=unique_filename, _external=True)
-                file_data[file_field] = file_uri
+                    response = requests.post('http://localhost:6000/upload-file', files=files)
+                    logging.debug(f"Response from MinIO upload for '{file_field}': {response.status_code}, {response.text}")
+
+                    if response.status_code == 200:
+                        file_data[file_field] = response.text 
+                        logging.debug(f"Successfully uploaded {file_field}: {file_data[file_field]}")
+                    else:
+                        return jsonify({"error": f"Failed to upload {file_field}: {response.text}"}), response.status_code
+                except Exception as e:
+                    return jsonify({"error": f"Error uploading {file_field}: {str(e)}"}), 500
 
     shipper_data.update(file_data)
 
@@ -401,9 +406,6 @@ def shipper_register():
     except requests.exceptions.RequestException as e:
         return jsonify({"error": str(e)}), 500
     
-    return jsonify({"message": "shipper registered successfully"}), 200
-
-
 
 #REQUESTS SECTION
 @app.route('/transporter_requests')
@@ -838,15 +840,93 @@ def toggle_favourite():
 def submit_review():
     data = request.json
     transporter_id = int(data.get('transporter_id'))
-    review_data = data.get('review')
+    review_data = data.get('reviews')
     rating = data.get('rating')
+    
+    # Validate that the required fields are present
+    if not transporter_id or not review_data or not rating:
+        return jsonify({"success": False, "error": "Missing data"}), 400
+
 
     # Find transporter and add the review
     for transporter in transporters:
-        if transporter['id'] == transporter_id and review_data:
-            transporter['reviews'].append(review_data)
-            return jsonify({'success': True})
-        #code to send review to kafka
+        if transporter['id'] == int(transporter_id):
+            # Append the review and rating to the transporter's data
+            transporter['reviews'].append({
+                'review': review_data,
+                'rating': rating,
+                'timestamp': data.get('timestamp', None)  # Optional: timestamp
+            })
+            return jsonify({"success": True}), 200
+        
+    
+        # Send the data to the processing Flask application or service
+    PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
+    try:
+        # Print the transporter_data before sending
+        print("Sending the following data to processing URL:", review_data)
+        response = requests.post(
+            PROCESSING_FLASK_URL,
+            json={"review": review_data, "rating": rating},
+            headers={'Content-Type': 'application/json'}
+        )
+        response_data = response.json()
+        print("Response status code:", response.status_code)
+        print("Response data:", response_data)
+        return jsonify(response_data), response.status_code
+    except requests.exceptions.RequestException as e:
+        print("Error occurred while sending to processing URL:", e)
+        return jsonify({"error": str(e)}), 500
+
+
+
+offers_data = [
+    {'id': 1, 'name': 'Star International', 'details': 'Most experienced with Beira-Harare Route.', 'price': '$1400', 'perfect_match': True},
+    {'id': 2, 'name': 'Ngwena', 'details': 'Premium Member', 'price': '$1400', 'perfect_match': False},
+    {'id': 3, 'name': 'Tengwa', 'details': 'Free customs clearing, shorter transit time.', 'price': '$1250', 'perfect_match': False},
+]
+
+# Route to display offers
+@app.route('/offers')
+def offers():
+    return render_template('alloffers.html', offers=offers_data)
+
+# Endpoint to handle offer acceptance
+@app.route('/accept_offer', methods=['POST'])
+def accept_offer():
+    if request.is_json:
+        payload = request.get_json()  
+    else:
+        return jsonify({"error": "Invalid content type"}), 400
+    
+    # Debug: Print incoming JSON payload
+    print("Incoming JSON Payload:", payload)
+    offer_data = { 
+        **{key: payload[key] for key in payload if key not in ['form_data']} ,
+        **{key: payload['form_data'][key] for key in payload['form_data']}
+    } 
+    print("REQUEST DATA", offer_data)  
+
+    # Send the data to the processing Flask application or service
+    PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
+    try:
+        # Print the transporter_data before sending
+        print("Sending the following data to processing URL:", offer_data)
+        response = requests.post(
+            PROCESSING_FLASK_URL,
+            json=offer_data,
+            headers={'Content-Type': 'application/json'}
+        )
+        response_data = response.json()
+        print("Response status code:", response.status_code)
+        print("Response data:", response_data)
+        return jsonify(response_data), response.status_code
+    except requests.exceptions.RequestException as e:
+        print("Error occurred while sending to processing URL:", e)
+        return jsonify({"error": str(e)}), 500
+
+   
+
         
 
 if __name__ == '__main__':

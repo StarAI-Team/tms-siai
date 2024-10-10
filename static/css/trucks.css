@@ -162,6 +162,7 @@ footer .footer-column {
 
 #reviews-section {
     margin-top: 30px;
+    display: none;
 }
 
 #review-list {
@@ -176,7 +177,7 @@ footer .footer-column {
     border-radius: 5px;
 }
 
-#review-text {
+#reviews-text {
     width: 100%;
     height: 80px;
     margin-bottom: 10px;
