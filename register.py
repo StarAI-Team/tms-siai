@@ -880,16 +880,32 @@ def submit_review():
 
 
 
-offers_data = [
+#SECTION TO ACCEPT OFFERS
+
+offers = [
     {'id': 1, 'name': 'Star International', 'details': 'Most experienced with Beira-Harare Route.', 'price': '$1400', 'perfect_match': True},
     {'id': 2, 'name': 'Ngwena', 'details': 'Premium Member', 'price': '$1400', 'perfect_match': False},
     {'id': 3, 'name': 'Tengwa', 'details': 'Free customs clearing, shorter transit time.', 'price': '$1250', 'perfect_match': False},
 ]
 
 # Route to display offers
-@app.route('/offers')
+@app.route('/view_offers')
 def offers():
-    return render_template('alloffers.html', offers=offers_data)
+    return render_template('alloffers.html')
+
+# Provide all offer data as JSON
+@app.route('/api/offers')
+def api_offers():
+    return jsonify(offers)
+
+# Provide a single offer based on ID
+@app.route('/api/offers/<int:offer_id>')
+def api_offer(offer_id):
+    offer = next((offer for offer in offers if offer['id'] == offer_id), None)
+    if offer:
+        return jsonify(offer)
+    else:
+        return jsonify({'error': 'Offer not found'}), 404
 
 # Endpoint to handle offer acceptance
 @app.route('/accept_offer', methods=['POST'])
@@ -924,8 +940,13 @@ def accept_offer():
     except requests.exceptions.RequestException as e:
         print("Error occurred while sending to processing URL:", e)
         return jsonify({"error": str(e)}), 500
+    
 
-   
+
+@app.route('/agreement')
+def sign_agreement():
+    return render_template('agreement.html')
+
 
         
 

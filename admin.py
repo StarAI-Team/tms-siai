@@ -1,11 +1,25 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import psycopg2
 import json
 import os
+import requests
+import uuid
+
 
 app = Flask(__name__)
 
 # Route for the main SPA page
+
+@app.route('/get_user_metadata', methods=['GET'])
+def get_user_metadata():
+
+    ip_address = request.remote_addr  
+    
+    metadata = {
+        'ip_address': ip_address
+    }
+    return jsonify(metadata)
+
 @app.route('/')
 def home():
     # Placeholder data to simulate data from the backend
@@ -169,6 +183,50 @@ def submissions():
     }
 
     return render_template('submit.html', submission=submission)
+
+@app.route('/user_submission', methods=['POST'])
+def user_submission():
+    # Check if request is JSON
+    if request.is_json:
+        payload = request.get_json()
+    else:
+        return jsonify({"error": "Invalid content type"}), 400
+
+    # Debug: Print incoming JSON payload
+    print("Incoming JSON Payload:", payload)
+
+    # Extract data from the payload
+    request_data = {
+        **{key: payload[key] for key in payload if key not in ['form_data']},
+        **{key: payload['form_data'][key] for key in payload['form_data']}
+    }
+
+    print("Processed Request Data:", request_data)
+
+    # Send the data to the processing Flask application
+    PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
+    try:
+        # Debug: Print request_data before sending
+        print("Sending the following data to processing URL:", request_data)
+
+        response = requests.post(
+            PROCESSING_FLASK_URL,
+            json=request_data,
+            headers={'Content-Type': 'application/json'}
+        )
+
+        # Debug: Print response status and data
+        response_data = response.json()
+        print("Response status code:", response.status_code)
+        print("Response data:", response_data)
+
+        return jsonify(response_data), response.status_code
+    except requests.exceptions.RequestException as e:
+        print("Error occurred while sending to processing URL:", e)
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({"message": "Data submitted successfully"}), 200
+
 
 
 if __name__ == '__main__':

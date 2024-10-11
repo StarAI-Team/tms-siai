@@ -14,6 +14,11 @@
         </header>
 
         <main>
+            <div id="notification" class="notification hidden">
+                <span id="notification-message"></span>
+                <br><button onclick="hideNotification()">Close</button>
+            </div>
+
             <!-- Initial Request Selection Section -->
             <div id="request-options" class="request-options">
                 <button class="request-btn" onclick="handleRequest('prefinancing')">Prefinancing</button>
@@ -24,7 +29,7 @@
 
             <!-- Prefinancing Section -->
             <div id="prefinancing" class="hidden">
-                <h3>Enter Amount Requested:</h3>
+                <h3>Enter Amount Requested in USD:</h3>
                 <input type="number" id="prefinancing-amount" placeholder="Enter amount">
                 <h4>Remaining Balance Duration:</h4>
                 <button onclick="submitPrefinancing(7, 10)">1-7 days 10%</button>
@@ -40,7 +45,7 @@
                     <option value="petrol">Petrol</option>
                     <option value="diesel">Diesel</option>
                 </select>
-                <h3>Enter Quantity:</h3>
+                <h3>Enter Quantity in Litres:</h3>
                 <input type="number" id="fuel-quantity" placeholder="Enter quantity">
 
                 <h4>Enter Specifications <span id="fuel-specs"></span>:</h4>
@@ -145,6 +150,18 @@
     </div>
 
     <script>
+        let successfulEventCount = 0;
+
+        // Function to show custom notification
+        function showNotification(message) {
+            document.getElementById('notification-message').innerText = message;
+            document.getElementById('notification').classList.remove('hidden');
+        }
+
+        // Function to hide the notification
+        function hideNotification() {
+            document.getElementById('notification').classList.add('hidden');
+        }
         // Function to show specific sections and hide others
         function showSection(sectionId) {
             const sections = document.querySelectorAll('main > div');
@@ -263,6 +280,7 @@
     
                     // Send the data to the Flask backend
                     sendEvent(eventData);
+                    
                 })
                 .catch(error => {
                     console.error("Error fetching user metadata:", error);
@@ -362,7 +380,7 @@
 
         // Function to send event data to Flask backend
         function sendEvent(eventData) {
-            fetch('http://127.0.0.1:8000/post_requests', {
+            fetch('/post_requests', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -377,7 +395,15 @@
             })
             .then(data => {
                 console.log('Event sent successfully:', data);
-                alert("Your request has been submitted successfully!");
+
+                // Increment the successful event count
+                successfulEventCount++;
+
+                // Show the notification only after the second successful event
+                if (successfulEventCount === 2) {
+                showNotification("Your request has been submitted successfully!");
+            }
+                
             })
             .catch(error => {
                 console.error('Error sending event:', error);

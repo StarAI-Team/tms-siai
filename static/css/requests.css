@@ -253,3 +253,32 @@ footer {
 .checkbox-option label {
     margin-left: 5px; 
 }
+
+/* Style for the notification */
+.notification {
+    background-color: #28a745; 
+    color: white;
+    font-size: medium;
+    padding: 15px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 200px;
+    z-index: 1000;
+}
+
+.notification button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
