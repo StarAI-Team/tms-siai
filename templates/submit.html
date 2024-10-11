@@ -50,11 +50,15 @@
                     {% endfor %}
                 </ul>
 
+                <!-- Rejection Reason Input -->
+                <label for="rejection-reason">Reason for Rejection (if applicable):</label>
+                <textarea id="rejection-reason"></textarea>
+
                 <div class="decision-buttons">
-                    <button class="accept">Accept</button>
-                    <button class="decline">Decline</button>
+                    <button onclick="submitSubmission(true)">Accept</button>
+                    <button onclick="submitSubmission(false)">Reject</button>
                 </div>
-            </div>
+                
 
             <!-- Pagination -->
             <div class="pagination">
@@ -72,4 +76,81 @@
             </div>
         </div>
     </div>
+    <script>
+function generateSubmissionId() {
+            return 'submission_' + Date.now();  
+        }
+function submitSubmission(isAccepted) {
+    // Get rejection reason
+    const rejectionReason = document.getElementById('rejection-reason').value;
+    
+    // Fetch user metadata
+    fetch('/get_user_metadata')
+        .then(response => response.json())
+        .then(metadata => {
+            // Prepare the event data
+            const eventData = {
+                event_name: isAccepted ? 'Submission_Accepted' : 'Submission_Rejected',
+                ip_address: metadata.ip_address,
+                timestamp: new Date().toISOString(),
+                user_agent: navigator.userAgent,
+                current_section: 'submission', 
+                form_data: {
+                    submission_id: generateSubmissionId(),
+                    rejection_reason: isAccepted ? null : rejectionReason 
+                }
+            };
+
+            // Check if a reason is required and missing
+            if (!isAccepted && !rejectionReason) {
+                alert("Please provide a reason for rejection.");
+                return;
+            }
+
+            // Debug: Log the event data to the console
+            console.log("Event Data to be sent:", eventData);
+
+            // Send the data to the Flask backend
+            sendEvent(eventData);
+        })
+        .catch(error => {
+            console.error("Error fetching user metadata:", error);
+        });
+}
+
+function sendEvent(eventData) {
+    // Send the event data to the Flask backend via POST request
+    fetch('/user_submission', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Response from Flask:", data);
+    })
+    .catch(error => {
+        console.error("Error sending event:", error);
+    });
+}
+function sendEvent(eventData) {
+    // Send the event data to the Flask backend via POST request
+    fetch('/user_submission', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Response from Flask:", data);
+    })
+    .catch(error => {
+        console.error("Error sending event:", error);
+    });
+}
+        </script>
 </html>
