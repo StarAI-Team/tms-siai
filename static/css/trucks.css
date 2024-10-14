@@ -177,7 +177,7 @@ footer .footer-column {
     border-radius: 5px;
 }
 
-#reviews-text {
+#reviews_text {
     width: 100%;
     height: 80px;
     margin-bottom: 10px;
@@ -264,4 +264,13 @@ input[type="radio"]:checked ~ .star {
 
 .not-favourited {
     color: grey;
+}
+
+.add-review-container {
+    background-color: white;  /* Set background color to white */
+    border: 1px solid #ccc;   /* Light gray border for definition */
+    border-radius: 8px;       /* Rounded corners */
+    padding: 20px;            /* Padding inside the container */
+    margin: 20px 0;          /* Margin around the container */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }

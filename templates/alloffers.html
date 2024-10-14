@@ -19,8 +19,8 @@
                     <p>
                         <!-- Offer name and details -->
                         <span class="load-name">{{ offer.name }}</span>
-                        <span class="offer-details">{{ offer.details }}</span>
                         <span class="price">{{ offer.price }}</span>
+                        <span class="offer-details">{{ offer.details }}</span>
                     </p>
                 </div>
                 {% if offer.perfect_match %}
@@ -28,7 +28,11 @@
                     <div class="star">Perfect Match!</div>
                 </div>
                 {% endif %}
-                <button class="all-bid-button">Accept</button>
+                <button class="all-bid-button" 
+                        data-id="{{ offer.id }}"
+                        data-name="{{ offer.name }}"
+                        data-details="{{ offer.details }}"
+                        data-price="{{ offer.price }}">Accept</button>
             </div>
             {% endfor %}
 
@@ -36,5 +40,69 @@
             <button class="all-back-button" onclick="window.location.href='/shipper-dashboard'">Back</button>
         </div>
     </div>
+    <script>
+        // Handle Accept button click
+        document.querySelectorAll('.all-bid-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Retrieve offer data from button's data attributes
+                const offerId = this.getAttribute('data-id');
+                const offerName = this.getAttribute('data-name');
+                const offerDetails = this.getAttribute('data-details');
+                const offerPrice = this.getAttribute('data-price');
+
+                // Fetch user metadata
+                fetch('/get_user_metadata')
+                    .then(response => response.json())
+                    .then(metadata => {
+                        // Prepare event data including user metadata and form data
+                        const eventData = {
+                            event_name: 'Offer_Acceptance',
+                            user_id: metadata.user_id,
+                            ip_address: metadata.ip_address,
+                            timestamp: new Date().toISOString(),
+                            user_agent: navigator.userAgent,
+                            form_data: {
+                                offer_id: offerId,
+                                name: offerName,
+                                details: offerDetails,
+                                price: offerPrice
+                            }
+                        };
+
+                        // Call the function to submit the offer acceptance event
+                        submitOfferAcceptance(eventData);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching user metadata:', error);
+                        alert('Failed to fetch user metadata. Please try again.');
+                    });
+            });
+        });
+
+        // Function to send the offer acceptance event to Flask backend
+        function submitOfferAcceptance(eventData) {
+            fetch('/accept_offer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(eventData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Offer accepted successfully:', data);
+                alert('Offer accepted successfully!');
+            })
+            .catch(error => {
+                console.error('Error accepting offer:', error);
+                alert('There was an error accepting the offer. Please try again.');
+            });
+        }
+    </script>
 </body>
 </html>
