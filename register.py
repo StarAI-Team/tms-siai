@@ -808,7 +808,7 @@ def shipper_chat():
 transporters = [
     {"id": 1, "name": "Cargo Sync", "is_favourite": False, "fleet_size": 10, "rating": 4, "ranking": "premium", "git": "1800", "routes": "Harare-Bulawayo""Mbare-Kwekwe", "reviews": ["Could be better"]},
     {"id": 2, "name": "FleetJoy", "is_favourite": True, "fleet_size": 5, "rating": 3, "ranking": "standard", "git": "2000", "routes": "Harare-Mutare", "reviews": ["Great service!"]},
-    # Add more transporter objects as needed
+    
 ]
 
 @app.route('/view-transporters')
@@ -840,8 +840,9 @@ def toggle_favourite():
 def submit_review():
     data = request.json
     transporter_id = int(data.get('transporter_id'))
-    review_data = data.get('reviews')
+    review_data = data.get('reviews_text')
     rating = data.get('rating')
+    print("Received data:", data)
     
     # Validate that the required fields are present
     if not transporter_id or not review_data or not rating:
@@ -880,7 +881,7 @@ def submit_review():
 
 
 
-#SECTION TO ACCEPT OFFERS
+#SECTION TO ACCEPT OFFERS 
 
 offers = [
     {'id': 1, 'name': 'Star International', 'details': 'Most experienced with Beira-Harare Route.', 'price': '$1400', 'perfect_match': True},
@@ -890,8 +891,8 @@ offers = [
 
 # Route to display offers
 @app.route('/view_offers')
-def offers():
-    return render_template('alloffers.html')
+def view_offers():
+    return render_template('alloffers.html', offers=offers)
 
 # Provide all offer data as JSON
 @app.route('/api/offers')
