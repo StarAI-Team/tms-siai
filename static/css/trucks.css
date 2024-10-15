@@ -221,22 +221,22 @@ button.footer-btn:hover, button:hover {
 }
 
 .star {
-    font-size: 30px; /* Adjust size as needed */
-    color: lightgray; /* Default color */
-    cursor: pointer; /* Change cursor to pointer on hover */
+    font-size: 30px; 
+    color: lightgray; 
+    cursor: pointer;
 }
 
 input[type="radio"] {
-    display: none; /* Hide radio buttons */
+    display: none; 
 }
 
 input[type="radio"]:checked ~ .star {
-    color: gold; /* Color for selected star */
+    color: gold; 
 }
 
 .star:hover,
 .star:hover ~ .star {
-    color: gold; /* Color on hover */
+    color: gold; 
 }
 
 .star {
@@ -266,11 +266,15 @@ input[type="radio"]:checked ~ .star {
     color: grey;
 }
 
-.add-review-container {
-    background-color: white;  /* Set background color to white */
-    border: 1px solid #ccc;   /* Light gray border for definition */
-    border-radius: 8px;       /* Rounded corners */
-    padding: 20px;            /* Padding inside the container */
-    margin: 20px 0;          /* Margin around the container */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+.transporter-name {
+    color: white; 
+    text-decoration: none; 
+}
+
+.transporter-name:hover {
+    text-decoration: underline; 
+}
+
+.details-section {
+    margin-top: 20px; 
 }

@@ -843,13 +843,9 @@ def submit_review():
     review_data = data.get('reviews_text')
     rating = data.get('rating')
     print("Received data:", data)
-    
-    # Validate that the required fields are present
-    if not transporter_id or not review_data or not rating:
-        return jsonify({"success": False, "error": "Missing data"}), 400
-
 
     # Find transporter and add the review
+    transporter_found = False
     for transporter in transporters:
         if transporter['id'] == int(transporter_id):
             # Append the review and rating to the transporter's data
@@ -858,26 +854,40 @@ def submit_review():
                 'rating': rating,
                 'timestamp': data.get('timestamp', None)  # Optional: timestamp
             })
-            return jsonify({"success": True}), 200
-        
-    
-        # Send the data to the processing Flask application or service
+            transporter_found = True
+            break  # Exit the loop once the transporter is found
+
+    if not transporter_found:
+        return jsonify({"error": "Transporter not found"}), 404
+
+    # Proceed with sending data to the service on port 6000
+    print("Sending data to port 6000:", {"review": review_data, "rating": rating})
+
+    # Send the data to the processing Flask application or service
     PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
     try:
-        # Print the transporter_data before sending
-        print("Sending the following data to processing URL:", review_data)
         response = requests.post(
             PROCESSING_FLASK_URL,
-            json={"review": review_data, "rating": rating},
+            json={
+                "review": review_data,
+                "rating": rating,
+                "transporter_id": transporter_id,
+                "timestamp": data.get('timestamp', None)
+            },
             headers={'Content-Type': 'application/json'}
         )
+
+        # Log the response status and data
+        print(f"Response status code from port 6000: {response.status_code}")
         response_data = response.json()
-        print("Response status code:", response.status_code)
-        print("Response data:", response_data)
+        print("Response data from port 6000:", response_data)
+        
         return jsonify(response_data), response.status_code
     except requests.exceptions.RequestException as e:
-        print("Error occurred while sending to processing URL:", e)
+        print("Error occurred while sending data to processing URL:", e)
         return jsonify({"error": str(e)}), 500
+
+
 
 
 
