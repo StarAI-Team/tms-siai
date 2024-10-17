@@ -90,46 +90,45 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     
     async function sendEventData(section, shouldRedirect) {
-        const data = {};
+        const formData = new FormData();
         const inputs = formSteps[currentStep].querySelectorAll('input, textarea');
     
         // Collecting form data from inputs in the current section
         inputs.forEach(input => {
-            if (input.name && input.value) {
-                data[input.name] = input.value; 
+            if (input.name) {
+                if (input.type === 'file') {
+                    // Append files to FormData
+                    const files = input.files;
+                    for (let i = 0; i < files.length; i++) {
+                        formData.append(input.name, files[i]);
+                    }
+                } else {
+                    // Append other input values
+                    formData.append(input.name, input.value);
+                }
             }
         });
-    
-        console.log("Form data for section:", section, data);
     
         // Fetching user_id and ip_address metadata from the backend
         try {
             const metadataResponse = await fetch('/get_user_metadata');
             const metadata = await metadataResponse.json();
     
-            const eventDetails = {
-                event_name: `shipperRegistration_${section}`,  
-                user_id: metadata.user_id,
-                ip_address: metadata.ip_address,
-                timestamp: new Date().toISOString(),
-                user_agent: navigator.userAgent,
-                current_section: section,
-                form_data: data  
-            };
-    
-            console.log("Payload to be sent:", eventDetails);
+            // Adding user metadata to FormData
+            formData.append('event_name', `shipperRegistration_${section}`);
+            formData.append('user_id', metadata.user_id);
+            formData.append('ip_address', metadata.ip_address);
+            formData.append('timestamp', new Date().toISOString());
+            formData.append('user_agent', navigator.userAgent);
+            formData.append('current_section', section);
 
              // Sending the section data to the Flask backend
              const response = await fetch('/shipper_register', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(eventDetails),  
+                body: formData,  // Use FormData for the body
             });
-    
+
             const responseData = await response.json();
-            console.log('Response data:', responseData);
             
             if (responseData.error) {
                 alert(`Error: ${responseData.error}`);
@@ -159,22 +158,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else {
                     // All sections completed successfully, validate password
                     const password = document.getElementById("password").value;
-                    const confirmPasswordElement = document.getElementById("confirm_password");
-                    
-                    if (!confirmPasswordElement) {
-                        console.error("Confirm password field is missing!");
-                        return; 
-                    }
-
-                    const confirmPassword = confirmPasswordElement.value;
+                    const confirmPassword = document.getElementById("confirm_password").value;
 
                     // Validate password
                     if (password !== confirmPassword) {
-                        confirmPasswordElement.classList.add('error');
+                        document.getElementById("confirm_password").classList.add('error');
                         showErrorMessage("Passwords do not match.");
                         alert("Passwords do not match! Try Again");
                     } else {
-                        confirmPasswordElement.classList.remove('error');
+                        document.getElementById("confirm_password").classList.remove('error');
                         console.log("Passwords match.");
                         // Redirect to the desired URL upon successful validation
                         window.location.href = '/shipper-package';

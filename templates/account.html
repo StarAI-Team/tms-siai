@@ -25,6 +25,7 @@ body {
 
 /* User Account Section */
 .user-account {
+    padding: 20px;
     width: 80%;
     margin: 50px auto;
     text-align: center;
@@ -185,43 +186,199 @@ body {
 .logout-btn:hover {
     background-color: #ff7878;
 }
+.input-field {
+    width: 50%; /* Full width */
+    padding: 30px;
+    margin: 10px 0;
+    border: 1px solid #ced4da; 
+    border-radius: 5px; 
+    margin-left: 180px;
+}
+
+.submit-btn {
+    padding: 20px 70px;
+    background-color: #28a745; 
+    border-radius: 9px;
+    margin-left: 400px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.submit-btn:hover {
+    background-color: #218838; 
+}
+.privacy-settings{
+    font-size: larger;
+    font: white;
+    background-color: #0b0000;
+    border: 1px solid rgb(237, 230, 230);
+    padding:  20px 10px;
+    margin-left: 170px;
+    margin-right: 170px;
+    padding-bottom: 50px;
+    margin-top: 20px;
+    border-radius: 8px;
+   
+    
+}
+.notification-settings{
+    font-size: larger;
+    font: white;
+    background-color: #0b0000;
+    border: 1px solid rgb(247, 243, 243);
+    padding:  20px 10px;
+    margin-left: 170px;
+    margin-right: 170px;
+    padding-bottom: 50px;
+    margin-top: 20px;
+    border-radius: 8px;
+   
+    
+}
+.privacy-settings button{
+    padding: 20px 70px;
+    background-color: #28a745; 
+    border-radius: 9px;
+    margin-left: 400px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.notification-settings button{
+    padding: 20px 70px;
+    background-color: #28a745; 
+    border-radius: 9px;
+    margin-left: 400px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+
 
 </style>
 </head>
 <body>
-<section class="user-account">
-    <div class="profile-section">
-        <img src="/static/images/Man working as a truck driver posing.png" alt="User Profile" class="profile-picture">
-        <h2 class="user-name">John Doe</h2>
-        <p class="user-email">john.doe@example.com</p>
-        <button class="edit-profile-btn">Edit Profile</button>
-    </div>
-
-    <div class="container">
-        <div class="account-info">
-            <h3>Account Information</h3>
-            <p><strong>Name:</strong> John Doe</p>
-            <p><strong>Email:</strong> john.doe@example.com</p>
-            <p><strong>Phone Number:</strong> +123456789</p>
-            <p><strong>Address:</strong> 123 Main Street, City, Country</p>
-            <button class="edit-info-btn">Edit Information</button>
+    <section class="user-account">
+        <div class="profile-section">
+            <img src="/static/images/boxlady.png" alt="User Profile" class="profile-picture">
+            <h2 class="user-name">{{ user.name }}</h2>
+            <p class="user-email">{{ user.email }}</p>
+            <button class="edit-profile-btn" onclick="toggleProfileSettings()">Edit Profile</button>
         </div>
+    
+        <div class="container">
+            <div class="account-info">
+                <h3>Account Information</h3>
+                <p><strong>Name:</strong> {{ user.name }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Phone Number:</strong> {{ user.phone }}</p>
+                <p><strong>Address:</strong> {{ user.address }}</p>
+                <button class="edit-info-btn" onclick="toggleProfileSettings()">Edit Information</button>
+            </div>
+    
+            <div class="settings-section" id="settingsSection">
+                <h3>Account Settings</h3>
+                <div class="settings-row">
+                    <form action="{{ url_for('update_password') }}" method="POST">
+                        <button type="button" class="settings-btn" onclick="togglePasswordSettings()">Update Password</button>
 
-
-        <div class="settings-section">
-            <h3>Account Settings</h3>
-            <div class="settings-row">
-                <button class="settings-btn">Update Password</button>
-                <button class="settings-btn">Privacy Settings</button>
-                <button class="settings-btn">Notification Settings</button>
+                    
+                    </form>
+                    <form action="{{ url_for('privacy_settings') }}" method="POST">
+                        <button type="button" class="settings-btn"  onclick="togglePrivacySettings()">Privacy Settings</button>
+                    </form>
+                    <form action="{{ url_for('notification_settings') }}" method="POST">
+                        <button type="button" class="settings-btn" onclick="toggleNotificationSettings()">Notification Settings</button>
+                    </form>
+                </div>
+            </div>
+    
+            <div class="logout-section">
+                <button class="logout-btn" id="backBtn">Back</button>
+                <a href="{{ url_for('logout') }}">
+                    <button class="logout-btn">Logout</button>
+                </a>
             </div>
         </div>
-
-        <div class="logout-section">
-            <button class="logout-btn">Logout</button>
-            <button class="logout-btn">Back</button>
+    </section>
+    
+    <div class="profile-settings" style="display: none;">
+        <form action="{{ url_for('update_profile') }}" method="POST" enctype="multipart/form-data">
+            <input type="text" name="name" value="{{ user.name }}" placeholder="Full Name" class="input-field">
+            <input type="text" name="phone" value="{{ user.phone }}" placeholder="Phone Number" class="input-field">
+            <input type="text" name="address" value="{{ user.address }}" placeholder="Address" class="input-field">
+            <input type="file" name="profile_picture" class="input-field">
+            <br><button type="submit" class="submit-btn">Update Profile</button></br>
+        </form>
         </div>
+
+        <div class="password-settings" style="display: none;">
+        <form action="{{ url_for('update_password') }}" method="POST">
+            <input type="password" name="current_password" placeholder="Current Password" class="input-field">
+            <input type="password" name="new_password" placeholder="New Password" class="input-field">
+            <input type="password" name="confirm_password" placeholder="Confirm New Password" class="input-field">
+            <button type="submit" class="submit-btn">Update Password</button>
+        </form>
     </div>
-</section>
-</body>
-</html>
+
+    <div class="privacy-settings" style="display: none;">
+        <form action="{{ url_for('privacy_settings') }}" method="POST">
+            <input type="hidden" name="email" value="{{ user.email }}">
+            <label for="profile_visibility">Profile Visibility:</label>
+            <select name="profile_visibility" id="profile_visibility">
+                <option value="public" {{ 'selected' if user.profile_visibility == 'public' else '' }}>Public</option>
+                <option value="private" {{ 'selected' if user.profile_visibility == 'private' else '' }}>Private</option>
+            </select>
+    
+            <label for="share_data">Share Data:</label>
+            <input type="checkbox" name="share_data" value="yes" {{ 'checked' if user.share_data == 'yes' else '' }}> Yes
+    
+            <button type="submit">Update Privacy Settings</button>
+        </form>
+    </div>
+    
+    <div class="notification-settings" style="display: none;">
+        <form action="{{ url_for('notification_settings') }}" method="POST">
+            <input type="hidden" name="email" value="{{ user.email }}">
+            <label for="email_notifications">Email Notifications:</label>
+            <input type="checkbox" name="email_notifications" value="enabled" {{ 'checked' if user.email_notifications == 'enabled' else '' }}> Enabled
+    
+            <label for="sms_notifications">SMS Notifications:</label>
+            <input type="checkbox" name="sms_notifications" value="enabled" {{ 'checked' if user.sms_notifications == 'enabled' else '' }}> Enabled
+    
+            <button type="submit">Update Notification Settings</button>
+        </form>
+    </div>
+    
+    
+    <script>
+        // Function to toggle profile settings visibility
+        function toggleProfileSettings() {
+            const settingsSection = document.querySelector('.profile-settings');
+            settingsSection.style.display = settingsSection.style.display === 'none' || settingsSection.style.display === '' ? 'block' : 'none';
+        }
+
+        function togglePasswordSettings() {
+            const settingsSection = document.querySelector('.password-settings');
+            settingsSection.style.display = settingsSection.style.display === 'none' || settingsSection.style.display === '' ? 'block' : 'none';
+        }
+        
+        function togglePrivacySettings() {
+            const privacySection = document.querySelector('.privacy-settings');
+            privacySection.style.display = privacySection.style.display === 'none' || privacySection.style.display === '' ? 'block' : 'none';
+        }
+
+        function toggleNotificationSettings() {
+            const notificationSection = document.querySelector('.notification-settings');
+            notificationSection.style.display = notificationSection.style.display === 'none' || notificationSection.style.display === '' ? 'block' : 'none';
+        }
+
+        
+        // Back button functionality
+        const backBtn = document.getElementById('backBtn');
+        backBtn.addEventListener('click', () => {
+            window.history.back(); 
+        });
+    </script>
+    </body>
+    </html>
+    

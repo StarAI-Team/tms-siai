@@ -324,10 +324,12 @@ def shipper_register():
         user_id = session.get('user_id')
     print("Initial transporter data received :", shipper_data)
     print("Files in request:", request.files)
+  
     if not user_id:
         return jsonify({"error": "User session expired or user_id missing"}), 400
 
     shipper_data['user_id'] = user_id
+    print(shipper_data)
     
 
     
