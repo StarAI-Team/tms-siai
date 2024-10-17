@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify
 app = Flask(__name__)
 
 # Sample data for loads
-loads = [
+trip = [
     {
         'id': 1,
         'load': 'Wheat',
@@ -14,14 +14,14 @@ loads = [
     },
 ]
 
-@app.route('/')
+@app.route('/agreement')
 def index():
-    return render_template('agreement.html', loads=loads)
+    return render_template('agreement.html', trip=trip)
 
 # To retrieve loads via API
-@app.route('/api/loads')
-def get_loads():
-    return jsonify(loads)
+@app.route('/api/trip')
+def get_trip():
+    return jsonify(trip)
 
 if __name__ == '__main__':
     app.run(debug=True, port='8010')

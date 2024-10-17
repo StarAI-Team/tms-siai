@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Welcome to SIAI</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat Alternates', sans-serif;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: #fff;
+    
+}
+
+header {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.background-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    z-index: 1; 
+}
+
+.overlay {
+    position: absolute; 
+    top: 0; 
+    left: 0;
+    right: 0;
+    height: 100%; 
+    z-index: 2; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; 
+    text-align: center;
+    padding: 20px; 
+    background: rgba(0, 0, 0, 0.5); 
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #fff;
+    margin-left: 20px; /* Align text to the left */
+}
+
+.auth-buttons button {
+    top: 45%;
+    margin-left: 10px;
+    padding: 10px 15px;
+    background-color: red;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+   
+   
+}
+
+.auth-buttons a {
+    color: #fff;
+    
+}
+
+.stats-section {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: stretch; 
+    padding: 40px 20px; 
+    color: white; 
+    background: linear-gradient(to bottom, #3F0606, #790c0c, #ca0b0b, #b40a0a );
+}
+
+.stats-box h2 {
+    font-size: 4rem; 
+    margin: 0; 
+}
+
+.stats-box p {
+    font-size: 1.5rem; 
+    margin-top: 10px; 
+}
+
+.stats-container {
+    display: flex; 
+    flex-direction: column; 
+    flex: 1; 
+    padding-right: 20px; 
+}
+
+.stats-row {
+    display: flex;
+    justify-content: space-between; 
+    margin-bottom: 15px; 
+    flex: 1; 
+}
+
+.stats-box {
+    background-color: rgb(17, 16, 16); 
+    border-radius: 10px; 
+    padding: 20px; 
+    text-align: center; 
+    width: 48%; 
+}
+
+.stats-image {
+    flex: 1; 
+    text-align: right;
+}
+
+.stats-image img {
+    max-width: 100%; 
+    height: 100%; 
+    border-radius: 10px; 
+}
+.stats-container button {
+    padding: 10px 15px; 
+    background-color: red; 
+    color: #fff; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    transition: background-color 0.3s; 
+    margin-top: 90px;
+}
+.stats-container a { 
+    color: #fff; 
+}
+.services {
+    background-color: #333;
+    padding: 20px;
+    text-align: center;
+}
+
+.service-item {
+    display: inline-block;
+    margin: 10px;
+    padding: 20px;
+    background-color: #444;
+}
+
+.testimonials {
+    padding: 40px;
+    background: linear-gradient(to bottom, #3F0606, #360404, #280202 );
+    text-align: center;
+    color: white;
+}
+
+.testimonial-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.testimonial {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #1e0a0a;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 300px;
+    flex: 1;
+}
+
+.testimonial img.testimonial-image {
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+.testimonial-content {
+    text-align: left;
+}
+
+.testimonial-content p {
+    margin: 5px 0;
+}
+
+.testimonial-content p:first-child {
+    font-style: italic;
+}
+
+
+
+
+footer {
+    background-color: #000;
+    padding: 20px;
+    
+}
+footer h3 {
+    color: #fff;
+}
+
+footer ul {
+    list-style: none;
+    padding: 0;
+}
+
+footer ul li {
+    padding: 5px 0;
+}
+
+footer .footer-column a {
+    color: white;
+}
+.footer-btn:hover {
+    background-color: #555;
+}
+
+footer .footer-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.portfolio{
+    background: linear-gradient(to bottom, #280202, #200202, #0b0000 );
+    text-align: center;
+    padding: 40px;
+
+}
+.portfolio h2 {
+    text-align: center; 
+    color: white;
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.portfolio img {
+    margin: 20px;
+    width: 150px; 
+    height: auto; 
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.portfolio img:hover {
+    transform: scale(1.1); 
+}
+.services-section {
+    display: flex;
+    justify-content: space-around; 
+    padding: 40px 20px; 
+    background: linear-gradient(to bottom, #000000, #3F0606) 
+}
+
+.service-container {
+    background-color: #000; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    text-align: center; 
+    width: 30%; 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.9); 
+    transition: transform 0.3s; 
+}
+
+.service-container:hover {
+    transform: scale(1.05); 
+}
+
+
+.service-container h2 {
+    font-size: 1.5rem; 
+    color: #f1efef; 
+}
+
+
+.service-container p {
+    margin: 10px 0; 
+    color: #c1c0c0; 
+}
+
+.service-container button {
+    padding: 10px 15px; 
+    background-color: red; 
+    color: #fff; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    transition: background-color 0.3s; 
+}
+
+
+.service-container a { 
+    color: #fff; 
+}
+.service-container button:hover {
+    background-color: darkred; 
+}
+
+.more-services {
+    padding: 40px 20px;
+    text-align: center; 
+    color: white; 
+    background: linear-gradient(to bottom,#b40a0a, #930d0d, #3F0606)
+
+}
+
+.more-service-grid {
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px; 
+}
+
+.more-service-item {
+    background-color: rgba(255, 255, 255, 0.1); 
+    border-radius: 10px; 
+    padding: 10px; 
+    overflow: hidden; 
+    position: relative; 
+}
+
+.more-service-item img {
+    width: 100%; 
+    height: auto; 
+}
+
+.more-service-item p {
+    position: absolute; 
+    bottom: 10px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    background-color: rgba(0, 0, 0, 0.8); 
+    color: white; 
+    padding: 7px; 
+    border-radius: 5px; 
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <video autoplay muted loop class="background-video">
+            <source src="/static/videos/SIAI LANDING.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="overlay">
+            <div class="top-bar">
+                <div class="logo">SiAi</div>
+                <div class="auth-buttons">
+                    <button><a href="/sign-in">Log In</a></button>
+                    <button><a href="/register">Register</a></button>
+                </div>
+            </div>
+    </header>
+
+    <section class="services-section">
+        <div class="service-container">
+            <h2>Load Posting</h2>
+            <p>Shippers can post all the loads that they need transported and select from a wide range of offers from many transporters. 
+            </p>
+            <button><a href="/register">Explore More</a></button>
+        </div>
+        <div class="service-container">
+            <h2>Rate Bidding</h2>
+            <p>Get favorable rates to choose from when shippers post loads. Our AI system ensures  a minimum rate that does not leave transporters in a deficit or shippers overcharged.
+            </p>
+            <button>Check Bids</button>
+        </div>
+        <div class="service-container">
+            <h2>Route Planning</h2>
+            <p>Get route planning from our system such that you are advised on ETA, Fuel consumption, shorter routes, and many more... .</p>
+            <button>Start Planning</button>
+        </div>
+    </section>
+    <section class="stats-section">
+        <div class="stats-container">
+            <div class="stats-row">
+                <div class="stats-box">
+                    <h2>20,000</h2>
+                    <p>Tonnage transported</p>
+                    <button><a href="/register">Explore More</a></button>
+                    
+                </div>
+                <div class="stats-box">
+                    <h2>5,000</h2>
+                    <p>Awaiting bids</p>
+                    <button><a href="/register">Explore More</a></button>
+                </div>
+            </div>
+            <div class="stats-row">
+                <div class="stats-box">
+                    <h2>500</h2>
+                    <p>Shippers needing transportation</p>
+                    <button><a href="/register">Explore More</a></button>
+                    
+                </div>
+                <div class="stats-box">
+                    <h2>200</h2>
+                    <p>Transporters ready to bid</p>
+                    <button><a href="/register">Explore More</a></button>
+                </div>
+            </div>
+        </div>
+        <div class="stats-image">
+            <img src="/static/images/Man working as a truck driver posing.png" alt="Statistics Image">
+        </div>
+    </section>
+    
+    <section class="more-services">
+        <h2>Our Services</h2>
+        <div class="more-service-grid">
+            <div class="service-item">
+                <img src="/static/images/loadmatching.png" alt="Instant Load Matching">
+                <p>Instant Load Matching</p>
+            </div>
+            <div class="more-service-item">
+                <img src="/static/images/automation.png" alt="Automated Documentation">
+                <p>Automated Documentation</p>
+            </div>
+            <div class="more-service-item">
+                <img src="/static/images/tracking.png" alt="Real-Time Tracking">
+                <p>Real-Time Tracking</p>
+            </div>
+            <div class="more-service-item">
+                <img src="/static/images/quotecomparison.png" alt="Quote Comparison">
+                <p>Quote Comparison</p>
+            </div>
+            <div class="more-service-item">
+                <img src="/static/images/ETA.png" alt="Arrival Estimation and Trip Updates">
+                <p>Arrival Estimation and Trip Updates</p>
+            </div>
+            <div class="more-service-item">
+                <img src="/static/images/analytics.png" alt="Advanced Analytics">
+                <p>Advanced Analytics</p>
+            </div>
+        </div>
+    </section>
+    <section class="testimonials">
+        <h2>Testimonials</h2>
+        <div class="testimonial-row">
+            <div class="testimonial">
+                <img src="/static/images/boxlady.png" alt="Client 1" class="testimonial-image">
+                <div class="testimonial-content">
+                    <p>"Great service!"</p>
+                    <p>- John Doe</p>
+                </div>
+            </div>
+            <div class="testimonial">
+                <img src="/static/images/closeup-coins-stack-isolated-black-background.jpg" alt="Client 2" class="testimonial-image">
+                <div class="testimonial-content">
+                    <p>"Highly recommended!"</p>
+                    <p>- Jane Smith</p>
+                </div>
+            </div>
+            <div class="testimonial">
+                <img src="/static/images/black-white-desert-cacti.jpg" alt="Client 3" class="testimonial-image">
+                <div class="testimonial-content">
+                    <p>"Excellent support!"</p>
+                    <p>- Mike Johnson</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+    </section>
+        <div class="portfolio">
+            <h2>Our Partners</h2>
+            <img src="/static/images/clientregister.png" alt="Partner Logo">
+            <img src="/static/images/macro-shot-financial-concept.jpg" alt="Partner Logo">
+            <img src="/static/images/black-white-desert-cacti.jpg" alt="Partner Logo">
+            <img src="/static/images/black-white-background.jpg" alt="Partner Logo">
+            <img src="/static/images/boxlady.png" alt="Partner Logo">
+            <img src="/static/images/client.png" alt="Partner Logo">
+            <img src="/static/images/alloffer.png" alt="Partner Logo">
+        </div>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>SiAi</h3>
+                <p>AI powered Transport Management System. Post and Go...</p>
+                <p><i>Contact: +123 456 3455</i></p>
+            </div>
+            <div class="footer-column">
+                <h3>Menu</h3>
+                <ul>
+                    <li>Products</li>
+                    <li>Services</li>
+                    <li>Analytics</li>
+                    <li>About Us</li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Account</h3>
+                <ul>
+                    <li><a href="/account"> My Account</a></li>
+                    <li>Checkout</li>
+                    <li>My Cart</li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Stay Connected</h3>
+                <ul>
+                    <li>Facebook</li>
+                    <li>Instagram</li>
+                    <li>X</li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

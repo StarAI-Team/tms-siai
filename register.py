@@ -68,7 +68,12 @@ def upload_file():
 
 @app.route('/get_user_metadata', methods=['GET'])
 def get_user_metadata():
-    user_id = str(uuid.uuid4())  
+    if 'user_id' not in session:
+        user_id = str(uuid.uuid4()) 
+        session['user_id'] = user_id
+    else:
+        user_id = session['user_id'] 
+
     ip_address = request.remote_addr  
     
     metadata = {
@@ -77,8 +82,16 @@ def get_user_metadata():
     }
     return jsonify(metadata)
 
+@app.route('/account')
+def user_account():
+    return render_template('account.html')
+
 @app.route('/')
 def index():
+    return render_template('landingpage.html')
+
+@app.route('/register')
+def register():
     return render_template('register.html')
 
 
@@ -103,8 +116,14 @@ def register_transporter():
     if request.method == 'POST':
         transporter_data = {}
         file_data = {}
+
+        user_id = session.get('user_id')
     print("Initial transporter data received :", transporter_data)
     print("Files in request:", request.files)
+    if not user_id:
+        return jsonify({"error": "User session expired or user_id missing"}), 400
+
+    transporter_data['user_id'] = user_id
 
     
     # Process form data and files
@@ -301,8 +320,15 @@ def shipper_register():
     if request.method == 'POST':
         shipper_data = {}
         file_data = {}
+
+        user_id = session.get('user_id')
     print("Initial transporter data received :", shipper_data)
     print("Files in request:", request.files)
+    if not user_id:
+        return jsonify({"error": "User session expired or user_id missing"}), 400
+
+    shipper_data['user_id'] = user_id
+    
 
     
     # Process form data and files
@@ -725,6 +751,11 @@ def post_load():
         'additional_instructions', 'recommended_price' 
     ]
 
+    # Process transporter data (if any)
+    transporter_data = {k: v for k, v in load_data.items() if k.startswith('transporter_')}
+    if transporter_data:
+        print(f"Transporter(s) selected: {transporter_data}")
+
     missing_fields = [field for field in required_fields if field not in load_data]
     if missing_fields:
         return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
@@ -958,7 +989,9 @@ def accept_offer():
 def sign_agreement():
     return render_template('agreement.html')
 
-
+@app.route('/private_load')
+def private_load():
+    return  render_template('privateload.html')
         
 
 if __name__ == '__main__':
