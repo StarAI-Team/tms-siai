@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
+    
     const steps = document.querySelectorAll(".form-step");
     let currentStep = 0;
 
@@ -9,23 +10,11 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Validate passwords
-    function validatePasswords() {
-        const password = document.getElementById("password").value;
-        const confirmPassword = document.getElementById("confirm_password").value;
-
-        if (password !== confirmPassword) {
-            alert("Passwords do not match.");
-            return false;
-        }
-        return true;
-    }
-
     // Move to the next step
     document.querySelectorAll(".next-button").forEach(button => {
         button.addEventListener("click", function() {
             if (currentStep < steps.length - 1) {
-                if (currentStep === 4 && !validatePasswords()) {
+                if (currentStep === 4) {
                     return;
                 }
                 currentStep++;
@@ -44,15 +33,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Handle form submission
-    document.querySelector(".submit-button").addEventListener("click", function() {
-        if (currentStep === steps.length - 1 && validatePasswords()) {
-            alert("Form submitted successfully!");
-            
-        }
-    });
-
-
     // Initially show the first step
     showStep(currentStep);
 
@@ -61,11 +41,20 @@ document.addEventListener("DOMContentLoaded", function() {
     const sessionId = sessionDataElement.getAttribute('data-session-id');
     const clientId = sessionDataElement.getAttribute('data-client-id');
 
+
+
     document.getElementById('multiStepForm').addEventListener('submit', function(event) {
         event.preventDefault();
-
         // Generate a unique event name using session ID or client ID
-        const eventName = `load_submission_${sessionId}_${clientId}_${Date.now()}`;
+        let urlParams = new URLSearchParams(window.location.search);
+        const isSave = urlParams.get('action') === 'save';  
+        console.log('Is save parameter present:', isSave)
+
+        const eventName = `load_submission${isSave ? '_save' : ''}_${sessionId}_${clientId}_${Date.now()}`;
+
+         // Debugging log for the event name
+        console.log('Generated event name:', eventName);
+
 
         // Collect form data
         const formData = new FormData(this);
@@ -77,17 +66,29 @@ document.addEventListener("DOMContentLoaded", function() {
         // Add the unique event name to the payload
         payload.event_name = eventName;
 
+        // Append transporter data from URL parameters (if available)
+        urlParams = new URLSearchParams(window.location.search);
+        urlParams.forEach((value, key) => {
+            if (key.startsWith('transporter_')) {
+                payload[key] = value;
+            }
+        });
+
         // Send the JSON payload via Fetch API
-        fetch('http://127.0.0.1:5000/Post_load', {
+        fetch('/post_load', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
-        })
+        })  
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
+            alert(' Form Submitted Successfully!');
+        this.reset(); 
+        currentStep = 0; 
+        showStep(currentStep); 
         })
         .catch(error => {
             console.error('Error:', error);

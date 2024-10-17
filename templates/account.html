@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>User Account</title>
+<style> 
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat Alternates', sans-serif;
+}
+/* General Styles */
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(to bottom, #280202, #200202, #0b0000);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+/* User Account Section */
+.user-account {
+    width: 80%;
+    margin: 50px auto;
+    text-align: center;
+}
+
+/* Profile Section */
+.profile-section {
+    margin-bottom: 50px;
+}
+
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+
+.user-name {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.user-email {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.edit-profile-btn {
+    padding: 10px 20px;
+    background-color: red;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.edit-profile-btn:hover {
+    background-color: #ff7878;
+}
+
+/* Container for the rest of the content */
+.container {
+    padding: 20px;
+    border: 1px solid #5e5c5c;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Account Information */
+.account-info {
+    margin-bottom: 50px;
+    text-align: left;
+}
+
+.account-info h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.account-info p {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.edit-info-btn {
+    padding: 10px 20px;
+    background-color: red;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.edit-info-btn:hover {
+    background-color: #760909;
+}
+
+/* Order History Section */
+.order-history {
+    margin-bottom: 50px;
+}
+
+.order-history h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.order-cards {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.order-card {
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 10px;
+    width: 200px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.order-card p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+/* Settings Section */
+.settings-section {
+    margin-bottom: 50px;
+}
+
+.settings-section h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.settings-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 50px;
+}
+
+.settings-btn {
+    padding: 10px 20px;
+    background-color: red;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-top: 19px;
+}
+
+.settings-btn:hover {
+    background-color: #ff7878;
+}
+
+/* Logout Button */
+.logout-section {
+    margin-top: 150px;
+    text-align: center;
+}
+
+.logout-btn {
+    padding: 20px 70px;
+    background-color: red;
+    border:  1px solid rgb(239, 233, 236) ;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.logout-btn:hover {
+    background-color: #ff7878;
+}
+
+</style>
+</head>
+<body>
+<section class="user-account">
+    <div class="profile-section">
+        <img src="/static/images/Man working as a truck driver posing.png" alt="User Profile" class="profile-picture">
+        <h2 class="user-name">John Doe</h2>
+        <p class="user-email">john.doe@example.com</p>
+        <button class="edit-profile-btn">Edit Profile</button>
+    </div>
+
+    <div class="container">
+        <div class="account-info">
+            <h3>Account Information</h3>
+            <p><strong>Name:</strong> John Doe</p>
+            <p><strong>Email:</strong> john.doe@example.com</p>
+            <p><strong>Phone Number:</strong> +123456789</p>
+            <p><strong>Address:</strong> 123 Main Street, City, Country</p>
+            <button class="edit-info-btn">Edit Information</button>
+        </div>
+
+
+        <div class="settings-section">
+            <h3>Account Settings</h3>
+            <div class="settings-row">
+                <button class="settings-btn">Update Password</button>
+                <button class="settings-btn">Privacy Settings</button>
+                <button class="settings-btn">Notification Settings</button>
+            </div>
+        </div>
+
+        <div class="logout-section">
+            <button class="logout-btn">Logout</button>
+            <button class="logout-btn">Back</button>
+        </div>
+    </div>
+</section>
+</body>
+</html>

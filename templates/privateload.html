@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Post Load</title>
+<style> 
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap');
+
+* {
+    font-family: 'Montserrat Alternates', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+    /* Split Container */
+.split-container {
+    display: flex;
+    height: 100vh;
+    justify-content: space-between;
+    position: relative;
+}
+
+/* Left Section (Private) */
+.left-section {
+    background-color: #fff;
+    color: #000;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.left-section .btn {
+    background-color: #000;
+    color: #fff;
+    padding: 65px 130px;
+    font-size: xx-large;
+    font-weight: 800;
+    margin-bottom: 30px;
+    cursor: pointer;
+}
+
+/* Right Section (Public) */
+.right-section {
+    background-color: #000;
+    color: #fff;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.right-section .btn {
+    background-color: #fff;
+    color: #000;
+    padding: 65px 130px;
+    font-size: xx-large;
+    font-weight: 800;
+    margin-bottom: 30px;
+    cursor: pointer;
+}
+
+/* Shared styles */
+.content {
+    text-align: center;
+    padding: 20px;
+    z-index: 1; 
+}
+
+.hidden {
+    display: none;
+}
+
+.transporter-item {
+    margin: 10px 0;
+}
+
+.truck-count {
+    color: red;
+    margin-left: 10px;
+}
+
+.submit-btn {
+    margin-top: 20px;
+    background-color: red;
+    color: white;
+    padding: 10px;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+}
+.submit-btn2 {
+    margin-top: 20px;
+    background-color: red;
+    border: solid 1px  rgb(150, 11, 11);
+    color: white;
+    font-size: larger;
+    padding: 20px 75px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+.save-btn {
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    background-color: red;
+    border: solid 1px rgb(150, 11, 11);
+    color: white;
+    font-size: larger;
+    width: 120px; 
+    height: 120px; 
+    border-radius: 50%; 
+    cursor: pointer;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: bold; 
+    top: 45%;
+}
+
+</style>
+    </head>
+<body>
+    <div class="split-container">
+        <!-- Left Section (Private) -->
+        <div class="left-section">
+            <div class="content">
+                <button id="private-btn" class="btn private-btn">Private</button>
+                
+                <p>This is for  transporters you select and want to work with. 
+                    This won’t open the load to all transporters to bid.</p>
+                
+                
+                <!-- Transporter Selection (hidden by default) -->
+                <div id="private-section" class="hidden">
+                    <h3>Select Transporter</h3>
+                    <form id="transporterForm">
+                        <div class="transporter-item">
+                            <input type="checkbox" id="star-trucks" name="transporter" value="Star Trucks">
+                            <label for="star-trucks">Star Trucks <span class="truck-count">10</span></label>
+                        </div>
+                        <div class="transporter-item">
+                            <input type="checkbox" id="cross-country" name="transporter" value="Cross Country">
+                            <label for="cross-country">Cross Country <span class="truck-count">15</span></label>
+                        </div>
+                        <div class="transporter-item">
+                            <input type="checkbox" id="cargosync" name="transporter" value="CargoSync">
+                            <label for="cargosync">CargoSync <span class="truck-count">0</span></label>
+                        </div>
+                        <button type="submit" class=" submit-btn2">Continue</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <button id="save-btn" class="btn save-btn">Save</button>
+        <!-- Right Section (Public) -->
+        <div class="right-section">
+            <div class="content">
+                <button id="public-btn" class="btn public-btn">Public</button>
+                <p>Open this load to all transporters for bidding. Also select this option if you just want to save the load </p>
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const privateBtn = document.getElementById('private-btn');
+    const publicBtn = document.getElementById('public-btn');
+    const privateSection = document.getElementById('private-section');
+    const transporterForm = document.getElementById('transporterForm'); 
+    const saveBtn = document.getElementById('save-btn');
+
+    // Add click event for the private button
+    privateBtn.addEventListener('click', function() {
+        console.log("Private button clicked");
+        privateSection.classList.remove('hidden');
+    });
+
+    // Add click event for the public button
+    publicBtn.addEventListener('click', function() {
+        console.log("Public button clicked");
+        window.location.href = '/load';
+    });
+
+    // Add click event for the save button
+    saveBtn.addEventListener('click', function(e) {
+        e.preventDefault();  // Prevent form submission
+
+        console.log("Save button clicked");
+
+        // Create a new FormData object
+        const formData = new FormData(transporterForm);
+
+        // Append the 'action' parameter with the value 'save'
+        formData.append('action', 'save');
+
+        // Convert FormData to a URL-friendly string
+        const queryParams = new URLSearchParams(formData).toString();
+
+        // Redirect to /load with the form data as URL parameters, including the 'save' action
+        window.location.href = `/load?${queryParams}`;
+    });
+
+    // Handle transporter form submission for Private
+    transporterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Create FormData from the correct form element
+        const formData = new FormData(transporterForm);
+        const selectedTransporters = Array.from(formData.getAll('transporter'));
+
+        if (selectedTransporters.length > 0) {
+            console.log("Selected transporters:", selectedTransporters);
+
+            // Convert selected transporters to a URL-friendly string
+            const transporterQuery = selectedTransporters.map((t, i) => `transporter_${i}=${encodeURIComponent(t)}`).join('&');
+
+            // Redirect to /load with the transporter as a query parameter
+            window.location.href = `/load?${transporterQuery}`;
+        } else {
+            alert("Please select at least one transporter.");
+        }
+    });
+});
+
+
+</script>
+</body>
+</html>
