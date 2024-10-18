@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Function to send event data to Flask
+/// Function to send event data to Flask using FormData
 async function sendEventData(section, selectedPackage, totalAmount) {
     const data = {
         package: selectedPackage,
@@ -91,27 +91,30 @@ async function sendEventData(section, selectedPackage, totalAmount) {
         const metadataResponse = await fetch('/get_user_metadata');
         const metadata = await metadataResponse.json();
 
-        // Prepare event details to be sent
-        const eventDetails = {
-            event_name: `transporter(${section})`,
-            user_id: metadata.user_id,
-            ip_address: metadata.ip_address,
-            timestamp: new Date().toISOString(),
-            user_agent: navigator.userAgent,
-            current_section: section,
-            totalAmount: totalAmount,
-            form_data: data
-        };
+        // Prepare event details to be sent using FormData
+        const formData = new FormData();
+        formData.append('event_name', `transporter(${section})`);
+        formData.append('user_id', metadata.user_id);
+        formData.append('ip_address', metadata.ip_address);
+        formData.append('timestamp', new Date().toISOString());
+        formData.append('user_agent', navigator.userAgent);
+        formData.append('current_section', section);
+        
+        // Append the package and totalAmount data
+        formData.append('package', selectedPackage);
+        formData.append('totalAmount', totalAmount);
 
-        console.log("Payload to be sent:", eventDetails);
+        // Append additional data from the data object
+        for (const key in data) {
+            formData.append(key, data[key]);
+        }
+
+        console.log("Payload to be sent:", formData);
 
         // Sending event data to the backend for processing
-        const registerResponse = await fetch('register_transporter', {
+        const registerResponse = await fetch('/shipper_register', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(eventDetails),
+            body: formData, // Use FormData directly here
         });
 
         // Handle the backend response
@@ -136,11 +139,11 @@ async function sendEventData(section, selectedPackage, totalAmount) {
         alert('There was a problem submitting your data. Please try again.');
         return false;  
 
-        
     } finally {
         disableButtons(false);  // Re-enable buttons after processing
     }
 }
+
 
 // Optional function to disable/enable buttons (for better user experience during processing)
 function disableButtons(disable) {

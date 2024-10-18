@@ -97,6 +97,7 @@
             .then(data => {
                 console.log('Offer accepted successfully:', data);
                 alert('Offer accepted successfully!');
+                window.location.href = '/agreement';
             })
             .catch(error => {
                 console.error('Error accepting offer:', error);

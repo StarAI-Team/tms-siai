@@ -61,7 +61,7 @@ header {
     font-size: 2.5rem;
     font-weight: bold;
     color: #fff;
-    margin-left: 20px; /* Align text to the left */
+    margin-left: 20px; 
 }
 
 .auth-buttons button {
@@ -76,6 +76,13 @@ header {
    
 }
 
+.auth-buttons button:hover {
+    padding: 15px 20px;
+    background-color: red;
+    transform: scale(1.25);
+    border-radius: 8px;
+    border: 1px solid black;
+}
 .auth-buttons a {
     color: #fff;
     
@@ -163,6 +170,7 @@ header {
     background: linear-gradient(to bottom, #3F0606, #360404, #280202 );
     text-align: center;
     color: white;
+    
 }
 
 .testimonial-row {
@@ -193,6 +201,10 @@ header {
 
 .testimonial-content {
     text-align: left;
+}
+
+.testimonials h2 {
+    margin-bottom: 30px;
 }
 
 .testimonial-content p {
@@ -321,6 +333,11 @@ footer .footer-container {
 
 }
 
+.more-services h2 {
+    margin-bottom: 30px;
+}
+
+
 .more-service-grid {
     display: grid; 
     grid-template-columns: repeat(3, 1fr); 
@@ -425,7 +442,7 @@ footer .footer-container {
     <section class="more-services">
         <h2>Our Services</h2>
         <div class="more-service-grid">
-            <div class="service-item">
+            <div class="more-service-item">
                 <img src="/static/images/loadmatching.png" alt="Instant Load Matching">
                 <p>Instant Load Matching</p>
             </div>

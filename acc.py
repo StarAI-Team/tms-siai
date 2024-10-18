@@ -121,24 +121,12 @@ def privacy_settings():
 
     return redirect(url_for('user_account'))
 
-# Route to handle settings update
-"""@app.route('/update-settings', methods=['POST'])
-def update_settings():
-    email = session.get('email', 'john.doe@example.com')
-    
-    privacy_settings = request.form.get('privacy_settings')
-    notification_settings = request.form.get('notification_settings')
-    
-
-    flash("Settings updated successfully!", "success")
-    
-    return redirect(url_for('user_account')) """
 
 @app.route('/notification_settings', methods=['POST'])
 def notification_settings():
-    email = request.form.get('email')  # Get the email from the form (use session in real app)
-    email_notifications = request.form.get('email_notifications', 'enabled')  # Default to 'enabled'
-    sms_notifications = request.form.get('sms_notifications', 'enabled')  # Default to 'enabled'
+    email = request.form.get('email')  # placeholder for user session in real app)
+    email_notifications = request.form.get('email_notifications', 'enabled')  
+    sms_notifications = request.form.get('sms_notifications', 'enabled') 
 
     # Get the user by email
     user = get_user_by_email(email)

@@ -242,13 +242,13 @@ input[type="file"] {
     gap: 10px; 
 }
 
-/* Style the label */
+
 .expiry-label {
     margin: 0; 
     font-size: 14px; 
 }
 
-/* Style the date input */
+
 .expiry input[type="date"] {
     width: 150px; 
     padding: 5px;

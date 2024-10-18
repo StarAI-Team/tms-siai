@@ -159,3 +159,6 @@ footer ul li {
 footer p {
     color: #fff; /* White text for paragraphs */
 }
+footer .footer-column a {
+    color: white;
+}

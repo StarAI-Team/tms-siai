@@ -12,7 +12,7 @@
     <div class="container">
         <h1>Certificate of Agreement</h1>
         <form id="agreement-form">
-            {% for load in loads %}
+            {% for load in trip %}
                 <div class="form-group">
                     <label for="load_{{ load.id }}">Load Wh Hire-Bel Str 01</label>
                     <input type="text" id="load_{{ load.id }}" name="load" value="{{ load.load }}" readonly>
@@ -80,11 +80,11 @@
         function navigateTo(page) {
             // Logic to navigate to different pages
             if (page === 'loadPool') {
-                window.location.href = '/loadPool'; 
+                window.location.href = '/load-pool'; 
             } else if (page === 'requests') {
-                window.location.href = '/requests'; 
+                window.location.href = '/transporter_requests'; 
             } else if (page === 'done') {
-                window.location.href = '/done'; 
+                window.location.href = '/shipper-dashboard'; 
             }
         }
         

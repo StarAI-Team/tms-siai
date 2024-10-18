@@ -91,7 +91,7 @@ form button:hover {
 footer {
     background-color: #000;
     padding: 20px;
-    margin-top: auto; /* Ensure footer stays at the bottom */
+    margin-top: auto; 
 }
 
 .footer-container {
@@ -141,6 +141,9 @@ footer {
 
 .footer-btn:hover {
     background-color: #c92222;
+}
+footer .footer-column a {
+    color: white;
 }
 
 #prefinancing {

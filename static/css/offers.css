@@ -271,12 +271,15 @@ h1 {
 .all-bid-button {
     background-color: transparent;
     color: white;
-    border: 1px solid red;
+    border: 1px solid rgb(237, 233, 233);
     padding: 10px 20px;
     cursor: pointer;
     border-radius: 8px;
 }
 
+.all-bid-button:hover {
+    background-color: red;
+}
 .upgrade-button {
     width: 50%;
     padding: 10px;
