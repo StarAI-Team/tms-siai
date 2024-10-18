@@ -119,6 +119,12 @@ h1 {
 .view-text {
     font-size: 16px;
     font-weight: bold;
+    
+}
+.addon-input{
+    font-size: 16px;
+    color: white;
+    
 }
 
 .bids {
@@ -279,10 +285,14 @@ h1 {
 .all-bid-button {
     background-color: transparent;
     color: white;
-    border: 1px solid red;
+    border: 1px solid rgb(239, 232, 232);
     padding: 10px 20px;
     cursor: pointer;
     border-radius: 8px;
+}
+.all-bid-button:hover{
+    background-color: red;
+   
 }
 
 .upgrade-button {

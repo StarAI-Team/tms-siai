@@ -59,9 +59,57 @@
             <!-- Action Buttons -->
             <div class="buttons">
                 <button class="back-button" onclick="window.location.href='/bid'"> Back</button>
-                <button class="bid-button"  onclick="window.location.href='/bid'">Bid</button>
+                <button class="bid-button">Bid</button>
             </div>
         </div>
     </div>
+    <script>
+        document.querySelector('.bid-button').addEventListener('click', function() {
+            
+            const offer = document.getElementById('offer-input').value;
+            const addons = document.querySelector('.addon-input').value;
+
+             // Fetch user metadata
+             fetch('/get_user_metadata')
+                    .then(response => response.json())
+                    .then(metadata => {
+                        const payload = {
+                            event_name: 'Bid_Made',
+                            user_id: metadata.user_id,
+                            ip_address: metadata.ip_address,
+                            timestamp: new Date().toISOString(),
+                            user_agent: navigator.userAgent,
+                            offer: offer,
+                            addons: addons,
+                            form_data: {
+                                load_name: "{{ load_name }}",
+                                quantity: "{{ quantity }}",
+                                route: "{{ route }}",
+                                rate: "{{ rate }}"
+                            }
+                        };
+        
+            // Send the data using Fetch API
+            fetch('/place_bid_done', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                alert('Bid placed successfully!')
+                
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                
+            });
+        });
+    });
+    </script>
+        
 </body>
 </html>

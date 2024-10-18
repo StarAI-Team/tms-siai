@@ -35,7 +35,8 @@
                     <div class="star">Perfect Match!</div>
                 </div>
                 {% endif %}
-                <button class="all-bid-button">Bid</button>
+                <a href="{{ url_for('place_bid', load_name=load.load_name, route=load.route, quantity=load.quantity, rate=load.price) }}"><button class="all-bid-button">View More To Bid</button></aa>
+
             </div>
             {% endfor %}
 

@@ -4,8 +4,189 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/styles.css">
     <title>Chat</title>
+    <style>
+        * {
+    font-family: 'Montserrat Alternates', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000; 
+    color: #fff; 
+    font-family: 'Montserrat Alternates', sans-serif; 
+    margin: 0;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #000;
+}
+
+.navbar ul {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+}
+
+.navbar ul li {
+    padding: 10px;
+}
+
+.navbar ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+.search-bar input {
+    padding: 5px;
+}
+
+.chat-container {
+    display: flex;
+    justify-content: center;
+    height: 80vh;
+    padding: 20px;
+    
+}
+
+.contacts {
+    width: 20%;
+    background-color: #333;
+    border-radius: 8px 0 0 8px;
+    padding: 10px;
+}
+
+.contacts ul {
+    list-style: none;
+}
+
+.contacts ul li {
+    padding: 15px;
+    margin: 10px 0;
+    background-color: #444;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.contacts ul li:hover {
+    background-color: #555;
+}
+
+.chat-window {
+    width: 70%;
+    background-color: #1c1c1c;
+    border-radius: 0 8px 8px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 30px;
+    border: 1px solid rgb(116, 116, 116);
+    
+}
+
+.chat-window h2 {
+    margin-bottom: 10px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-window .call-icon {
+    color: #d30b0b;
+}
+
+.chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.chat-messages div {
+    padding: 10px;
+    border-radius: 15px;
+    margin: 25px 0;
+}
+
+.chat-messages .incoming {
+    text-align: left;
+    background-color: #fff;
+    color: #000;
+    width: 50%;
+    align-self: flex-start;
+}
+
+.chat-messages .outgoing {
+    text-align: right;
+    background-color: #d30b0b;
+    color: white;
+    width:50%;
+    align-self: flex-end;
+    margin-left: 450px;
+}
+
+.message-input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+footer {
+    background-color: #000;
+    border-top: 1px solid rgb(80, 80, 80);
+    padding: 20px;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.footer-column {
+    color: white;
+}
+
+.footer-column h3 {
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-column ul li {
+    padding: 5px 0;
+}
+
+.footer-column a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer-btn {
+    padding: 10px 20px;
+    background-color: #d30b0b;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.footer-btn:hover {
+    background-color: #555;
+}
+
+        </style>
 </head>
 <body>
     <div class="container">
@@ -16,7 +197,6 @@
                         <a href="#">
                             <div class="nav-title">
                                 <span class="main-title">SIAi</span><br>
-                                <span class="sub-title">SHIPPER</span>
                             </div>
                         </a>
                     </li>
@@ -27,26 +207,102 @@
                     <li><a href="/shipper_chat">Chat</a></li>
                     <li><a href="/shipper_analytics">Analytics</a></li>
                     <li><a href="/shipper_documents">Documents</a></li>
-                    <li><a href="#">Online Market</a></li>>
+                    <li><a href="#">Online Market</a></li>
                 </ul>
                 <div class="search-bar">
-                    <input type="text" placeholder="Search for Beira loads">
+                    <input type="text" placeholder="Search for Beira transporters">
                 </div>
             </nav>
         </header>
-    <main>
-        <div class="chat-window">
-            <h2>STAR INTERNATIONAL</h2>
-            <div class="chat-messages">
-                {% for message in messages %}
-                    <div class="{{ message.type }}">{{ message.text }}</div>
-                {% endfor %}
+
+        <main>
+            <div class="chat-container">
+                <aside class="contacts">
+                    <!-- Render contacts dynamically from Flask -->
+                    <ul>
+                        {% for contact in contacts %}
+                            <li>{{ contact }}</li>
+                        {% endfor %}
+                    </ul>
+                </aside>
+
+                <section class="chat-window">
+                    <h2>STAR INTERNATIONAL <span class="call-icon">📞</span></h2>
+                    
+                    <!-- Chat messages populated from Flask -->
+                    <div class="chat-messages">
+                        {% for message in messages %}
+                            {% if message.type == 'incoming' %}
+                                <div class="incoming">{{ message.text }}</div>
+                            {% else %}
+                                <div class="outgoing">{{ message.text }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <input type="text" placeholder="Type your message..." class="message-input">
+                </section>
             </div>
-            <input type="text" placeholder="Type your message...">
-        </div>
-    </main>
-    <footer>
-        <p>© 2024 SIAi. All rights reserved.</p>
-    </footer>
+        </main>
+
+        <footer>
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>SiAi</h3>
+                    <p>AI powered Transport Management System, Post and Go...</p>
+                    <p>96 Willowvale Harare</p>
+                    <p>+123 456 3455</p>
+                    <p>www.siai.co.zw</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Menu</h3>
+                    <ul>
+                        <li><a href="#">Products</a></li>
+                        <li><a href="#">Services</a></li>
+                        <li><a href="#">Analytics</a></li>
+                        <li><a href="#">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Account</h3>
+                    <ul>
+                        <li><a href="/account"> My Account</a></li>
+                        <li><a href="#">Checkout</a></li>
+                        <li><a href="#">My Cart</a></li>
+                        <li><a href="#">Settings</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Stay Connected</h3>
+                    <ul>
+                        <li><a href="#">Facebook</a></li>
+                        <li><a href="#">Instagram</a></li>
+                    </ul>
+                    <input type="email" placeholder="Enter your email">
+                    <button class="footer-btn">Send</button>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const input = document.querySelector('.message-input');
+    const chatMessages = document.querySelector('.chat-messages');
+
+    input.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            const message = input.value.trim();
+            if (message) {
+                const outgoingMessage = document.createElement('div');
+                outgoingMessage.className = 'outgoing';
+                outgoingMessage.textContent = message;
+                chatMessages.appendChild(outgoingMessage);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                input.value = ''; // Clear the input
+            }
+        }
+    });
+});
+</script>
 </body>
 </html>

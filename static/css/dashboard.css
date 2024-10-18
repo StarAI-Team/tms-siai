@@ -178,6 +178,9 @@ footer .footer-column {
     color: white;
 }
 
+footer .footer-column a {
+    color: white;
+}
 .carousel-section {
     overflow-y: auto;
     position: relative;

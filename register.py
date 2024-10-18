@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, url_for, redirect, session
+from flask import Flask, request, jsonify, render_template, url_for, redirect, session, flash
 import json
 import requests
 import os
@@ -14,6 +14,7 @@ import logging
 
 
 app = Flask(__name__)
+app.secret_key = '025896314785368236'
 CORS(app) 
 logging.basicConfig(level=logging.DEBUG)
 app.secret_key = os.urandom(24) 
@@ -82,9 +83,7 @@ def get_user_metadata():
     }
     return jsonify(metadata)
 
-@app.route('/account')
-def user_account():
-    return render_template('account.html')
+
 
 @app.route('/')
 def index():
@@ -93,6 +92,7 @@ def index():
 @app.route('/register')
 def register():
     return render_template('register.html')
+
 
 
 #TRANSPORT SECTION
@@ -297,6 +297,40 @@ def place_bid(load_name):
     else:
         return "Load not found", 404
 
+# Endpoint to handle bid success
+@app.route('/place_bid_done', methods=['POST'])
+def place_bid_done():
+    if request.is_json:
+        payload = request.get_json()  
+    else:
+        return jsonify({"error": "Invalid content type"}), 400
+    
+    # Debug: Print incoming JSON payload
+    print("Incoming JSON Payload:", payload)
+    bid_data = { 
+        **{key: payload[key] for key in payload if key not in ['form_data']} ,
+        **{key: payload['form_data'][key] for key in payload['form_data']}
+    } 
+    print("REQUEST DATA", bid_data)  
+
+    # Send the data to the processing Flask application or service
+    PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
+    try:
+        # Print the transporter_data before sending
+        print("Sending the following data to processing URL:", bid_data)
+        response = requests.post(
+            PROCESSING_FLASK_URL,
+            json=bid_data,
+            headers={'Content-Type': 'application/json'}
+        )
+        response_data = response.json()
+        print("Response status code:", response.status_code)
+        print("Response data:", response_data)
+        return jsonify(response_data), response.status_code
+    except requests.exceptions.RequestException as e:
+        print("Error occurred while sending to processing URL:", e)
+        return jsonify({"error": str(e)}), 500
+    
 
 
 #SHIPPER SECTION
@@ -322,7 +356,7 @@ def shipper_register():
         file_data = {}
 
         user_id = session.get('user_id')
-    print("Initial transporter data received :", shipper_data)
+    print("Initial shipper data received :", shipper_data)
     print("Files in request:", request.files)
   
     if not user_id:
@@ -395,17 +429,6 @@ def shipper_register():
     
 
 
-    #Ensuring all required fields are present
-    required_fields = [
-        'first_name', 'last_name', 'phone_number', 'id_number',
-        'company_name', 'bank_name', 'account_name', 'account_number', 
-        'company_location', 'company_email', 'company_contact', 'bank_name', 'account_name', 'account_number',
-        'directorship_text', 'proof_of_current_address_text', 
-        'tax_clearance_text', 'certificate_of_incorporation_text', 'user_name', 'password' 
-        
-    ] + file_fields
-
-
     # Validate required fields
     missing_fields = [field for field in required_fields_by_section.get(current_section, []) if field not in shipper_data]
 
@@ -414,7 +437,7 @@ def shipper_register():
     
     
 # Print transporter data before sending to the next service
-    print("Final transporter data being sent:", shipper_data)
+    print("Final shipper data being sent:", shipper_data)
   
 
     
@@ -447,7 +470,12 @@ def post_requests():
         payload = request.get_json()  
     else:
         return jsonify({"error": "Invalid content type"}), 400
-    
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return jsonify({"error": "User session expired or user_id missing"}), 400
+    request_data = {}
+    request_data['user_id'] = user_id
     # Debug: Print incoming JSON payload
     print("Incoming JSON Payload:", payload)
     request_data = { 
@@ -668,13 +696,16 @@ def documents():
 
 @app.route('/chat')
 def chat():
-    
     messages = [
         {'text': 'Hello, how can I help you?', 'type': 'incoming'},
         {'text': 'I need information about the loads.', 'type': 'outgoing'},
         {'text': 'Sure! Here are the details.', 'type': 'incoming'},
     ]
-    return render_template('chat.html', messages=messages)
+    
+    contacts = ['J&J', 'TENGWA', 'CROSS COUNTRY', 'CARGO CONNECT', 'FLEET SYNC']
+
+    return render_template('chat.html', messages=messages, contacts=contacts)
+
 
 @app.route('/analytics')
 def analytics():
@@ -833,7 +864,10 @@ def shipper_chat():
         {'text': 'I need information about the loads.', 'type': 'outgoing'},
         {'text': 'Sure! Here are the details.', 'type': 'incoming'},
     ]
-    return render_template('shipperchat.html', messages=messages)
+    
+    contacts = ['J&J', 'TENGWA', 'CROSS COUNTRY', 'CARGO CONNECT', 'FLEET SYNC']
+
+    return render_template('shipperchat.html', messages=messages, contacts=contacts)
 
 
 
@@ -985,15 +1019,177 @@ def accept_offer():
         print("Error occurred while sending to processing URL:", e)
         return jsonify({"error": str(e)}), 500
     
-
+#AGREEMENT SECTION
+# Sample data for loads
+trip = [
+    {
+        'id': 1,
+        'load': 'Wheat',
+        'quantity': '2 Tonnes',
+        'route': 'Harare RoadPort 08:00am - Beira',
+        'truck_type': '10 Tankers',
+        'payment_days': '60 Days Cash',
+        'amount': '$1400'
+    },
+]
 
 @app.route('/agreement')
-def sign_agreement():
-    return render_template('agreement.html')
+def agreement():
+    return render_template('agreement.html', trip=trip)
+
+# To retrieve loads via API
+@app.route('/api/trip')
+def get_trip():
+    return jsonify(trip)
+
 
 @app.route('/private_load')
 def private_load():
     return  render_template('privateload.html')
+
+# Sample user database
+users_db = {
+    "john.doe@example.com": {
+        "name": "Lee Doe",
+        "password": generate_password_hash("password123"),
+        "email": "john.doe@example.com",
+        "phone": "+123456789",
+        "address": "123 Main Street, City, Country",
+        "profile_picture": "user-profile.jpg",
+        "email_notifications": "enabled",
+        "sms_notifications": "enabled",
+        "profile_visibility": "public",
+        "share_data": "no",
+    }
+}
+
+def get_user_by_email(email):
+    return users_db.get(email)
+
+# Set up the upload folder (not used for MinIO, but keeping it for other potential uses)
+UPLOAD_FOLDER = 'static/uploads/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Serve the user account page
+@app.route('/account')
+def user_account():
+    email = session.get('email', 'john.doe@example.com')
+    user = users_db.get(email)
+    return render_template('account.html', user=user)
+
+# Route to update profile information
+@app.route('/update-profile', methods=['POST'])
+def update_profile():
+    email = session.get('email', 'john.doe@example.com')
+    user = users_db.get(email)
+    
+    if request.method == 'POST':
+        name = request.form['name']
+        phone = request.form['phone']
+        address = request.form['address']
+        profile_picture = request.files.get('profile_picture')  # Use .get to avoid KeyError
+
+        # Save profile picture to MinIO 
+        if profile_picture and profile_picture.filename:
+            try:
+                files = {'file': (profile_picture.filename, profile_picture.stream, profile_picture.mimetype)}
+                response = requests.post('http://localhost:6000/upload-file', files=files)
+                
+                if response.status_code == 200:
+                    user['profile_picture'] = response.text  # Get the file URI from MinIO response
+                else:
+                    flash(f"Failed to upload profile picture: {response.text}", "error")
+                    return redirect(url_for('user_account'))
+            except Exception as e:
+                flash(f"Error uploading profile picture: {str(e)}", "error")
+                return redirect(url_for('user_account'))
+
+        # Update other details
+        user['name'] = name
+        user['phone'] = phone
+        user['address'] = address
+        flash("Profile updated successfully!", "success")
+    
+    return redirect(url_for('user_account'))
+
+# Route to change password
+@app.route('/update-password', methods=['POST'])
+def update_password():
+    email = session.get('email', 'john.doe@example.com')
+    user = users_db.get(email)
+    
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')  # Use .get() to avoid KeyError
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if not current_password or not new_password or not confirm_password:
+            flash("All fields are required.", "error")
+            return redirect(url_for('user_account'))
+
+        # Check current password
+        if not check_password_hash(user['password'], current_password):
+            flash("Current password is incorrect", "error")
+            return redirect(url_for('user_account'))
+        
+        # Check if new password matches confirm password
+        if new_password != confirm_password:
+            flash("Passwords do not match", "error")
+            return redirect(url_for('user_account'))
+        
+        # Update password
+        user['password'] = generate_password_hash(new_password)
+        flash("Password updated successfully!", "success")
+    
+    return redirect(url_for('user_account'))
+
+
+@app.route('/privacy_settings', methods=['POST'])
+def privacy_settings():
+    email = request.form.get('email')  # Get the email from the form (use session in real app)
+    profile_visibility = request.form.get('profile_visibility')
+    share_data = request.form.get('share_data', 'yes')  # Default to 'yes'
+
+    # Get the user by email
+    user = get_user_by_email(email)
+
+    if user:
+        # Update the user's privacy settings
+        user['profile_visibility'] = profile_visibility
+        user['share_data'] = share_data
+        flash('Privacy settings updated successfully!')
+    else:
+        flash('User not found.')
+
+    return redirect(url_for('user_account'))
+
+
+@app.route('/notification_settings', methods=['POST'])
+def notification_settings():
+    email = request.form.get('email')  # placeholder for user session in real app)
+    email_notifications = request.form.get('email_notifications', 'enabled')  
+    sms_notifications = request.form.get('sms_notifications', 'enabled') 
+
+    # Get the user by email
+    user = get_user_by_email(email)
+
+    if user:
+        # Update the user's notification settings
+        user['email_notifications'] = email_notifications
+        user['sms_notifications'] = sms_notifications
+        flash('Notification settings updated successfully!')
+    else:
+        flash('User not found.')
+
+    return redirect(url_for('user_account'))
+
+
+# Route for logout
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("You have been logged out", "success")
+    return redirect(url_for('sign-in'))
         
 
 if __name__ == '__main__':

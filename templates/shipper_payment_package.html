@@ -120,74 +120,76 @@
                 }
             }
     
-            // Function to send event data to the backend
-            async function sendPaymentData() {
-                const data = {};
+    async function sendPaymentData() {
+        const formData = new FormData();
 
-                // Collecting payment data from inputs
-                if (cardPayment.style.display === 'block') {
-                    data.card_number = document.getElementById('card-number').value;
-                    data.cvv = document.getElementById('cvv').value;
-                    data.expiry = document.getElementById('card-expiry').value;
-                    data.card_holder_name = document.getElementById('card-holder-name').value;
-                } else if (mobilePayment.style.display === 'block') {
-                    data.phone_number = document.getElementById('phone-number').value;
-                    data.pin = document.getElementById('pin').value;
-                }
+        // Collecting payment data from inputs
+        if (cardPayment.style.display === 'block') {
+            formData.append('card_number', document.getElementById('card-number').value);
+            formData.append('cvv', document.getElementById('cvv').value);
+            formData.append('expiry', document.getElementById('card-expiry').value);
+            formData.append('card_holder_name', document.getElementById('card-holder-name').value);
+        } else if (mobilePayment.style.display === 'block') {
+            formData.append('phone_number', document.getElementById('phone-number').value);
+            formData.append('pin', document.getElementById('pin').value);
+        }
     
-                console.log("Payment data:", data);
-    
-                // Fetching user_id and ip_address metadata from the backend
-                try {
-                    const metadataResponse = await fetch('/get_user_metadata');
-                    const metadata = await metadataResponse.json();
-    
-                    const eventDetails = {
-                        event_name: 'shipperPayment',
-                        user_id: metadata.user_id,
-                        ip_address: metadata.ip_address,
-                        timestamp: new Date().toISOString(),
-                        user_agent: navigator.userAgent,
-                        form_data: data,
-                        payment_method: selectedPaymentMethod 
-                    };
-    
-                    console.log("Payload to be sent:", eventDetails);
-    
-                    // Sending the payment data to the Flask backend
-                    const response = await fetch('/shipper_register', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(eventDetails),
-                    });
-    
-                    const responseData = await response.json();
-                    console.log('Response data:', responseData);
-    
-                    if (responseData.error) {
-                        alert(`Error: ${responseData.error}`);
-                        return false;  
-                    } else {
-                        return true;  
-                    }
-                } catch (error) {
-                    console.error('Error sending data:', error);
-                    alert('There was a problem submitting your data. Please try again.');
-                    return false;  
-                }
-            }
-    
-            // Call the function to send payment data
-            const success = await sendPaymentData();
-    
-            if (success) {
-                alert('Payment details submitted successfully!');
-                // Redirect to the desired URL upon successful submission
-                window.location.href = '/welcome-shipper';  
+
+        // Collect other form data
+        const inputs = document.querySelectorAll('input, select, textarea'); // adjust selector as needed
+        inputs.forEach(input => {
+            if (input.type === 'file') {
+                // Append file inputs
+                Array.from(input.files).forEach(file => {
+                    formData.append(input.name, file);
+                });
+            } else {
+                formData.append(input.name, input.value);
             }
         });
+
+        // Fetching user_id and ip_address metadata from the backend
+        try {
+            const metadataResponse = await fetch('/get_user_metadata');
+            const metadata = await metadataResponse.json();
+
+            formData.append('user_id', metadata.user_id);
+            formData.append('ip_address', metadata.ip_address);
+            formData.append('timestamp', new Date().toISOString());
+            formData.append('user_agent', navigator.userAgent);
+            formData.append('event_name', 'shipperRegisterPayment');
+            formData.append('amount', selectedAmount);
+
+            // Sending the payment data to the Flask backend
+            const response = await fetch('/shipper_register', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const responseData = await response.json();
+            console.log('Response data:', responseData);
+
+            if (responseData.error) {
+                alert(`Error: ${responseData.error}`);
+                return false;  
+            } else {
+                return true;  
+            }
+        } catch (error) {
+            console.error('Error sending data:', error);
+            alert('There was a problem submitting your data. Please try again.');
+            return false;  
+        }
+    }
+
+    // Call the function to send payment data
+    const success = await sendPaymentData();
+    if (success) {
+        alert('Payment details submitted successfully!');
+        // Redirect to the desired URL upon successful submission
+        window.location.href = '/shipper-dashboard';  
+    }
+});
     </script>    
 </body>
 </html>

@@ -143,6 +143,9 @@ footer ul li {
 footer .footer-column {
     color: white;
 }
+footer .footer-column a {
+    color: white;
+}
 
 .filter-options {
     margin-top: 20px;
