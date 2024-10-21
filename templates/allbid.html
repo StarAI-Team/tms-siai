@@ -14,20 +14,24 @@
         <div class="right-side">
             <!-- Dynamically load content from Flask -->
             {% for load in loads %}
-            <div class="load-item {% if load.perfect_match %}perfect-match{% endif %}">
+            <div class="load-item {% if load.private %}private-load{% endif %} {% if load.perfect_match %}perfect-match{% endif %}">
                 <div class="load-details">
                     <p>
                         <!-- Create a dynamic link to the bidding page for each load -->
-                        <a href="{{ url_for('place_bid', load_name=load.load_name, route=load.route, quantity=load.quantity, rate=load.price) }}">
+                        <a href="{{ url_for('place_bid', load_name=load.load_name, route=load.route, quantity=load.quantity, rate=load.price,) }}">
                             <span class="load-name">{{ load.load_name }}</span>
                         </a>
                         <span class="stars">{{ load.stars }}</span>
                         {% if load.price %}${{ load.price }}{% endif %}
                         <span class="member-status">{{ load.status }}</span>
+                        
                     </p>
                     {% if load.route %}
                     <p>{{ load.route }}</p>
                     {% endif %}
+                    {% if load.private %}
+                    <p class="private-load-text">Private Load</p>
+                {% endif %}
                 </div>
                 <div class="price">{{ load.price }}</div>
                 {% if load.perfect_match %}
@@ -35,7 +39,7 @@
                     <div class="star">Perfect Match!</div>
                 </div>
                 {% endif %}
-                <a href="{{ url_for('place_bid', load_name=load.load_name, route=load.route, quantity=load.quantity, rate=load.price) }}"><button class="all-bid-button">View More To Bid</button></aa>
+                <a href="{{ url_for('place_bid', load_name=load.load_name, route=load.route, quantity=load.quantity, rate=load.price) }}"><button class="all-bid-button">View More To Bid</button></a>
 
             </div>
             {% endfor %}

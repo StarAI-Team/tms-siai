@@ -146,6 +146,20 @@ input[type="number"] {
     font-display:auto ;
 
 }
+.save-btn {
+    padding: 15px;
+    background-color: rgba(11, 11, 11, 0.7);
+    border: 2px solid #FD1A1A;
+    color: #fff;
+    border-radius: 5px;
+    margin-top: 20px;
+    cursor: pointer;
+    width: 700px;
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-weight: 300;
+    font-display:auto ;
+
+}
 
 
 .tooltip-container {

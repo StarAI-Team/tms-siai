@@ -252,7 +252,8 @@ def bid():
             'price': '1200',
             'route': 'Wheat Harare - Beira',
             'status': 'Premium Member',
-            'perfect_match': True
+            'perfect_match': True,
+            'private': False
         },
         {
             'load_name': 'Ngwena',
@@ -260,7 +261,10 @@ def bid():
             'price': '1100',
             'route': 'Harare - Lusaka',
             'status': 'Standard Member',
-            'perfect_match': False
+            'perfect_match': False,
+            'private': False
+
+            
         },
         {
             'load_name': 'Nestle',
@@ -268,7 +272,8 @@ def bid():
             'price': '1250',
             'route': 'Harare - Gaborone',
             'status': 'Premium Member',
-            'perfect_match': False
+            'perfect_match': False,
+            'private': True
         },
     ]
     
@@ -284,16 +289,16 @@ def auction():
 def place_bid(load_name):
 
     load_data = {
-        'Pelcravía': {'route': 'Wheat Harare - Beira', 'quantity': '2 Tonnes', 'rate': '1200', 'perfect_match':True},
-        'Ngwena': {'route': 'Harare - Lusaka', 'quantity': '3 Tonnes', 'rate': '1100', 'perfect_match':False},
-        'Nestle': {'route': 'Harare - Gaborone', 'quantity': '1.5 Tonnes', 'rate': '1250', 'perfect_match':False}
+        'Pelcravía': {'route': 'Wheat Harare - Beira', 'quantity': '2 Tonnes', 'rate': '1200', 'perfect_match':True, 'private':False},
+        'Ngwena': {'route': 'Harare - Lusaka', 'quantity': '3 Tonnes', 'rate': '1100', 'perfect_match':False, 'private':False},
+        'Nestle': {'route': 'Harare - Gaborone', 'quantity': '1.5 Tonnes', 'rate': '1250', 'perfect_match':False, 'private':True}
     }
 
     # Fetch the load details dynamically
     load_details = load_data.get(load_name)
 
     if load_details:
-        return render_template('bid.html', load_name=load_name, route=load_details['route'], quantity=load_details['quantity'], rate=load_details['rate'], perfect_match=load_details['perfect_match'])
+        return render_template('bid.html', load_name=load_name, route=load_details['route'], quantity=load_details['quantity'], rate=load_details['rate'], perfect_match=load_details['perfect_match'], private=load_details['private'])
     else:
         return "Load not found", 404
 
@@ -771,19 +776,26 @@ def post_load_page():
 def post_load():
     load_data = request.get_json() 
     print(load_data)
-    #print("Form data received:", load_data)  # Debugging line
+   
+    event_name = load_data.get("event_name", "")
+    current_step = 1
+    if "step_2" in event_name:
+        current_step = 2
+
+    required_fields_per_step = {
+        1: ['load_name', 'quantity', 'pickup_time', 'pickup_place', 'destination', 'clearing_agency', 'clearing_agency_contact'],  # Example for Step 1
+        2: ['number_of_trucks', 'truck_type',
+        'payment_days', 'payment_method', 'proof_of_delivery_requirements', 'delivery_duration','additional_instructions', 'recommended_price' ],
+    }
+
+     # Get the required fields for the current step
+    required_fields = required_fields_per_step.get(current_step, [])
 
     if not load_data:
         print("No data received from the form.")
         return jsonify({"error": "No data received"}), 400
     
-    required_fields = [
-        'load_name', 'quantity', 'pickup_time', 'pickup_place', 'destination',
-        'clearing_agency', 'clearing_agency_contact', 'number_of_trucks', 'truck_type',
-        'payment_days', 'payment_method', 'proof_of_delivery_requirements', 'delivery_duration',
-        'additional_instructions', 'recommended_price' 
-    ]
-
+    
     # Process transporter data (if any)
     transporter_data = {k: v for k, v in load_data.items() if k.startswith('transporter_')}
     if transporter_data:

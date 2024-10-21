@@ -181,7 +181,7 @@ h1 {
 }
 
 .bid-button:hover, .back-button:hover {
-    background-color: #ff4500;
+    background-color: red;
 }
 
 .addon-input {
@@ -206,7 +206,7 @@ h1 {
 }
 
 body {
-    font-family: Arial, sans-serif;
+
     background-color: black;
     color: white;
     display: flex;
@@ -270,7 +270,7 @@ h1 {
 .member-status {
     font-size: 14px;
     margin-left: 10px;
-    color: gray;
+    color: rgb(225, 225, 225);
 }
 
 .price {
@@ -342,5 +342,37 @@ a:hover {
     text-decoration: underline; 
 }
 
+.private-load {
+    background-color: #0ab30a; 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    margin-bottom: 10px;
+    border: 1px solid red;
+    position: relative;
+    border-radius: 90px;
+}
 
+.accept-button, .decline-button{
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 90px;
+    margin: 10px;
+    margin-top: 70px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border: 1px solid white;
+}
 
+.accept-button:hover, .decline-button:hover {
+    background-color: red;
+}
+.private-load-text{
+    color: yellow;
+    font-weight: 600;
+    font-size:larger;
+   
+}
