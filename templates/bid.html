@@ -56,39 +56,46 @@
             </div>            
             <input type="text" class="addon-input" placeholder="AddOns e.g. I can pay for your customs clearance fee">
 
-            <!-- Action Buttons -->
+             <!-- Action Buttons -->
             <div class="buttons">
-                <button class="back-button" onclick="window.location.href='/bid'"> Back</button>
-                <button class="bid-button">Bid</button>
+                <!-- Conditional rendering of buttons based on whether the load is private -->
+                {% if private %}
+                    <button class="back-button" onclick="window.location.href='/bid'"> Back</button>
+                    <button class="decline-button">Decline</button>
+                    <button class="accept-button">Accept</button>
+                {% else %}
+                    <button class="back-button" onclick="window.location.href='/bid'"> Back</button>
+                    <button class="bid-button">Bid</button>
+                {% endif %}
             </div>
         </div>
     </div>
     <script>
-        document.querySelector('.bid-button').addEventListener('click', function() {
-            
-            const offer = document.getElementById('offer-input').value;
-            const addons = document.querySelector('.addon-input').value;
+// Shared function to send the bid/accept/decline payload
+function sendBidOrAcceptPayload(eventName) {
+    const offer = document.getElementById('offer-input').value;
+    const addons = document.querySelector('.addon-input').value;
 
-             // Fetch user metadata
-             fetch('/get_user_metadata')
-                    .then(response => response.json())
-                    .then(metadata => {
-                        const payload = {
-                            event_name: 'Bid_Made',
-                            user_id: metadata.user_id,
-                            ip_address: metadata.ip_address,
-                            timestamp: new Date().toISOString(),
-                            user_agent: navigator.userAgent,
-                            offer: offer,
-                            addons: addons,
-                            form_data: {
-                                load_name: "{{ load_name }}",
-                                quantity: "{{ quantity }}",
-                                route: "{{ route }}",
-                                rate: "{{ rate }}"
-                            }
-                        };
-        
+    // Fetch user metadata
+    fetch('/get_user_metadata')
+        .then(response => response.json())
+        .then(metadata => {
+            const payload = {
+                event_name: eventName,  // Dynamic event name (Bid_Made, Load_Accepted, Load_Declined)
+                user_id: metadata.user_id,
+                ip_address: metadata.ip_address,
+                timestamp: new Date().toISOString(),
+                user_agent: navigator.userAgent,
+                offer: offer,
+                addons: addons,
+                form_data: {
+                    load_name: "{{ load_name }}",  // Ensure these variables are rendered properly
+                    quantity: "{{ quantity }}",
+                    route: "{{ route }}",
+                    rate: "{{ rate }}"
+                }
+            };
+
             // Send the data using Fetch API
             fetch('/place_bid_done', {
                 method: 'POST',
@@ -100,16 +107,45 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
-                alert('Bid placed successfully!')
-                
+                if (eventName === 'Bid_Made') {
+                    alert('Bid placed successfully!');
+                } else if (eventName === 'Load_Accepted') {
+                    alert('Load accepted successfully!');
+                } else if (eventName === 'Load_Declined') {
+                    alert('Load declined.');
+                }
             })
             .catch((error) => {
                 console.error('Error:', error);
-                
+                alert('Something went wrong. Please try again.');
             });
         });
+}
+
+// Event listener for the Bid button (non-private load)
+const bidButton = document.querySelector('.bid-button');
+if (bidButton) {
+    bidButton.addEventListener('click', function() {
+        sendBidOrAcceptPayload('Bid_Made');
     });
+}
+
+// Event listener for the Accept button (private load)
+const acceptButton = document.querySelector('.accept-button');
+if (acceptButton) {
+    acceptButton.addEventListener('click', function() {
+        sendBidOrAcceptPayload('Load_Accepted');
+    });
+}
+
+// Event listener for the Decline button (private load)
+const declineButton = document.querySelector('.decline-button');
+if (declineButton) {
+    declineButton.addEventListener('click', function() {
+        sendBidOrAcceptPayload('Load_Declined');
+    });
+}
+
     </script>
-        
 </body>
 </html>
