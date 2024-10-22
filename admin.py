@@ -8,6 +8,7 @@ import uuid
 
 app = Flask(__name__)
 
+
 # Route for the main SPA page
 
 @app.route('/get_user_metadata', methods=['GET'])
@@ -20,37 +21,21 @@ def get_user_metadata():
     }
     return jsonify(metadata)
 
-@app.route('/')
-def home():
-    # Placeholder data to simulate data from the backend
-    manage_users = [
-        {'name': 'STAR', 'type': 'Transporter', 'red_flag': True},
-        {'name': 'JJ', 'type': 'Shipper', 'red_flag': True},
-        {'name': 'ABC', 'type': 'Transporter', 'red_flag': True}
-    ]
     
-    loads = [
-        {'load_id': 101, 'route': 'A to B', 'rate': 1200, 'status': 'Completed', 'transporter': 'Transporter A', 'shipper': 'Shipper X'},
-        {'load_id': 102, 'route': 'B to C', 'rate': 1500, 'status': 'In Progress', 'transporter': 'Transporter B', 'shipper': 'Shipper Y'}
-    ]
-
-    load_history = [
-        {'load_id': 101, 'route': 'A to B', 'rate': 1200, 'transporter': 'Transporter A', 'shipper': 'Shipper X'},
-        {'load_id': 102, 'route': 'B to C', 'rate': 1500, 'transporter': 'Transporter B', 'shipper': 'Shipper Y'}
-    ]
-
     # Database connection parameters
     # Initialize PostgreSQL connection
-    def create_connection():
-        conn = psycopg2.connect(
-            dbname=os.environ.get('POSTGRES_DB'),
-            user=os.environ.get('POSTGRES_USER'),
-            password=os.environ.get('POSTGRES_PASSWORD'),
-            host='localhost',
-            port='5432'
-        )
-        return conn
+def create_connection():
+    conn = psycopg2.connect(
+        dbname=os.environ.get('POSTGRES_DB'),
+        user=os.environ.get('POSTGRES_USER'),
+        password=os.environ.get('POSTGRES_PASSWORD'),
+        host='localhost',
+        port='5432'
+    )
+    return conn
 
+@app.route('/')
+def home():
     conn = create_connection()
     with conn.cursor() as cur:
         query = """
@@ -97,7 +82,9 @@ def home():
 
         # Fetch all results
         results = cur.fetchall()
+
         print(results)
+
     # Format the results into a list of dictionaries
     data = []
     for row in results:
@@ -126,9 +113,9 @@ def home():
     print("After modification:", data[0])
 
     # Store the modified data in submission
-    submission = data
+    submissions = data
 
-    print(f">>>> {submission}")
+    print(f">>>> {submissions}")
     # Clean up
     cur.close()
     conn.close()
@@ -141,13 +128,10 @@ def home():
     }
     
     # Passing placeholder data to Jinja templates
-    return render_template('admin.html', 
-        manage_users=manage_users,  
-        users=manage_users,         
-        load_history=load_history,  
-        loads=loads,
-        submission=submission,  
-        user_details=user_details)
+    return render_template('admin.html', user_details=user_details,
+        submissions=data,  
+        )
+        
 
 # API Route to handle user actions
 @app.route('/suspend/<username>', methods=['POST'])
@@ -167,22 +151,23 @@ def activate_user(username):
 
 @app.route('/submit')
 def submissions():
-    submission = {
-        "company_name": "Star International Trucks",
-        "address": "97 WILLOWVALE HARARE",
-        "number_of_trucks": 20,
-        "files": [
-            "images.png",
-            "Tax Clearance.pdf",
-            "Directorship.pdf",
-            "Proof of Residence.pdf",
-            "Vehicle Registration.pdf",
-            "GIT.pdf",
-            "Tracking.pdf"
-        ]
+    # Retrieve the data from the query parameters
+    company_name = request.args.get('company_name')
+    address = request.args.get('address')
+    number_of_trucks = request.args.get('number_of_trucks')
+    files = request.args.getlist('files')
+
+    # Prepare the submission object
+    submissions = {
+        'company_name': company_name,
+        'address': address,
+        'number_of_trucks': number_of_trucks,
+        'files': files
     }
 
-    return render_template('submit.html', submission=submission)
+    # Render the 'submit.html' page with the submission details
+    return render_template('submit.html', submissions=submissions)
+
 
 @app.route('/user_submission', methods=['POST'])
 def user_submission():
