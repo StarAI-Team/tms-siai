@@ -134,14 +134,14 @@ def register_transporter():
 
     # Files that are required for the transporter to register
     file_fields = [
-        'directorship', 'certificate_of_incorporation', 'proof_of_current_address', 'tax_clearance', 'operators_licence',
+        'id_number', 'directorship', 'certificate_of_incorporation', 'proof_of_current_address', 'tax_clearance', 'operators_licence',
         'permits', 'tracking_licence', 'num_of_trucks', 'reg_books', 'certificate_of_fitness',
         'profile_picture'
     ]
 
     # Segregated required fields by section
     required_fields_by_section = {
-        'section1': ['first_name', 'last_name', 'phone_number', 'id_number', 'company_name', 'company_location', 'company_email'],
+        'section1': ['first_name', 'last_name', 'phone_number', 'id_number','id_number_text', 'company_name', 'company_location', 'company_email'],
         'section2': ['company_contact', 'bank_name', 'account_name', 'account_number', 'directorship_text', 'directorship', 'proof_of_current_address_text', 'proof_of_current_address'],
         'section3': ['tax_clearance_text', 'tax_clearance', 'tax_expiry', 'certificate_of_incorporation_text', 'certificate_of_incorporation', 'operators_licence_text', 'operators_licence', 'operators_expiry', 'permits_text', 'permits', 'permit_expiry', 'tracking_licence_text', 'tracking_licence'],
         'section4': ['number_of_trucks', 'num_of_trucks_text', 'num_of_trucks', 'reg_books_text', 'reg_books', 'certificate_of_fitness_text', 'certificate_of_fitness'],
@@ -381,14 +381,14 @@ def shipper_register():
 
     #files that are required for the shipper to register 
     file_fields = [
-        'directorship', 'certificate_of_incorporation', 'proof_of_current_address', 'tax_clearance',
+        'id_number','directorship', 'certificate_of_incorporation', 'proof_of_current_address', 'tax_clearance',
         'profile_picture',
         
     ]
 
     # Segregated required fields by section
     required_fields_by_section = {
-        'section1':['first_name', 'last_name', 'phone_number', 'id_number','id_number', 'company_name', 'company_location', 'company_email'],
+        'section1':['first_name', 'last_name', 'phone_number', 'id_number','id_number_text', 'company_name', 'company_location', 'company_email'],
         'section2': ['company_contact', 'bank_name', 'account_name', 'account_number', 'directorship_text','directorship', 'proof_of_current_address_text', 'proof_of_current_address' ],
         'section3': ['tax_clearance_text', 'tax_clearance', 'tax_expiry', 'certificate_of_incorporation_text', 'certificate_of_incorporation'],
         'section4': ['user_name', 'profile_picture', 'password', 'confirm_password']
@@ -441,7 +441,7 @@ def shipper_register():
         return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
     
     
-# Print transporter data before sending to the next service
+# Print shi[[er]] data before sending to the next service
     print("Final shipper data being sent:", shipper_data)
   
 
@@ -450,7 +450,7 @@ def shipper_register():
     # endpoint of the kafka server
     PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
     try:
-        # Print the transporter_data before sending
+        # Print the shipper before sending
         print("Sending the following data to processing URL:", shipper_data)
         response = requests.post(
             PROCESSING_FLASK_URL,
@@ -783,7 +783,7 @@ def post_load():
         current_step = 2
 
     required_fields_per_step = {
-        1: ['load_name', 'quantity', 'pickup_time', 'pickup_place', 'destination', 'clearing_agency', 'clearing_agency_contact'],  # Example for Step 1
+        1: ['load_name', 'quantity', 'pickup_time', 'pickup_place', 'destination', 'clearing_agency', 'clearing_agency_contact'],  
         2: ['number_of_trucks', 'truck_type',
         'payment_days', 'payment_method', 'proof_of_delivery_requirements', 'delivery_duration','additional_instructions', 'recommended_price' ],
     }

@@ -21,7 +21,16 @@
                     <input type="text" id="first_name" name="first_name" placeholder="First Name" required>
                     <input type="text" id="last_name" name="last_name" placeholder="Last Name" required>
                     <input type="number" id="phone_number" name="phone_number" placeholder="Phone Number" required>
-                    <input type="number" id="id_number" name="id_number" placeholder="ID Number" required>
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <input type="text" id="id_number_text" name="id_number_text" placeholder="Upload Proof of Identity" required>
+                            <label for="id_number" class="upload-btn">Upload Identity</label>
+                            <input type="file" id="id_number" name="id_number" accept="image/*" required>
+                        </div>
+                        <div id="id-hint">
+                            <i><p>Documents can include national ID, Passport or driver's licence and should clearly show names as you have filled on form</p></i>
+                    </div> 
+                    </div>
                     <input type="text" id="company_name" name="company_name" placeholder="Company Name " required>
                     <input type="text" id="company_location" name="company_location" placeholder="Company Location " required>
                     <input type="email" id="company_email" name="company_email" placeholder="Company Email " required>
@@ -180,30 +189,30 @@
                     </div> 
                     <div>
                         <div>
-                            <input type="password" 
-                                   id="password" 
-                                   class="password1" 
-                                   name="password" 
-                                   placeholder="Enter Password" 
-                                   required 
-                                   pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" 
-                                   title="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.">
-                            <i id="visibility_button1">
-                                <span id="icon1" class="material-symbols-outlined"> visibility </span>
-                            </i>
+                            <input type="password" id="password" class="password1" name="password" 
+                            placeholder="Enter Password" required
+                            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" 
+                            title="Password must contain at least 8 characters, including a number, an uppercase and lowercase letter.">
+                     <i id="visibility_button1">
+                         <span id="icon1" class="material-symbols-outlined"> visibility </span>
+                     </i>
+                 </div>   
+                 <div id="password-hint">
+                     <p>Password must be at least 8 characters long and include:</p>
+                     <ul>
+                         <li id="number">A number</li>
+                         <li id="lowercase">A lowercase letter</li>
+                         <li id="uppercase">An uppercase letter</li>
+                     </ul>
+                 </div>  
                         </div>
                         
                         <div>
-                            <input type="password" 
-                                   id="confirm_password" 
-                                   class="password2" 
-                                   name="confirm_password" 
-                                   placeholder="Confirm Password" 
-                                   required>
+                            <input type="password" id="confirm_password" class="password2" name="confirm_password" placeholder="Confirm Password" required>
                             <i id="visibility_button2">
                                 <span id="icon2" class="material-symbols-outlined"> visibility </span>
                             </i>
-                        </div>
+                        </div>   
                               
                     
                     <button type="button" class="prev-button">Back</button>
