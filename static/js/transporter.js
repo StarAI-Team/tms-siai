@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     const requiredFields = {
-        section1: ['first_name', 'last_name', 'phone_number', 'id_number', 'company_name', 'company_location', 'company_email'],
+        section1: ['first_name', 'last_name', 'phone_number', 'id_number','id_number_text', 'company_name', 'company_location', 'company_email'],
         section2: ['company_contact', 'bank_name', 'account_name', 'account_number', 'directorship_text', 'directorship', 'proof_of_current_address_text', 'proof_of_current_address'],
         section3: ['tax_clearance_text', 'tax_clearance', 'tax_expiry', 'certificate_of_incorporation_text', 'certificate_of_incorporation', 'operators_licence_text', 'operators_licence', 'operators_expiry', 'permits_text', 'permits', 'permit_expiry', 'tracking_licence_text', 'tracking_licence'],
         section4: ['number_of_trucks', 'num_of_trucks_text', 'num_of_trucks', 'reg_books_text', 'reg_books', 'certificate_of_fitness_text', 'certificate_of_fitness'],
@@ -191,6 +191,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Binding the file input elements to handle file name display
+    handleFileNameUpdate('id_number', 'id_number_text');
     handleFileNameUpdate('directorship', 'directorship_text');
     handleFileNameUpdate('proof_of_current_address', 'proof_of_current_address_text');
     handleFileNameUpdate('tax_clearance', 'tax_clearance_text');
@@ -202,4 +203,44 @@ document.addEventListener("DOMContentLoaded", function() {
     handleFileNameUpdate('reg_books', 'reg_books_text');
     handleFileNameUpdate('certificate_of_fitness', 'certificate_of_fitness_text');
     handleFileNameUpdate('profile_picture', 'user_name');
+});
+
+document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+
+    // Check for number
+    const numberCheck = /\d/.test(password);
+    document.getElementById('number').style.color = numberCheck ? 'green' : 'red';
+    
+    // Check for lowercase letter
+    const lowercaseCheck = /[a-z]/.test(password);
+    document.getElementById('lowercase').style.color = lowercaseCheck ? 'green' : 'red';
+    
+    // Check for uppercase letter
+    const uppercaseCheck = /[A-Z]/.test(password);
+    document.getElementById('uppercase').style.color = uppercaseCheck ? 'green' : 'red';
+});
+
+// Form submission validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const password = document.getElementById('password').value;
+
+    const numberCheck = /\d/.test(password);
+    const lowercaseCheck = /[a-z]/.test(password);
+    const uppercaseCheck = /[A-Z]/.test(password);
+    const lengthCheck = password.length >= 8;
+
+    // If any condition is not met, prevent submission and alert the user
+    if (!numberCheck || !lowercaseCheck || !uppercaseCheck || !lengthCheck) {
+        e.preventDefault(); // Prevent form submission
+
+        // Show an alert with the unmet conditions
+        let errorMessage = "Password must meet the following requirements:\n";
+        if (!lengthCheck) errorMessage += "- At least 8 characters long\n";
+        if (!numberCheck) errorMessage += "- At least one number\n";
+        if (!lowercaseCheck) errorMessage += "- At least one lowercase letter\n";
+        if (!uppercaseCheck) errorMessage += "- At least one uppercase letter\n";
+
+        alert(errorMessage); // Alert the user
+    }
 });
