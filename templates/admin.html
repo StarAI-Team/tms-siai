@@ -144,20 +144,18 @@
        <!-- Submissions Section -->
        <div id="submissions" class="content-section" style="display: none;">
            <h2>Submissions</h2>
-           {% for sub in submission %}
-           
            <div class="submission-details">
-               <h3>{{ sub.company_name }}</h3>
-               <p>{{ sub.address }}</p>
-               <p>{{ sub.number_of_trucks }} Trucks</p>
-
-               <ul>
-                   {% for file in sub.files %}
-                   <li><a href="{{ file }}">{{ file }}</a></li>
-                   {% endfor %}
-               </ul>
-           </div>
-           {% endfor %}
+            <ul>
+                {% for submission in submissions %}
+                <li>
+                    <!-- Create a clickable link for each company name -->
+                    <a href="{{ url_for('submissions', company_name=submission['company_name'], address=submission['address'], number_of_trucks=submission['number_of_trucks'], files=submission['files']) }}">
+                        {{ submission.company_name }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
 
            <div class="pagination">
                <button>&lt;</button>

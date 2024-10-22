@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     
     
+    
     let currentStep = 0;
 
     function showStep(step) {
@@ -143,6 +144,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
     
+
  // Attaching event listener
  nextButtons.forEach(button => {
     button.addEventListener("click", async function() {

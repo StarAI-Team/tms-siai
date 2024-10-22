@@ -40,23 +40,23 @@
             </table>
 
             <div class="submission-details">
-                <h3>{{ submission.company_name }}</h3>
-                <p>{{ submission.address }}</p>
-                <p>{{ submission.number_of_trucks }} Trucks</p>
+                <h3>{{ submissions.company_name }}</h3>
+                <p>{{ submissions.address }}</p>
+                <p>{{ submissions.number_of_trucks }} Trucks</p>
 
                 <ul>
-                    {% for file in submission.files %}
+                    {% for file in submissions.files %}
                     <li><a href="#">{{ file }}</a></li>
                     {% endfor %}
                 </ul>
 
                 <!-- Rejection Reason Input -->
                 <label for="rejection-reason">Reason for Rejection (if applicable):</label>
-                <textarea id="rejection-reason"></textarea>
+                <textarea id="rejection-reason" rows="4" cols="50"></textarea>
 
                 <div class="decision-buttons">
-                    <button onclick="submitSubmission(true)">Accept</button>
-                    <button onclick="submitSubmission(false)">Reject</button>
+                    <button class="accept" onclick="submitSubmission(true)">Accept</button>
+                    <button class="decline" onclick="submitSubmission(false)">Reject</button>
                 </div>
                 
 
@@ -130,26 +130,11 @@ function sendEvent(eventData) {
     .then(response => response.json())
     .then(data => {
         console.log("Response from Flask:", data);
+        alert("Event submitted successfully!");
     })
     .catch(error => {
         console.error("Error sending event:", error);
-    });
-}
-function sendEvent(eventData) {
-    // Send the event data to the Flask backend via POST request
-    fetch('/user_submission', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(eventData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Response from Flask:", data);
-    })
-    .catch(error => {
-        console.error("Error sending event:", error);
+        alert("Failed to submit event. Please try again.");
     });
 }
         </script>

@@ -9,6 +9,7 @@ body {
     font-family: 'Montserrat Alternates', sans-serif;
 }
 
+
 .container {
     display: flex;
     height: 100vh;
@@ -117,9 +118,19 @@ button.accept {
 }
 
 button.decline {
-    background-color: #dc3545;
+    background-color: #c51627;
     color: white;
 }
+
+button.accept:hover {
+    background-color: #0a5d1d;
+}
+
+button.decline:hover {
+    background-color: #75111b;
+    color: white;
+}
+
 
 .pagination {
     text-align: center;
@@ -163,3 +174,4 @@ button.back {
     background-color: #0f1010;
     color: white;
 }
+

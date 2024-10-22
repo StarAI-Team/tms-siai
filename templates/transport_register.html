@@ -179,18 +179,32 @@
                         </div>
                     </div> 
                     <div>
-                        <input type="password" id="password" class="password1" name="password" placeholder="Enter Password" required>
-                        <i id="visibility_button1">
-                            <span id="icon1" class="material-symbols-outlined"> visibility </span>
-                        </i>
-                    </div>
-                    
-                    <div>
-                        <input type="password" id="confirm_password" class="password2" name="confirm_password" placeholder="Confirm Password" required>
-                        <i id="visibility_button2">
-                            <span id="icon2" class="material-symbols-outlined"> visibility </span>
-                        </i>
-                    </div>                  
+                        <div>
+                            <input type="password" 
+                                   id="password" 
+                                   class="password1" 
+                                   name="password" 
+                                   placeholder="Enter Password" 
+                                   required 
+                                   pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" 
+                                   title="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.">
+                            <i id="visibility_button1">
+                                <span id="icon1" class="material-symbols-outlined"> visibility </span>
+                            </i>
+                        </div>
+                        
+                        <div>
+                            <input type="password" 
+                                   id="confirm_password" 
+                                   class="password2" 
+                                   name="confirm_password" 
+                                   placeholder="Confirm Password" 
+                                   required>
+                            <i id="visibility_button2">
+                                <span id="icon2" class="material-symbols-outlined"> visibility </span>
+                            </i>
+                        </div>
+                              
                     
                     <button type="button" class="prev-button">Back</button>
                     <button type="button" class="next-button">Next</button>
