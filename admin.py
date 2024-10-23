@@ -40,6 +40,7 @@ def home():
     with conn.cursor() as cur:
         query = """
                     SELECT 
+                            t.user_id,
                             t.company_name,
                             t.company_location AS address,
                             tf.number_of_trucks,
@@ -74,7 +75,7 @@ def home():
                                 transporter_documentation
                         ) AS td ON t.user_id = td.user_id
                         GROUP BY 
-                            t.company_name, t.company_location, tf.number_of_trucks;
+                            t.user_id, t.company_name, t.company_location, tf.number_of_trucks;
                 """
 
         # Execute the insert with all values
@@ -83,16 +84,17 @@ def home():
         # Fetch all results
         results = cur.fetchall()
 
-        print(results)
+        print("RESULT FROM POSTGRE", results)
 
     # Format the results into a list of dictionaries
     data = []
     for row in results:
         company_info = {
-            'company_name': row[0],
-            'address': row[1],
-            'number_of_trucks': row[2],
-            'files': [file['file'] for file in row[3]]
+            'user_id':row[0],
+            'company_name': row[1],
+            'address': row[2],
+            'number_of_trucks': row[3],
+            'files': [file['file'] for file in row[4]]
         }
         data.append(company_info)
 
