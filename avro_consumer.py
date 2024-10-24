@@ -1,61 +1,33 @@
+# from flask import Flask, jsonify
+# import psycopg2
+# from psycopg2 import OperationalError  
 # import logging
 # import os
-
 # from confluent_kafka import Consumer
 # from confluent_kafka.schema_registry.avro import AvroDeserializer
 # from confluent_kafka.serialization import MessageField, SerializationContext
-
-# import logging_config
-# import utils
 # from schema_registry_client import SchemaClient
+# import utils
+# import threading
+# from bson import ObjectId 
+# import logging_config
 
+# app = Flask(__name__)
 
-# class AvroConsumerClass:
-#     def __init__(
-#         self, bootstrap_server, topic, group_id, schema_registry_client, schema_str
-#     ):
-#         """Initializes the consumer."""
-#         self.bootstrap_server = bootstrap_server
-#         self.topic = topic
-#         self.group_id = group_id
-#         self.consumer = Consumer(
-#             {
-#                 "bootstrap.servers": bootstrap_server,
-#                 "group.id": self.group_id,
-#                 "auto.offset.reset": "earliest",
-#             }
-#         )
-#         self.schema_registry_client = schema_registry_client
-#         self.schema_str = schema_str
-#         self.avro_deserializer = AvroDeserializer(schema_registry_client, schema_str)
+# # Initialize PostgreSQL connection
+# def create_connection():
+#     # try:
+#     conn = psycopg2.connect(
+#         dbname=os.environ.get('POSTGRES_DB'),
+#         user=os.environ.get('POSTGRES_USER'),
+#         password=os.environ.get('POSTGRES_PASSWORD'),
+#         host='db',
+#         port='5432'
+#     )
+#     return conn
 
-#     def consume_messages(self):
-#         """Consume Messages from Kafka."""
-#         self.consumer.subscribe([self.topic])
-#         logging.info(f"Successfully subscribed to topic: {self.topic}")
-
-#         try:
-#             while True:
-#                 msg = self.consumer.poll(1.0)
-#                 if msg is None:
-#                     continue
-#                 if msg.error():
-#                     logging.error(f"Consumer error: {msg.error()}")
-#                     continue
-#                 byte_message = msg.value()
-#                 decoded_message = self.avro_deserializer(
-#                     byte_message, SerializationContext(topic, MessageField.VALUE)
-#                 )
-#                 logging.info(
-#                     f"Decoded message: {decoded_message}, Type: {type(decoded_message)}"  # noqa: E501
-#                 )
-#         except KeyboardInterrupt:
-#             pass
-#         finally:
-#             self.consumer.close()
-
-
-# if __name__ == "__main__":
+# @app.before_first_request
+# def start_consumer():
 #     utils.load_env()
 #     logging_config.configure_logging()
 
@@ -68,146 +40,292 @@
 #     with open("./schemas/schema.avsc") as avro_schema_file:
 #         avro_schema = avro_schema_file.read()
 #     schema_client = SchemaClient(schema_registry_url, topic, avro_schema, schema_type)
-
-#     # Schema already in Schema Registry, So fetch from Schema Registry
 #     schema_str = schema_client.get_schema_str()
-#     consumer = AvroConsumerClass(
-#         bootstrap_server,
-#         topic,
-#         group_id,
-#         schema_client.schema_registry_client,
-#         schema_str,
-#     )
-#     consumer.consume_messages()
+    
+#     consumer = Consumer({
+#         "bootstrap.servers": bootstrap_server,
+#         "group.id": group_id,
+#         "auto.offset.reset": "earliest",
+#     })
+#     avro_deserializer = AvroDeserializer(schema_client.schema_registry_client, schema_str)
+#     consumer.subscribe([topic])
 
-from flask import Flask, jsonify
-import threading
+#     def consume_messages():
+#         try:
+#             while True:
+#                 msg = consumer.poll(1.0)
+#                 if msg is None:
+#                     continue
+#                 if msg.error():
+#                     logging.error(f"Consumer error: {msg.error()}")
+#                     continue
+#                 byte_message = msg.value()
+#                 decoded_message = avro_deserializer(byte_message, SerializationContext(topic, MessageField.VALUE))
+#                 logging.info(f"Decoded message: {decoded_message}, Type: {type(decoded_message)}")
+
+#                 task_name = decoded_message['event_name'] if isinstance(decoded_message, dict) else decoded_message
+#                 if task_name:
+#                     if task_name == "transporterRegistration(Basic Details)":
+#                         logging.info(f"Received data for committing: {task_name}")
+                        
+#                         user_id = decoded_message["user_id"]
+#                         company_email = decoded_message["company_email"]
+#                         company_name = decoded_message["company_name"]
+#                         company_location = decoded_message["company_location"]
+#                         first_name = decoded_message["first_name"]
+#                         id_number = decoded_message["id_number"]
+#                         last_name = decoded_message["last_name"]
+#                         phone_number = decoded_message["phone_number"]
+
+#                         conn = create_connection()
+#                         with conn.cursor() as cur:
+#                             insert_query = """
+#                                 INSERT INTO client (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number)
+#                                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+#                                 ON CONFLICT (company_email) DO NOTHING
+#                             """
+
+#                             # Execute the insert with all values
+#                             cur.execute(insert_query, (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number))
+#                             conn.commit()
+#                             logging.info("Data inserted into client.")
+#                 else:
+#                     logging.warning("No valid task name received.")
+#         except KeyboardInterrupt:
+#             pass
+#         finally:
+#             consumer.close()
+
+#     consumer_thread = threading.Thread(target=consume_messages)
+#     consumer_thread.start()
+#     logging.info("Consumer started automatically on application startup.")
+
+# @app.route('/')
+# def index():
+#     conn = create_connection()
+#     with conn.cursor() as cur:
+#         cur.execute("SELECT * FROM client")
+#         tasks = cur.fetchall()
+#         return jsonify({"message": "Tasks:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
+
+# if __name__ == '__main__':
+#     # init_database()
+#     app.run(host="0.0.0.0", port=7000, debug=True)
+
+from flask import Flask, jsonify, request
+import psycopg2
+from psycopg2 import OperationalError  
 import logging
 import os
-import psycopg2
 from confluent_kafka import Consumer
 from confluent_kafka.schema_registry.avro import AvroDeserializer
 from confluent_kafka.serialization import MessageField, SerializationContext
-from pymongo import MongoClient 
-from bson import ObjectId 
-import logging_config
-import utils
 from schema_registry_client import SchemaClient
+import utils
+import threading
+# from bson import ObjectId 
+import logging_config
+from flask_wtf import CSRFProtect
 
-app = Flask(__name__)
+# app = Flask(__name__)
+# app.config['SECRET_KEY'] = 'starinternational_key' 
+# csrf = CSRFProtect(app)
 
-client = MongoClient(host='test_mongodb',port=27017, username='root', password='pass',authSource="admin") 
-db = client.mytododb 
-tasks_collection = db.tasks 
+# Initialize PostgreSQL connection
+def create_connection():
+    conn = psycopg2.connect(
+        dbname=os.environ.get('POSTGRES_DB'),
+        user=os.environ.get('POSTGRES_USER'),
+        password=os.environ.get('POSTGRES_PASSWORD'),
+        host='db',
+        port='5432'
+    )
+    return conn
 
-class AvroConsumerClass:
-    def __init__(self, bootstrap_server, topic, group_id, schema_registry_client, schema_str):
-        """Initializes the consumer."""
-        self.bootstrap_server = bootstrap_server
-        self.topic = topic
-        self.group_id = group_id
-        self.consumer = Consumer(
-            {
-                "bootstrap.servers": bootstrap_server,
-                "group.id": self.group_id,
-                "auto.offset.reset": "earliest",
-            }
-        )
-        self.schema_registry_client = schema_registry_client
-        self.schema_str = schema_str
-        self.avro_deserializer = AvroDeserializer(schema_registry_client, schema_str)
-        self.running = False
+# @app.before_first_request
+def start_consumer():
+    utils.load_env()
+    logging_config.configure_logging()
 
+    bootstrap_server = os.environ.get("KAFKA_BOOTSTRAP_SERVERS")
+    topic = os.environ.get("KAFKA_TOPIC")
+    group_id = os.environ.get("CONSUMER_GROUP_ID", "consumer-group-id")
+    schema_registry_url = os.environ.get("SCHEMA_REGISTRY_URL")
+    schema_type = "AVRO"
 
-    def consume_messages(self):
-        """Consume Messages from Kafka."""
-        self.consumer.subscribe([self.topic])
-        logging.info(f"Successfully subscribed to topic: {self.topic}")
-        self.running = True
+    with open("./schemas/schema.avsc") as avro_schema_file:
+        avro_schema = avro_schema_file.read()
+    schema_client = SchemaClient(schema_registry_url, topic, avro_schema, schema_type)
+    schema_str = schema_client.get_schema_str()
+    
+    consumer = Consumer({
+        "bootstrap.servers": bootstrap_server,
+        "group.id": group_id,
+        "auto.offset.reset": "earliest",
+    })
+    avro_deserializer = AvroDeserializer(schema_client.schema_registry_client, schema_str)
+    consumer.subscribe([topic])
 
+    def consume_messages():
         try:
-            while self.running:
-                msg = self.consumer.poll(1.0)
+            while True:
+                msg = consumer.poll(1.0)
                 if msg is None:
                     continue
                 if msg.error():
                     logging.error(f"Consumer error: {msg.error()}")
                     continue
                 byte_message = msg.value()
-                decoded_message = self.avro_deserializer(
-                    byte_message, SerializationContext(self.topic, MessageField.VALUE)
-                )
+                decoded_message = avro_deserializer(byte_message, SerializationContext(topic, MessageField.VALUE))
                 logging.info(f"Decoded message: {decoded_message}, Type: {type(decoded_message)}")
 
-                # coonect to Postgres macro database
-                # Insert message into PostgreSQL database
-                try:
-                    task_name = decoded_message 
-                    if task_name: 
-                        logging.info(f"recieved data for commiting. {task_name}")
-                        tasks_collection.insert_one({'name': task_name}) 
-                    logging.info("Data inserted into Mongodb.")
-                except Exception as e:
-                    logging.error(f"Error inserting data into Mongodb: {e}")
-                    self.conn.rollback()
+                task_name = decoded_message['event_name'] if isinstance(decoded_message, dict) else decoded_message
+                if task_name:
+                    if task_name == "transporterRegistration_Representative Details":
+                        logging.info(f"Received data for committing: {task_name}")
+                        
+                        user_id = decoded_message["user_id"]
+                        company_email = decoded_message["company_email"]
+                        company_name = decoded_message["company_name"]
+                        company_location = decoded_message["company_location"]
+                        first_name = decoded_message["first_name"]
+                        id_number = decoded_message["id_number"]
+                        last_name = decoded_message["last_name"]
+                        phone_number = decoded_message["phone_number"]
+
+                        conn = create_connection()
+                        with conn.cursor() as cur:
+                            insert_query = """
+                                INSERT INTO transporter (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                                ON CONFLICT (company_email) DO NOTHING
+                            """
+
+                            # Execute the insert with all values
+                            cur.execute(insert_query, (user_id, company_email, company_name, company_location, first_name, id_number, last_name, phone_number))
+                            conn.commit()
+                            logging.info("Data inserted into transporter.")
+                            
+
+                            # return response to client (succefful insertion or cokmpany already exists)
+                    if task_name == "transporterRegistration_Company Details":
+                        user_id  = decoded_message["user_id"]
+                        account_name = decoded_message["account_name"]
+                        account_number = decoded_message["account_number"]
+                        bank_name = decoded_message["bank_name"]
+                        company_contact = decoded_message["company_contact"]
+                        directorship = decoded_message["directorship"]
+                        proof_of_current_address = decoded_message["proof_of_current_address"]
+
+                        conn = create_connection()
+                        with conn.cursor() as cur:
+                            insert_query = """
+                                INSERT INTO transporter_account_information (user_id, account_name, account_number, bank_name, company_contact, directorship, proof_of_current_address)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                                ON CONFLICT (user_id) DO NOTHING
+                            """
+
+                            # Execute the insert with all values
+                            cur.execute(insert_query, (user_id, account_name,  account_number, bank_name, company_contact, directorship, proof_of_current_address))
+                            conn.commit()
+                            logging.info("transporterRegistration_Company Details inserted")
+
+                    if task_name == "transporterRegistration_Company Documentation":
+                         # Extract relevant fields
+                        user_id = decoded_message["user_id"]
+                        certificate_of_incorporation = decoded_message.get("certificate_of_incorporation", "")
+                        operators_licence = decoded_message.get("operators_licence", "")
+                        operators_expiry = decoded_message.get("operators_expiry", "")
+                        permit_expiry = decoded_message.get("permit_expiry", "")
+                        permits = decoded_message.get("permits", "")
+                        tax_clearance = decoded_message.get("tax_clearance", "")
+                        tax_expiry = decoded_message.get("tax_expiry", "")
+                        tracking_licence = decoded_message.get("tracking_licence", "")
+
+                        conn = create_connection()
+                        with conn.cursor() as cur:
+                            insert_query = """
+                                INSERT INTO transporter_documentation (user_id, certificate_of_incorporation,operators_licence,  operators_expiry, permit_expiry, permits, tax_clearance,tax_expiry, tracking_licence)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                ON CONFLICT (user_id) DO NOTHING
+                            """
+
+                            # Execute the insert with all values
+                            cur.execute(insert_query, (user_id, certificate_of_incorporation, operators_licence, operators_expiry, permit_expiry, permits, tax_clearance,tax_expiry, tracking_licence))
+                            conn.commit()
+                            logging.info("transporterRegistration_Company Documentation inserted")
+
+                    if task_name == "transporterRegistration_Fleet Management":
+                        user_id = decoded_message.get("user_id", "")
+                        certificate_of_fitness = decoded_message.get("certificate_of_fitness", "")
+                        num_of_trucks = decoded_message.get("num_of_trucks", "")
+                        number_of_trucks = decoded_message.get("number_of_trucks", "")
+                        reg_books = decoded_message.get("reg_books", "")
+
+                        conn = create_connection()
+                        with conn.cursor() as cur:
+                            insert_query = """
+                                INSERT INTO transporter_fleet (user_id, certificate_of_fitness, num_of_trucks, number_of_trucks, reg_books)
+                                VALUES (%s, %s, %s, %s, %s)
+                                ON CONFLICT (user_id) DO NOTHING
+                            """
+
+                            # Execute the insert with all values
+                            cur.execute(insert_query, (user_id, certificate_of_fitness, num_of_trucks, number_of_trucks, reg_books))
+                            conn.commit()
+                            logging.info("transporterRegistration_Fleet Management inserted")
+
+                    if task_name == "transporterRegistration_Security":
+                        user_id = decoded_message.get("user_id", "")
+                        user_name = decoded_message.get("user_name", "")
+                        profile_picture = decoded_message.get("profile_picture", "")
+                        password = decoded_message.get("password", "")
+                        confirm_password = decoded_message.get("confirm_password", "")
+
+                        conn = create_connection()
+                        with conn.cursor() as cur:
+                            insert_query = """
+                                INSERT INTO transporter_profile (user_id, user_name, profile_picture, password, confirm_password)
+                                VALUES (%s, %s, %s, %s, %s)
+                                ON CONFLICT (user_id) DO NOTHING
+                            """
+
+                            # Execute the insert with all values
+                            cur.execute(insert_query, (user_id, user_name, profile_picture, password, confirm_password))
+                            conn.commit()
+                            logging.info("transporterRegistration_Security inserted")
+
+                else:
+                    logging.warning("No valid task name received.")
         except KeyboardInterrupt:
             pass
         finally:
-            self.consumer.close()
+            consumer.close()
 
-    def start(self):
-        """Start the consumer in a separate thread."""
-        self.thread = threading.Thread(target=self.consume_messages)
-        self.thread.start()
+    consumer_thread = threading.Thread(target=consume_messages)
+    consumer_thread.start()
+    logging.info("Consumer started automatically on application startup.")
 
-    def stop(self):
-        """Stop the consumer."""
-        self.running = False
-        self.thread.join()
+try:
+    start_consumer()
+except Exception as e:
+    logging.info(e)
+# @app.route('/')
+# def index():
+#     conn = create_connection()
+#     with conn.cursor() as cur:
+#         cur.execute("SELECT * FROM transporter")
+#         tasks = cur.fetchall()
+#         return jsonify({"message": "Tasks:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
 
-consumer_instance = None
+# @app.route('/api/v1/client', methods=['GET'])
+# @csrf.exempt
+# def get_client_data():
+#     conn = create_connection()
+#     with conn.cursor() as cur:
+#         cur.execute("SELECT * FROM client")
+#         tasks = cur.fetchall()
+#         return jsonify({"message": "Client Data:", "data": [{"id": t[0], "name": t[1]} for t in tasks]})
 
-@app.before_first_request
-def start_consumer():
-    global consumer_instance
-    if consumer_instance is None:
-        utils.load_env()
-        logging_config.configure_logging()
-
-        bootstrap_server = os.environ.get("KAFKA_BOOTSTRAP_SERVERS")
-        topic = os.environ.get("KAFKA_TOPIC")
-        group_id = os.environ.get("CONSUMER_GROUP_ID", "consumer-group-id")
-        schema_registry_url = os.environ.get("SCHEMA_REGISTRY_URL")
-        schema_type = "AVRO"
-
-        with open("./schemas/schema.avsc") as avro_schema_file:
-            avro_schema = avro_schema_file.read()
-        schema_client = SchemaClient(schema_registry_url, topic, avro_schema, schema_type)
-        schema_str = schema_client.get_schema_str()
-        
-        consumer_instance = AvroConsumerClass(
-            bootstrap_server,
-            topic,
-            group_id,
-            schema_client.schema_registry_client,
-            schema_str,
-        )
-        consumer_instance.start()
-        logging.info("Consumer started automatically on application startup.")
-
-# @app.teardown_appcontext
-# def shutdown_consumer(exception=None):
-#     global consumer_instance
-#     if consumer_instance:
-#         consumer_instance.stop()
-#         consumer_instance = None
-#         logging.info("Consumer stopped on application shutdown.")
-
-@app.route('/')
-def index():
-    tasks = tasks_collection.find() 
-    logging.info(f"tasts>>> {tasks}")
-    return jsonify({"message": "Kafka consumer is running."})
-
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=7000, debug=True)
+# if __name__ == '__main__':
+#     app.run(host="0.0.0.0", port=7000, debug=True)

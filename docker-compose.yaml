@@ -2,31 +2,24 @@ version: '3.8'
 name: redpanda-services
 
 services:
-
   db:
-    image: mongo:latest
-    hostname: test_mongodb
+    image: postgres:13
+    restart: always
     environment:
-      - MONGO_INITDB_DATABASE=animal_db
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=pass
-    ports:
-      - 27017:27017
-      
-  mongo-express:
-    image: mongo-express:latest
-    container_name: mongo-express
-    environment:
-      - ME_CONFIG_MONGODB_SERVER=db
-      - ME_CONFIG_MONGODB_PORT=27017
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=pass
-    ports:
-      - 8081:8081
-    depends_on:
-      - db
+      - POSTGRES_DB=starinternational
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      # - ${PWD}/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-
+    networks:
+      - postgres-network
+    ports:
+      - "5432:5432"
+    
+   
   redpanda-0:
     image: docker.redpanda.com/redpandadata/redpanda:v23.3.5
     container_name: redpanda-0
@@ -41,6 +34,8 @@ services:
       - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
       - --rpc-addr redpanda-0:33145
       - --advertise-rpc-addr redpanda-0:33145
+    networks:
+      - postgres-network
     ports:
       - 18081:18081
       - 18082:18082
@@ -60,6 +55,8 @@ services:
       - --rpc-addr redpanda-1:33145
       - --advertise-rpc-addr redpanda-1:33145
       - --seeds redpanda-0:33145
+    networks:
+      - postgres-network
     ports:
       - 28081:28081
       - 28082:28082
@@ -81,6 +78,8 @@ services:
       - --rpc-addr redpanda-2:33145
       - --advertise-rpc-addr redpanda-2:33145
       - --seeds redpanda-0:33145
+    networks:
+      - postgres-network
     ports:
       - 38081:38081
       - 38082:38082
@@ -104,6 +103,8 @@ services:
           adminApi:
             enabled: true
             urls: ["http://redpanda-0:9644"]
+    networks:
+      - postgres-network
     ports:
       - 8080:8080
       
@@ -115,6 +116,8 @@ services:
     container_name: tms-si-kafka-producer
     restart: always
     env_file: .env
+    networks:
+      - postgres-network
     depends_on:
       - redpanda-0
     command: python avro_producer.py
@@ -126,14 +129,47 @@ services:
     container_name: tms-si-kafka-consumer
     restart: always
     env_file: .env
+    networks:
+      - postgres-network
     depends_on:
       - redpanda-0
     command: python avro_consumer.py
-    ports:
-      - 7000:7000
+    # ports:
+    #   - 7000:7000
     volumes:
       - .:/app
     links:
       - db
 
-  
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@starinternational.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    networks:
+      - postgres-network
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+  minio:
+    image: minio/minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    networks:
+      - postgres-network
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+
+volumes:
+  postgres_data:
+  minio-data:
+
+networks: 
+  postgres-network:
+    driver: bridge

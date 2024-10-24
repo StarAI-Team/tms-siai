@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 import logging
 import os
+import psycopg2
+from psycopg2 import OperationalError  
 from uuid import uuid4
 from confluent_kafka.schema_registry.avro import AvroSerializer
 from confluent_kafka.serialization import (
@@ -16,6 +18,104 @@ from schema_registry_client import SchemaClient
 from confluent_kafka import KafkaException
 
 app = Flask(__name__)
+
+# # Initialize PostgreSQL connection
+# def create_connection():
+#     # try:
+#     conn = psycopg2.connect(
+#         dbname=os.environ.get('POSTGRES_DB'),
+#         user=os.environ.get('POSTGRES_USER'),
+#         password=os.environ.get('POSTGRES_PASSWORD'),
+#         host='db',
+#         port='5432'
+#     )
+#     return conn
+# # except OperationalError as e:
+#         # logging.error(f"Could not connect to the database: {e}")
+#         # return None
+
+# def init_database():
+#     conn = create_connection()
+#     if conn is None:
+#         logging.error("Database connection was not established.")
+#         return
+
+#     try:
+#         with conn.cursor() as cur:
+#             # Create client table
+#             cur.execute("""
+#                 CREATE TABLE IF NOT EXISTS client (
+#                     id SERIAL PRIMARY KEY,
+#                     company_email TEXT UNIQUE NOT NULL,
+#                     company_location TEXT UNIQUE NOT NULL,
+#                     company_name TEXT UNIQUE NOT NULL,
+#                     first_name TEXT NOT NULL,
+#                     id_number TEXT UNIQUE NOT NULL,
+#                     last_name TEXT NOT NULL,
+#                     phone_number TEXT UNIQUE NOT NULL,
+#                     registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+#                 );
+#             """)
+#             logging.info("client table initialized successfully")
+
+#             # Create user table
+#             cur.execute("""
+#                 CREATE TABLE IF NOT EXISTS user (
+#                     id SERIAL PRIMARY KEY,
+#                     username TEXT UNIQUE NOT NULL,
+#                     email TEXT UNIQUE NOT NULL,
+#                     password TEXT NOT NULL,
+#                     registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+#                 );
+#             """)
+#             logging.info("user table initialized successfully")
+
+#         conn.commit()  # Commit the changes
+#     except Exception as e:
+#         logging.error(f"An error occurred while initializing the database: {e}")
+#     finally:
+#         conn.close()  # Ensure the connection is closed
+
+# Configure MinIO client
+from minio import Minio
+from minio.error import S3Error
+
+minio_client = Minio(
+    "minio:9000",
+    access_key="minioadmin",
+    secret_key="minioadmin",
+    secure=False
+)
+
+# Ensure bucket exists
+bucket_name = "uploads"
+if not minio_client.bucket_exists(bucket_name):
+    minio_client.make_bucket(bucket_name)
+
+@app.route('/upload-file', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return "No file part", 400
+    file = request.files['file']
+    if file.filename == '':
+        return "No selected file", 400
+
+    # Save the file to MinIO
+    try:
+        file_path = file.filename
+        minio_client.put_object(
+            bucket_name, 
+            file_path, 
+            file.stream, 
+            length=-1, 
+            part_size=10*1024*1024,  # 10MB part size
+            content_type=file.mimetype
+        )
+        # Generate file URL
+        file_url = f"http://minio:9000/{bucket_name}/{file_path}"
+        return file_url, 200
+    except S3Error as e:
+        return f"Failed to upload file: {e}", 500
 
 class AvroProducer(ProducerClass):
     def __init__(
@@ -46,6 +146,7 @@ class AvroProducer(ProducerClass):
     def send_message(self, key=None, value=None):
         try:
             if value:
+                logging.info(f"*** {value}")
                 byte_value = self.avro_serializer(
                     value, SerializationContext(self.topic, MessageField.VALUE)
                 )
@@ -83,12 +184,17 @@ def process_user():
     try:
         # Receive JSON payload from request
         user_data = request.get_json()
+        logging.info(f"test: {user_data}")
 
         if not user_data:
             return jsonify({"error": "No data received"}), 400
         
         # Generate a unique ID if not provided in the JSON
-        user_id = user_data.get('user_id', str(uuid4()))
+        user_data['user_id'] = 1
+        user_id = user_data['user_id']
+
+        # if field is a file, store in file server and sned url to kafka instead
+        logging.info(f"user data: {user_data}")
 
         # Produce message to Kafka
         
@@ -101,6 +207,7 @@ def process_user():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
+    # init_database()
     utils.load_env()
     logging_config.configure_logging()
 
