@@ -20,24 +20,6 @@
         <!-- Content Section -->
         <div class="content">
             <h2>Submissions</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>User ID</th>
-                        <th>Date</th>
-                        <th>Details</th>
-                        <th>Decision</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>#3933</td>
-                        <td>4 April, 2021</td>
-                        <td>Registration</td>
-                        <td>Pending</td>
-                    </tr>
-                </tbody>
-            </table>
 
             <div class="submission-details">
                 <h3>{{ submissions.company_name }}</h3>
@@ -47,17 +29,19 @@
 
                 <ul>
                     {% for file in submissions.files %}
-                    <li><a href="#">{{ file }}</a></li>
+                    <li><a href="{{ file }}" target="_blank">{{ file }}</a></li>
                     {% endfor %}
                 </ul>
+                
 
-                <!-- Rejection Reason Input -->
-                <label for="rejection-reason">Reason for Rejection (if applicable):</label>
-                <textarea id="rejection-reason" rows="4" cols="50"></textarea>
-
+                <div id="rejection-reason-container" style="display: none;">
+                    <label for="rejection-reason">Reason for Rejection (if applicable):</label>
+                    <textarea id="rejection-reason" rows="4" cols="50"></textarea>
+                </div>
                 <div class="decision-buttons">
                     <button class="accept" onclick="submitSubmission(true, '{{ submissions.user_id }}', '{{ submissions.company_name }}')">Accept</button>
-                    <button class="decline" onclick="submitSubmission(false, '{{ submissions.user_id }}', '{{ submissions.company_name }}')">Reject</button>
+                    <button class="decline" onclick="handleReject('{{ submissions.user_id }}', '{{ submissions.company_name }}')">Reject</button>
+
                 </div>
                 
                 
@@ -82,6 +66,29 @@
 function generateSubmissionId() {
             return 'submission_' + Date.now();  
         }
+
+function showRejectionReason() {
+    var rejectionReasonContainer = document.getElementById("rejection-reason-container");
+    rejectionReasonContainer.style.display = "block";
+    }
+
+function handleReject(userId, companyName) {
+    // Show the rejection reason input field
+    showRejectionReason();
+
+    // Check if the rejection reason is provided
+    var rejectionReason = document.getElementById('rejection-reason').value;
+
+    // If no rejection reason is provided, alert the user and don't proceed with submission
+    if (!rejectionReason) {
+        alert("Please provide a reason for rejection before submitting.");
+        return;
+    }
+
+    // If a rejection reason is provided, proceed with submitting the form
+    submitSubmission(false, userId, companyName);
+}
+
 function submitSubmission(isAccepted,userId, companyName) {
     // Get rejection reason
     const rejectionReason = document.getElementById('rejection-reason').value;
