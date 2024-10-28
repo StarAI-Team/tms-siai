@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Awaiting Approval</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Set the background to black */
+        body, html {
+            background-color: black;
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Fullscreen video */
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover; /* Ensures video fills the screen */
+        }
+
+        /* Style for the back button */
+        .wait {
+            font-family: 'Montserrat Alternates', sans-serif;
+            position: absolute;
+            left: 680px;
+            bottom: 180px;
+            padding: 20px 20px;
+            background-color: red;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1; /* Ensures button is on top of the video */
+        }
+
+        .wait:hover {
+            background-color: rgb(62, 164, 21);
+        }
+    </style>
+</head>
+<body>
+    <!-- Back to Landing Page Button -->
+    <button class="wait" onclick="window.location.href='/'">Back To Landing Page</button>
+    
+    <!-- Embed the video to fill the entire page -->
+    <video src="/static/videos/Wait 3.mp4" autoplay loop muted></video>
+</body>
+</html>
