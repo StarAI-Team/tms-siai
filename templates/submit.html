@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submissions</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar navigation (unchanged) -->
+        <nav class="sidebar">
+            <ul>
+
+                <li><a href="#" class="active">Submissions</a></li>
+            </ul>
+        </nav>
+
+        <!-- Content Section -->
+        <div class="content">
+            <h2>Submissions</h2>
+
+            <div class="submission-details">
+                <h3>{{ submissions.company_name }}</h3>
+                <p>{{ submissions.address }}</p>
+                <p>{{ submissions.number_of_trucks }} Trucks</p>
+                <p>{{submissions.user_id}} </p>
+
+                <ul>
+                    {% for file in submissions.files %}
+                    <li><a href="{{ file }}" target="_blank">{{ file }}</a></li>
+                    {% endfor %}
+                </ul>
+                
+
+                <div id="rejection-reason-container" style="display: none;">
+                    <label for="rejection-reason">Reason for Rejection (if applicable):</label>
+                    <textarea id="rejection-reason" rows="4" cols="50"></textarea>
+                </div>
+                <div class="decision-buttons">
+                    <button class="accept" onclick="submitSubmission(true, '{{ submissions.user_id }}', '{{ submissions.company_name }}')">Accept</button>
+                    <button class="decline" onclick="handleReject('{{ submissions.user_id }}', '{{ submissions.company_name }}')">Reject</button>
+
+                </div>
+                
+                
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button>&lt;</button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>&gt;</button>
+            </div>
+
+            <!-- Done and Back Buttons -->
+            <div class="action-buttons">
+                <button class="done">Done</button>
+                <button class="back">Back</button>
+            </div>
+        </div>
+    </div>
+    <script>
+function generateSubmissionId() {
+            return 'submission_' + Date.now();  
+        }
+
+function showRejectionReason() {
+    var rejectionReasonContainer = document.getElementById("rejection-reason-container");
+    rejectionReasonContainer.style.display = "block";
+    }
+
+function handleReject(userId, companyName) {
+    // Show the rejection reason input field
+    showRejectionReason();
+
+    // Check if the rejection reason is provided
+    var rejectionReason = document.getElementById('rejection-reason').value;
+
+    // If no rejection reason is provided, alert the user and don't proceed with submission
+    if (!rejectionReason) {
+        alert("Please provide a reason for rejection before submitting.");
+        return;
+    }
+
+    // If a rejection reason is provided, proceed with submitting the form
+    submitSubmission(false, userId, companyName);
+}
+
+function submitSubmission(isAccepted,userId, companyName) {
+    // Get rejection reason
+    const rejectionReason = document.getElementById('rejection-reason').value;
+    
+    // Fetch user metadata
+    fetch('/get_user_metadata')
+        .then(response => response.json())
+        .then(metadata => {
+            // Prepare the event data
+            const eventData = {
+                event_name: isAccepted ? 'Submission_Accepted' : 'Submission_Rejected',
+                ip_address: metadata.ip_address,
+                timestamp: new Date().toISOString(),
+                user_agent: navigator.userAgent,
+                current_section: 'submission', 
+                form_data: {
+                    user_id: userId,
+                    company_name: companyName,
+                    submission_id: generateSubmissionId(),
+                    rejection_reason: isAccepted ? null : rejectionReason 
+                }
+            };
+
+            // Check if a reason is required and missing
+            if (!isAccepted && !rejectionReason) {
+                alert("Please provide a reason for rejection.");
+                return;
+            }
+
+            // Debug: Log the event data to the console
+            console.log("Event Data to be sent:", eventData);
+
+            // Send the data to the Flask backend
+            sendEvent(eventData);
+        })
+        .catch(error => {
+            console.error("Error fetching user metadata:", error);
+        });
+}
+
+function sendEvent(eventData) {
+    // Send the event data to the Flask backend via POST request
+    fetch('/user_submission', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Response from Flask:", data);
+        alert("Submission successful!");
+    })
+    .catch(error => {
+        console.error("Error sending event:", error);
+        alert("Failed to submit event. Please try again.");
+    });
+}
+function removeSubmissionFromPage(userId) {
+            // Locate and remove the submission element from the page
+            const submissionElement = document.getElementById('submission-' + userId);
+            if (submissionElement) {
+                submissionElement.remove();
+            }
+        }
+        </script>
+</html>
