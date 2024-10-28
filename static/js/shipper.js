@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         document.getElementById("confirm_password").classList.remove('error');
                         console.log("Passwords match.");
                         // Redirect to the desired URL upon successful validation
-                        window.location.href = '/shipper-package';
+                        window.location.href = '/wait';
                     }
                 }
             }

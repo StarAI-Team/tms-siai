@@ -11,7 +11,7 @@ def create_connection():
     )
     return conn
 
-def view_all_tables():
+def view_all_tables_with_data():
     conn = create_connection()
     cur = conn.cursor()
 
@@ -25,37 +25,27 @@ def view_all_tables():
     cur.execute(query)
     tables = cur.fetchall()
 
-    # Print the table names
+    # Print the table names and their data
     print("Tables in the database:")
     for table in tables:
-        print(table[0])  # table[0] contains the table name
+        table_name = table[0]
+        print(f"\nTable: {table_name}")
+        
+        # Query to get the first 5 rows of data from each table
+        data_query = f"SELECT * FROM {table_name} LIMIT 5;"
+        cur.execute(data_query)
+        rows = cur.fetchall()
+
+        # Print column names
+        colnames = [desc[0] for desc in cur.description]
+        print("Columns:", colnames)
+
+        # Print each row in the table
+        for row in rows:
+            print(row)
 
     cur.close()
     conn.close()
 
-
-# Call the function to view all tables
-view_all_tables()
-
-def view_table_columns(table_name):
-    conn = create_connection()
-    cur = conn.cursor()
-
-    # SQL query to get all columns for the specified table
-    query = """
-    SELECT column_name, data_type
-    FROM information_schema.columns
-    WHERE table_name = %s;
-    """
-    
-    cur.execute(query, (table_name,))
-    columns = cur.fetchall()
-
-    # Print the column names and their data types
-    print(f"Columns in the table '{table_name}':")
-    for column in columns:
-        print(f"Column: {column[0]}, Data Type: {column[1]}")
-
-    cur.close()
-    conn.close()
-
+# Call the function to view all tables and their data
+view_all_tables_with_data()

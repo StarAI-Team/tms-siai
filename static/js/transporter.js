@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         } else {
                             document.getElementById("confirm_password").classList.remove('error');
                             // Redirect to the desired URL upon successful validation
-                            window.location.href = '/transporter-package';
+                            window.location.href = '/wait';
                         }
                     }
                 }

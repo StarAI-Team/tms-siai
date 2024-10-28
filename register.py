@@ -17,7 +17,9 @@ app = Flask(__name__)
 app.secret_key = '025896314785368236'
 CORS(app) 
 logging.basicConfig(level=logging.DEBUG)
+
 app.secret_key = os.urandom(24) 
+
 # Configuration
 app.config['UPLOAD_FOLDER'] = 'uploads'  # Folder where files will be saved
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit the max size to 16MB
@@ -32,40 +34,6 @@ users = {
     "user1": "password1",
     "user2": "password2"
 }
-
-""" 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    print("Upload route called")  # Debugging statement to indicate the upload route is accessed
-
-    if 'file' not in request.files:
-        print("No file part in the request")  # Debugging statement for missing file
-        return "No file part", 400
-
-    file = request.files['file']
-    if file.filename == '':
-        print("No selected file")  # Debugging statement for no file selected
-        return "No selected file", 400
-
-    print(f"File received: {file.filename}")  # Debugging statement for the file received
-
-    # Prepare to send the file to the second Flask app (MinIO handler)
-    files = {'file': (file.filename, file.stream, file.mimetype)}
-    print(f"Preparing to send file to MinIO: {files}")  # Debugging statement before sending
-
-    try:
-        response = requests.post('http://localhost:6000/upload-file', files=files)
-        print(f"Response from MinIO: Status Code - {response.status_code}, Response Text - {response.text}")  # Debugging response from MinIO
-
-        if response.status_code == 200:
-            print("File uploaded successfully")  # Debugging statement for successful upload
-            return f"File uploaded successfully. File stored at: {response.text}"
-        else:
-            print(f"Failed to upload file. Error: {response.text}")  # Debugging statement for failed upload
-            return f"Failed to upload file. Error: {response.text}", response.status_code
-    except Exception as e:
-        print(f"Exception occurred while uploading file: {str(e)}")  # Debugging statement for exception handling
-        return "Internal server error", 500 """
 
 @app.route('/get_user_metadata', methods=['GET'])
 def get_user_metadata():
@@ -220,25 +188,9 @@ def register_transporter():
     return jsonify({"message": "Data submitted successfully"}), 200
 
 
-
-""" @app.route('/upload', methods=['POST'])
-def upload_file():
-    print("Upload route called")
-
-    if 'file' not in request.files:
-        return "No file part", 400
-
-    file = request.files['file']
-    if file.filename == '':
-        return "No selected file", 400
-
-    try:
-        response = requests.post('http://localhost:6000/upload-file', files={'file': (file.filename, file.stream, file.mimetype)})
-        return f"File uploaded successfully. File stored at: {response.text}" if response.status_code == 200 else f"Failed to upload file. Error: {response.text}", response.status_code
-    except Exception as e:
-        return f"Exception occurred while uploading file: {str(e)}", 500 """
-
-
+@app.route('/wait')
+def wait():
+    return render_template('wait.html')
 
 #BID SECTION
 
