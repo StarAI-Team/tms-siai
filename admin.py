@@ -38,102 +38,148 @@ def create_connection():
 def home():
     conn = create_connection()
     with conn.cursor() as cur:
-        query = """
-                    SELECT 
-                            t.user_id,
-                            t.company_name,
-                            t.company_location AS address,
-                            tf.number_of_trucks,
-                            json_agg(file) AS files
-                        FROM 
-                            transporter t
-                        JOIN 
-                            transporter_fleet tf ON t.user_id = tf.user_id
-                        JOIN (
-                            SELECT 
-                                user_id,
-                                json_build_object('file', certificate_of_incorporation) AS file
-                            FROM 
-                                transporter_documentation
-                            UNION ALL
-                            SELECT 
-                                user_id,
-                                json_build_object('file', operators_licence) AS file
-                            FROM 
-                                transporter_documentation
-                            UNION ALL
-                            SELECT 
-                                user_id,
-                                json_build_object('file', permits) AS file
-                            FROM 
-                                transporter_documentation
-                            UNION ALL
-                            SELECT 
-                                user_id,
-                                json_build_object('file', tax_clearance) AS file
-                            FROM 
-                                transporter_documentation
-                        ) AS td ON t.user_id = td.user_id
-                        GROUP BY 
-                            t.user_id, t.company_name, t.company_location, tf.number_of_trucks;
-                """
+        # Query to fetch transporter data
+        transporter_query = """
+            SELECT 
+                t.user_id,
+                t.company_name,
+                t.company_location AS address,
+                tf.number_of_trucks,
+                json_agg(file) AS files
+            FROM 
+                transporter t
+            JOIN 
+                transporter_fleet tf ON t.user_id = tf.user_id
+            JOIN (
+                SELECT 
+                    user_id,
+                    json_build_object('file', certificate_of_incorporation) AS file
+                FROM 
+                    transporter_documentation
+                UNION ALL
+                SELECT 
+                    user_id,
+                    json_build_object('file', operators_licence) AS file
+                FROM 
+                    transporter_documentation
+                UNION ALL
+                SELECT 
+                    user_id,
+                    json_build_object('file', permits) AS file
+                FROM 
+                    transporter_documentation
+                UNION ALL
+                SELECT 
+                    user_id,
+                    json_build_object('file', tax_clearance) AS file
+                FROM 
+                    transporter_documentation
+            ) AS td ON t.user_id = td.user_id
+            GROUP BY 
+                t.user_id, t.company_name, t.company_location, tf.number_of_trucks;
+        """
 
-        # Execute the insert with all values
-        cur.execute(query)
+        # Execute the transporter query
+        cur.execute(transporter_query)
 
         # Fetch all results
         results = cur.fetchall()
-
         print("RESULT FROM POSTGRE", results)
 
-    # Format the results into a list of dictionaries
-    data = []
-    for row in results:
-        company_info = {
-            'user_id':row[0],
-            'company_name': row[1],
-            'address': row[2],
-            'number_of_trucks': row[3],
-            'files': [file['file'] for file in row[4]]
-        }
-        data.append(company_info)
+        # Format the results into a list of dictionaries
+        data = []
+        for row in results:
+            company_info = {
+                'user_id': row[0],
+                'company_name': row[1],
+                'address': row[2],
+                'number_of_trucks': row[3],
+                'files': [file['file'] for file in row[4]]
+            }
+            data.append(company_info)
 
-    # Print the results before modification
-    print("Before modification:", data[0])
+        # Replace 'minio' with 'localhost' in the dictionary
+        for record in data:
+            # Replace the values in the record dictionary
+            for key in record:
+                if isinstance(record[key], str):
+                    record[key] = record[key].replace('minio', 'localhost')
 
-    # Replace 'minio' with 'localhost' in the dictionary
-    for record in data:
-        # Replace the values in the record dictionary
-        for key in record:
-            if isinstance(record[key], str):
-                record[key] = record[key].replace('minio', 'localhost')
-        
-        # Update the 'files' list specifically in the dictionary
-        record['files'] = [url.replace('minio', 'localhost') for url in record['files']]
+            # Update the 'files' list specifically in the dictionary
+            record['files'] = [url.replace('minio', 'localhost') for url in record['files']]
 
-    # Print the results after modification
-    print("After modification:", data[0])
+        # Query to fetch shipper data
+        shipper_query = """
+            SELECT 
+                s.user_id,
+                s.company_name,
+                s.company_location AS address,
+                json_agg(file) AS files
+            FROM 
+                shipper s
+            LEFT JOIN (
+                SELECT 
+                    user_id,
+                    json_build_object('file', certificate_of_incorporation) AS file
+                FROM 
+                    shipper_documentation
+                UNION ALL
+                SELECT 
+                    user_id,
+                    json_build_object('file', tax_clearance) AS file
+                FROM 
+                    shipper_documentation
+            ) AS td ON s.user_id = td.user_id  -- Fixed this line
+            GROUP BY 
+                s.user_id, s.company_name, s.company_location;
+        """
 
-    # Store the modified data in submission
-    submissions = data
+        # Execute the shipper query
+        cur.execute(shipper_query)
 
-    print(f">>>> {submissions}")
+        # Fetch all results for shippers
+        shipper_results = cur.fetchall()
+        print("RESULT FROM POSTGRE (Shippers)", shipper_results)
+
+        # Format the results into a list of dictionaries
+        shipper_data = []
+        for row in shipper_results:
+            company_info = {
+                'user_id': row[0],
+                'company_name': row[1],
+                'address': row[2],
+                'files': [file['file'] for file in row[3]]  # Fixed index here
+            }
+            shipper_data.append(company_info)
+
+        # Replace 'minio' with 'localhost' in the dictionary for shippers
+        for record in shipper_data:
+            for key in record:
+                if isinstance(record[key], str):
+                    record[key] = record[key].replace('minio', 'localhost')
+
+            record['files'] = [url.replace('minio', 'localhost') for url in record['files']]
+
+    # Combine both transporter and shipper data for submission
+    submissions = {
+        'transporters': data,
+        'shippers': shipper_data
+    }
+
+    print(f">>>> Submissions: {submissions}")
+
     # Clean up
-    cur.close()
     conn.close()
-
 
     user_details = {
         'name': 'John Doe',
         'load_history': '10 completed loads',
         'ranking': 5
     }
-    
+
     # Passing placeholder data to Jinja templates
-    return render_template('admin.html', user_details=user_details,
-        submissions=data,  
-        )
-        
+    return render_template('admin.html', user_details=user_details, submissions=submissions)
+
 
 # API Route to handle user actions
 @app.route('/suspend/<username>', methods=['POST'])

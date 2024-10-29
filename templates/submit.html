@@ -57,8 +57,8 @@
 
             <!-- Done and Back Buttons -->
             <div class="action-buttons">
-                <button class="done">Done</button>
-                <button class="back">Back</button>
+                <button class="done" onclick="clearEntry()">Done</button>
+                <button class="back" onclick="goBack()">Back</button>
             </div>
         </div>
     </div>
@@ -148,5 +148,16 @@ function sendEvent(eventData) {
         alert("Failed to submit event. Please try again.");
     });
 }
-        </script>
+
+ // Function to navigate back to the previous page
+ function goBack() {
+            window.history.back();
+}
+// Function to clear form entries
+function clearEntry() {
+            document.getElementById('rejection-reason').value = ''; 
+            alert("All entries have been cleared.");
+}
+
+    </script>
 </html>

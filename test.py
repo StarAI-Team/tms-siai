@@ -726,7 +726,10 @@ def view_history():
 
 @app.route('/transporter_dashboard')
 def transporter_dashboard():
-    return render_template('transporterdashboard.html')
+     if 'client_id' in session:
+        return render_template('transporterdashboard.html')
+     else:
+        return redirect(url_for('index'))
 
 
 #LOAD SECTION 
@@ -741,12 +744,31 @@ def login():
     password = request.json.get('password')
     role = request.json.get('role')
 
-    if username in users and users[username] == password:
-        session['client_id'] = username  # Use the username as the client ID
-        session['session_id'] = str(uuid.uuid4())  # Generate a session ID
-        return jsonify({"message": "Login successful"}), 200  # Return success message in JSON
-    else:
-        return jsonify({"message": "Login failed. Please check your credentials and try again."}), 401  # Return JSON error
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Check in shipper_profile table
+        cursor.execute("SELECT user_id, password FROM shipper_profile WHERE user_id = %s", (username,))
+        shipper = cursor.fetchone()
+
+        # Check in transporter_profile table
+        cursor.execute("SELECT user_id, password FROM transporter_profile WHERE user_id = %s", (username,))
+        transporter = cursor.fetchone()
+
+        # Validate credentials
+        if shipper and shipper[1] == password and role == "shipper":
+            session['client_id'] = username  
+            session['session_id'] = str(uuid.uuid4())  
+            return jsonify({"message": "Login successful"}), 200  
+        elif transporter and transporter[1] == password and role == "transporter":
+            session['client_id'] = username   
+            return jsonify({"message": "Login successful"}), 200  
+        else:
+            return jsonify({"message": "Login failed. Please check your credentials and try again."}), 401  
+    finally:
+        cursor.close()
+        conn.close()
     
 @app.route('/shipper-dashboard')
 def shipper_dashboard():
