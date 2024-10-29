@@ -30,7 +30,7 @@ body {
     width: 220px;
     background-color: #f2f2f2;
     padding: 20px;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid #bfc0c0;
     flex-shrink: 0;
     height: 100vh;
     overflow-y: auto; 
@@ -69,17 +69,17 @@ body {
 }
 
 .content-section {
-    display: none; /* Keep this for non-active sections */
+    display: none;
     padding: 20px;
     background-color: white;
     border-radius: 8px;
     width: 100%;
-    height: auto; /* Allow for flexible content height */
+    height: auto; 
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .content-section.active {
-    display: block; /* Show active section */
+    display: block; 
 }
 
 .content-section.active {
@@ -103,7 +103,7 @@ table {
 table th, table td {
     padding: 12px 8px;
     text-align: left;
-    border: 1px solid #ddd;
+    border: 1px solid #bab8b8;
 }
 
 thead {

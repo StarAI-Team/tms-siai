@@ -142,20 +142,33 @@
        </div>
 
        <!-- Submissions Section -->
-       <div id="submissions" class="content-section" style="display: none;">
-           <h2>Submissions</h2>
-           <div class="submission-details">
-            <ul>
-                {% for submission in submissions %}
-                <li>
-                    <!-- Create a clickable link for each company name -->
-                    <a href="{{ url_for('submissions', company_name=submission['company_name'], address=submission['address'], number_of_trucks=submission['number_of_trucks'], files=submission['files']) }}">
-                        {{ submission.company_name }}
-                    </a>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+<div id="submissions" class="content-section" style="display: none;">
+    <h2>Submissions</h2>
+    <div class="submission-details">
+        <h3>Transporters</h3>
+        <ul>
+            {% for submission in submissions['transporters'] %}
+            <li>
+                <a href="{{ url_for('submissions', company_name=submission['company_name'], address=submission['address'], number_of_trucks=submission['number_of_trucks'], files=submission['files']) }}">
+                    {{ submission.company_name }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        
+        <h3>Shippers</h3>
+        <ul>
+            {% for submission in submissions['shippers'] %}
+            <li>
+                <a href="{{ url_for('submissions', company_name=submission['company_name'], address=submission['address'], files=submission['files']) }}">
+                    {{ submission.company_name }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
 
            <div class="pagination">
                <button>&lt;</button>
