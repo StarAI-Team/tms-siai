@@ -34,11 +34,6 @@ def create_connection():
     )
     return conn
 
-users = {
-    "user1": "password1",
-    "user2": "password2"
-}
-
 @app.route('/get_user_metadata', methods=['GET'])
 def get_user_metadata():
     if 'user_id' not in session:
@@ -494,7 +489,7 @@ def trucks():
                 license_number, 
                 phone_number 
             FROM 
-                booked_trucks;  -- Change this to your actual table name
+                booked_trucks;  
         """
         cur.execute(query)
         results = cur.fetchall()
@@ -616,11 +611,11 @@ def truck_action():
 
 #load_pool
 def fetch_loads_data():
-    loads_data = []
+    load_pool = []
     conn = create_connection()
     with conn.cursor() as cur:
         query = """
-            SELECT load_id, route, transport_date, rate, load_type FROM loads;  -- Change this to your actual loads table name
+            SELECT load_id, route, transport_date, rate, load_type FROM loads;  
         """
         cur.execute(query)
         results = cur.fetchall()
@@ -634,19 +629,19 @@ def fetch_loads_data():
             'rate': row[3],
             'load_type': row[4]
         }
-        loads_data.append(load_info)
+        load_pool.append(load_info)
     
-    return loads_data
+    return load_pool
 
 @app.route('/load-pool')
 def loadpool():
-    loads_data = fetch_loads_data() 
-    return render_template('loadpool.html', loads=loads_data)
+    load_pool = fetch_loads_data() 
+    return render_template('loadpool.html', loads=load_pool)
 
 @app.route('/api/loads')
 def get_loads():
-    loads_data = fetch_loads_data()  
-    return jsonify(loads_data)
+    load_pool = fetch_loads_data()  
+    return jsonify(load_pool)
 
 @app.route('/documents')
 def view_documents():
@@ -655,7 +650,7 @@ def view_documents():
     conn = create_connection()
     with conn.cursor() as cur:
         query = """
-            SELECT title, file_name, file_url FROM documents;  -- Change this to your actual documents table name
+            SELECT title, file_name, file_url FROM documents;  
         """
         cur.execute(query)
         results = cur.fetchall()
@@ -706,7 +701,7 @@ def view_history():
     conn = create_connection()
     with conn.cursor() as cur:
         query = """
-            SELECT load_id, origin, destination, transport_date, status FROM load_history;  -- Change this to your actual load history table name
+            SELECT load_id, origin, destination, transport_date, status FROM load_history;  
         """
         cur.execute(query)
         results = cur.fetchall()
