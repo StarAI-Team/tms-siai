@@ -735,7 +735,7 @@ def sign_in():
 
 @app.route('/login', methods=['POST'])
 def login():
-    username = request.json.get('username')  # Use request.json since you're sending JSON
+    email = request.json.get('email')  # Using email as the identifier
     password = request.json.get('password')
     role = request.json.get('role')
 
@@ -743,27 +743,43 @@ def login():
     cursor = conn.cursor()
 
     try:
-        # Check in shipper_profile table
-        cursor.execute("SELECT user_id, password FROM shipper_profile WHERE user_id = %s", (username,))
-        shipper = cursor.fetchone()
+        if role == "shipper":
+            # Join shipper_profile and shipper to match company_username and password
+            cursor.execute("""
+                SELECT s.company_username, sp.password
+                FROM shipper s
+                JOIN shipper_profile sp ON s.user_id = sp.user_id
+                WHERE s.company_username = %s
+            """, (email,))
+            shipper = cursor.fetchone()
 
-        # Check in transporter_profile table
-        cursor.execute("SELECT user_id, password FROM transporter_profile WHERE user_id = %s", (username,))
-        transporter = cursor.fetchone()
+            if shipper and shipper[1] == password:
+                session['client_id'] = email  # Use email as the client ID
+                session['session_id'] = str(uuid.uuid4())  # Generate a session ID
+                return jsonify({"message": "Login successful", "role": "shipper"}), 200  # Return success message in JSON
 
-        # Validate credentials
-        if shipper and shipper[1] == password and role == "shipper":
-            session['client_id'] = username  
-            session['session_id'] = str(uuid.uuid4())  
-            return jsonify({"message": "Login successful"}), 200  
-        elif transporter and transporter[1] == password and role == "transporter":
-            session['client_id'] = username   
-            return jsonify({"message": "Login successful"}), 200  
-        else:
-            return jsonify({"message": "Login failed. Please check your credentials and try again."}), 401  
+        elif role == "transporter":
+            # Join transporter_profile and transporter to match company_email and password
+            cursor.execute("""
+                SELECT t.company_email, tp.password
+                FROM transporter t
+                JOIN transporter_profile tp ON t.user_id = tp.user_id
+                WHERE t.company_email = %s
+            """, (email,))
+            transporter = cursor.fetchone()
+
+            if transporter and transporter[1] == password:
+                session['client_id'] = email  # Use email as the client ID
+                session['session_id'] = str(uuid.uuid4())  # Generate a session ID
+                return jsonify({"message": "Login successful", "role": "transporter"}), 200  # Return success message in JSON
+
+        # If no match was found, return a login failure message
+        return jsonify({"message": "Login failed. Please check your credentials and try again."}), 401
+
     finally:
         cursor.close()
         conn.close()
+
     
 @app.route('/shipper-dashboard')
 def shipper_dashboard():
@@ -1056,24 +1072,29 @@ def get_trip():
 def private_load():
     return  render_template('privateload.html')
 
-# Sample user database
-users_db = {
-    "john.doe@example.com": {
-        "name": "Lee Doe",
-        "password": generate_password_hash("password123"),
-        "email": "john.doe@example.com",
-        "phone": "+123456789",
-        "address": "123 Main Street, City, Country",
-        "profile_picture": "user-profile.jpg",
-        "email_notifications": "enabled",
-        "sms_notifications": "enabled",
-        "profile_visibility": "public",
-        "share_data": "no",
-    }
-}
 
+# Function to get user by email from the database
 def get_user_by_email(email):
-    return users_db.get(email)
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Shippers WHERE email = %s", (email,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    if user:
+        return {
+            "name": user[1],  # Adjust based on your users table structure
+            "password": user[2],
+            "email": user[3],
+            "phone": user[4],
+            "address": user[5],
+            "profile_picture": user[6],
+            "email_notifications": user[7],
+            "sms_notifications": user[8],
+            "profile_visibility": user[9],
+            "share_data": user[10],
+        }
+    return None
 
 # Set up the upload folder (not used for MinIO, but keeping it for other potential uses)
 UPLOAD_FOLDER = 'static/uploads/'
