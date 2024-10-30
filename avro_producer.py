@@ -189,8 +189,11 @@ def process_user():
         if not user_data:
             return jsonify({"error": "No data received"}), 400
         
-        # Generate a unique ID if not provided in the JSON
-        #user_data['user_id'] = 1
+       # Ensure 'user_id' exists and isn't inadvertently overwritten
+        if 'user_id' not in user_data or not user_data['user_id']:
+            return jsonify({"error": "Missing or invalid 'user_id'"}), 400
+        #user_data['user_id'] = f"{user_data.get('company_name', 'default')}-{uuid4()}"
+        
         user_id = user_data['user_id']
 
         # if field is a file, store in file server and sned url to kafka instead
