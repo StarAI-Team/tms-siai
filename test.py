@@ -55,12 +55,20 @@ def create_user_session(user_id, ip_address):
 # Route to get user metadata
 @app.route('/get_user_metadata', methods=['GET'])
 def get_user_metadata():
-    company_name = session.get('company_name')
+    company_name = request.args.get('company_name')
+    print(company_name)
+
+    if not company_name:
+        return jsonify({"error": "Company name is required"}), 400
+    
     if 'user_id' not in session:
         # Generate a user_id combining company_name with a unique hash
         unique_string = f"{company_name}-{uuid.uuid4()}"
-        user_id = hashlib.sha256(unique_string.encode()).hexdigest()
+        hashed_part = hashlib.sha256(unique_string.encode()).hexdigest()
         
+        # Combine the company name, UUID, and the hash for the final user_id
+        user_id = f"{company_name}-{uuid.uuid4()}-{hashed_part}"
+    
         # Store user_id and ip_address in the session
         session['user_id'] = user_id
         ip_address = request.remote_addr
@@ -88,6 +96,9 @@ def register():
     return render_template('register.html')
 
 
+@app.route('/wait')
+def wait():
+    return render_template('wait.html')
 
 #TRANSPORT SECTION
 
