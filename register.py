@@ -40,8 +40,13 @@ def get_user_metadata():
     if 'user_id' not in session:
         user_id = str(uuid.uuid4()) 
         session['user_id'] = user_id
+        logging.debug(f"Generated new user_id: {user_id}")
+        print ("Generated new user_id:", user_id)
+
     else:
-        user_id = session['user_id'] 
+        user_id = session['user_id']
+        logging.debug(f"Retrieved user_id from session: {user_id}")
+        print ("Retrieved user_id from session:", user_id)
 
     ip_address = request.remote_addr  
     
