@@ -109,11 +109,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
         });
+
+        const companyName = formData.get('company_name');
+
     
         // Fetching user_id and ip_address metadata from the backend
         try {
-            const metadataResponse = await fetch('/get_user_metadata');
-            const metadata = await metadataResponse.json();
+            // Fetch user metadata with company_name as a query parameter
+        const metadataResponse = await fetch(`/get_user_metadata?company_name=${encodeURIComponent(companyName)}`);
+        const metadata = await metadataResponse.json();
     
             // Adding user metadata to FormData
             formData.append('event_name', `shipperRegistration_${section}`);
