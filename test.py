@@ -9,6 +9,8 @@ import base64
 from flask_cors import CORS
 import logging
 import psycopg2
+from datetime import datetime
+import hashlib
 
 
 
@@ -19,39 +21,64 @@ CORS(app)
 logging.basicConfig(level=logging.DEBUG)
 
 app.secret_key = os.urandom(24) 
-
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit the max size to 16MB
 
-# Database connection parameters
 # Initialize PostgreSQL connection
 def create_connection():
-    conn = psycopg2.connect(
+    return psycopg2.connect(
         dbname=os.environ.get('POSTGRES_DB'),
         user=os.environ.get('POSTGRES_USER'),
         password=os.environ.get('POSTGRES_PASSWORD'),
         host='localhost',
         port='5432'
     )
-    return conn
 
+# Function to create a new session in the database
+def create_user_session(user_id, ip_address):
+    conn = create_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO user_sessions (user_id, ip_address, created_at)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (user_id) DO NOTHING;
+                """,
+                (user_id, ip_address, datetime.now())
+            )
+            conn.commit()
+    except Exception as e:
+        print(f"Error creating user session: {e}")
+    finally:
+        conn.close()
+
+# Route to get user metadata
 @app.route('/get_user_metadata', methods=['GET'])
 def get_user_metadata():
+    company_name = session.get('company_name')
     if 'user_id' not in session:
-        user_id = str(uuid.uuid4()) 
+        # Generate a user_id combining company_name with a unique hash
+        unique_string = f"{company_name}-{uuid.uuid4()}"
+        user_id = hashlib.sha256(unique_string.encode()).hexdigest()
+        
+        # Store user_id and ip_address in the session
         session['user_id'] = user_id
+        ip_address = request.remote_addr
+        
+        # Optionally store the session in the database
+        create_user_session(user_id, ip_address)
     else:
-        user_id = session['user_id'] 
-
-    ip_address = request.remote_addr  
+        # Retrieve user_id and ip_address from the session
+        user_id = session['user_id']
+        ip_address = request.remote_addr
     
+    # Return user metadata
     metadata = {
         'user_id': user_id,
         'ip_address': ip_address
     }
     return jsonify(metadata)
-
-
-
+ 
 @app.route('/')
 def index():
     return render_template('landingpage.html')
@@ -1074,59 +1101,65 @@ def private_load():
 
 
 # Function to get user by email from the database
+# Function to get user by email from the database
 def get_user_by_email(email):
     conn = create_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Shippers WHERE email = %s", (email,))
+    cursor.execute("""
+        SELECT s.company_name, s.company_contact, s.company_location, sp.password, sp.profile_picture
+        FROM shipper s
+        JOIN shipper_profile sp ON s.email = sp.email
+        WHERE s.email = %s
+    """, (email,))
     user = cursor.fetchone()
     cursor.close()
     conn.close()
     if user:
         return {
-            "name": user[1],  # Adjust based on your users table structure
-            "password": user[2],
-            "email": user[3],
-            "phone": user[4],
-            "address": user[5],
-            "profile_picture": user[6],
-            "email_notifications": user[7],
-            "sms_notifications": user[8],
-            "profile_visibility": user[9],
-            "share_data": user[10],
+            "company_name": user[0],
+            "company_contact": user[1],
+            "company_location": user[2],
+            "password": user[3],
+            "profile_picture": user[4],
         }
     return None
 
-# Set up the upload folder (not used for MinIO, but keeping it for other potential uses)
-UPLOAD_FOLDER = 'static/uploads/'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-# Serve the user account page
+# Route to display user account
 @app.route('/account')
 def user_account():
-    email = session.get('email', 'john.doe@example.com')
-    user = users_db.get(email)
+    email = session.get('email')
+    if not email:
+        return redirect(url_for('login'))  # Redirect to login if not logged in
+    
+    user = get_user_by_email(email)
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for('login'))
+    
     return render_template('account.html', user=user)
+
+
 
 # Route to update profile information
 @app.route('/update-profile', methods=['POST'])
 def update_profile():
-    email = session.get('email', 'john.doe@example.com')
-    user = users_db.get(email)
+    email = session.get('email')
+    user = get_user_by_email(email)
     
-    if request.method == 'POST':
-        name = request.form['name']
-        phone = request.form['phone']
-        address = request.form['address']
-        profile_picture = request.files.get('profile_picture')  # Use .get to avoid KeyError
+    if request.method == 'POST' and user:
+        company_name = request.form['company_name']
+        company_contact = request.form['company_contact']
+        company_location = request.form['company_location']
+        profile_picture = request.files.get('profile_picture')
 
-        # Save profile picture to MinIO 
+        # Update profile picture to MinIO
         if profile_picture and profile_picture.filename:
             try:
                 files = {'file': (profile_picture.filename, profile_picture.stream, profile_picture.mimetype)}
                 response = requests.post('http://localhost:6000/upload-file', files=files)
                 
                 if response.status_code == 200:
-                    user['profile_picture'] = response.text  # Get the file URI from MinIO response
+                    profile_picture_uri = response.text  # URI from MinIO response
                 else:
                     flash(f"Failed to upload profile picture: {response.text}", "error")
                     return redirect(url_for('user_account'))
@@ -1134,10 +1167,27 @@ def update_profile():
                 flash(f"Error uploading profile picture: {str(e)}", "error")
                 return redirect(url_for('user_account'))
 
-        # Update other details
-        user['name'] = name
-        user['phone'] = phone
-        user['address'] = address
+        # Update user data in the database
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE shipper
+            SET company_name = %s, company_contact = %s, company_location = %s
+            WHERE email = %s
+        """, (company_name, company_contact, company_location, email))
+
+        # Update profile picture in shipper_profile table if new one is provided
+        if profile_picture:
+            cursor.execute("""
+                UPDATE shipper_profile
+                SET profile_picture = %s
+                WHERE email = %s
+            """, (profile_picture_uri, email))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
         flash("Profile updated successfully!", "success")
     
     return redirect(url_for('user_account'))
@@ -1145,11 +1195,11 @@ def update_profile():
 # Route to change password
 @app.route('/update-password', methods=['POST'])
 def update_password():
-    email = session.get('email', 'john.doe@example.com')
-    user = users_db.get(email)
+    email = session.get('email')
+    user = get_user_by_email(email)
     
-    if request.method == 'POST':
-        current_password = request.form.get('current_password')  # Use .get() to avoid KeyError
+    if request.method == 'POST' and user:
+        current_password = request.form.get('current_password')
         new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
         
@@ -1162,55 +1212,43 @@ def update_password():
             flash("Current password is incorrect", "error")
             return redirect(url_for('user_account'))
         
-        # Check if new password matches confirm password
         if new_password != confirm_password:
             flash("Passwords do not match", "error")
             return redirect(url_for('user_account'))
         
-        # Update password
-        user['password'] = generate_password_hash(new_password)
+        # Update password in the shipper_profile table
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE shipper_profile SET password = %s WHERE email = %s",
+                       (generate_password_hash(new_password), email))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
         flash("Password updated successfully!", "success")
     
     return redirect(url_for('user_account'))
 
 
-@app.route('/privacy_settings', methods=['POST'])
-def privacy_settings():
-    email = request.form.get('email')  # Get the email from the form (use session in real app)
-    profile_visibility = request.form.get('profile_visibility')
-    share_data = request.form.get('share_data', 'yes')  # Default to 'yes'
-
-    # Get the user by email
-    user = get_user_by_email(email)
-
-    if user:
-        # Update the user's privacy settings
-        user['profile_visibility'] = profile_visibility
-        user['share_data'] = share_data
-        flash('Privacy settings updated successfully!')
-    else:
-        flash('User not found.')
-
-    return redirect(url_for('user_account'))
-
-
+# Route to update notification settings
 @app.route('/notification_settings', methods=['POST'])
 def notification_settings():
-    email = request.form.get('email')  # placeholder for user session in real app)
-    email_notifications = request.form.get('email_notifications', 'enabled')  
-    sms_notifications = request.form.get('sms_notifications', 'enabled') 
+    email = session.get('email')
+    email_notifications = request.form.get('email_notifications', 'enabled')
+    sms_notifications = request.form.get('sms_notifications', 'enabled')
 
-    # Get the user by email
-    user = get_user_by_email(email)
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE shipper
+        SET email_notifications = %s, sms_notifications = %s
+        WHERE email = %s
+    """, (email_notifications, sms_notifications, email))
+    conn.commit()
+    cursor.close()
+    conn.close()
 
-    if user:
-        # Update the user's notification settings
-        user['email_notifications'] = email_notifications
-        user['sms_notifications'] = sms_notifications
-        flash('Notification settings updated successfully!')
-    else:
-        flash('User not found.')
-
+    flash("Notification settings updated successfully!", "success")
     return redirect(url_for('user_account'))
 
 
