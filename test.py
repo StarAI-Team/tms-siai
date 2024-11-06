@@ -30,7 +30,7 @@ def create_connection():
         user=os.environ.get('POSTGRES_USER'),
         password=os.environ.get('POSTGRES_PASSWORD'),
         host='localhost',
-        port='5432'
+        port='5433'
     )
 
 # Function to create a new session in the database
@@ -87,8 +87,9 @@ def get_user_metadata():
     }
     return jsonify(metadata)
  
+
 @app.route('/')
-def index():
+def index(): 
     return render_template('landingpage.html')
 
 @app.route('/register')
@@ -775,19 +776,21 @@ def sign_in():
 def login():
     email = request.json.get('email')  # Using email as the identifier
     password = request.json.get('password')
-    role = request.json.get('role')
+    role = request.json.get('role').lower()
+    print("Received data:", role, email, password)
+
 
     conn = create_connection()
     cursor = conn.cursor()
 
     try:
         if role == "shipper":
-            # Join shipper_profile and shipper to match company_username and password
+            # Join shipper_profile and shipper to match company_email and password
             cursor.execute("""
-                SELECT s.company_username, sp.password
+                SELECT s.company_email, sp.password
                 FROM shipper s
                 JOIN shipper_profile sp ON s.user_id = sp.user_id
-                WHERE s.company_username = %s
+                WHERE s.company_email = %s
             """, (email,))
             shipper = cursor.fetchone()
 
@@ -812,6 +815,7 @@ def login():
                 return jsonify({"message": "Login successful", "role": "transporter"}), 200  # Return success message in JSON
 
         # If no match was found, return a login failure message
+        print("Login failed for Email:", email, "Role:", role)
         return jsonify({"message": "Login failed. Please check your credentials and try again."}), 401
 
     finally:
@@ -1017,8 +1021,75 @@ def submit_review():
         print("Error occurred while sending data to processing URL:", e)
         return jsonify({"error": str(e)}), 500
 
+#UPDATES SECTION 
+@app.route('/transporter_updates', methods=['POST'])
+def transporter_updates():
+    if request.method == 'POST':
+        transporter_updates = {}
+        file_data = {}
 
+        # Retrieve user_id from session
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "User session expired or user_id missing"}), 400
+        transporter_updates['user_id'] = user_id
 
+        logging.debug("Initial transporter updates received: %s", transporter_updates)
+        logging.debug("Files in request: %s", request.files)
+
+        # Process form data
+        inputs = request.form  # Contains form data only
+        for key, value in inputs.items():
+            transporter_updates[key] = value 
+
+        # Handle dynamic file fields
+        for field_name, file in request.files.items():
+            # Only process fields that start with "file_"
+            if field_name.startswith("file_"):
+                logging.debug(f"Received file for field '{field_name}': {file.filename if file else 'No file'}")
+                
+                if file and file.filename:
+                    try:
+                        # Upload the file to the external MinIO service or similar
+                        files = {'file': (file.filename, file.stream, file.mimetype)}
+                        logging.debug(f"Uploading file: {file.filename}, MIME type: {file.mimetype}")
+
+                        response = requests.post('http://localhost:6000/upload-file', files=files)
+                        logging.debug(f"Response from MinIO upload for '{field_name}': {response.status_code}, {response.text}")
+
+                        if response.status_code == 200:
+                            # Assuming the external service returns a URL or identifier
+                            file_data[field_name] = response.text
+                            logging.debug(f"Successfully uploaded {field_name}: {file_data[field_name]}")
+                        else:
+                            return jsonify({"error": f"Failed to upload {field_name}: {response.text}"}), response.status_code
+                    except Exception as e:
+                        logging.error("Error uploading %s: %s", field_name, str(e))
+                        return jsonify({"error": f"Error uploading {field_name}: {str(e)}"}), 500
+
+        # Merge form data with file data if files exist
+        transporter_updates.update(file_data)
+        
+        logging.debug("Final transporter updates being sent: %s", transporter_updates)
+
+        # Send the data to the processing Flask application or service
+        PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
+        try:
+            logging.debug("Sending the following data to processing URL: %s", transporter_updates)
+            response = requests.post(
+                PROCESSING_FLASK_URL,
+                json=transporter_updates,
+                headers={'Content-Type': 'application/json'}
+            )
+            response_data = response.json()
+            logging.debug("Response status code: %s", response.status_code)
+            logging.debug("Response data: %s", response_data)
+            return jsonify(response_data), response.status_code
+        except requests.exceptions.RequestException as e:
+            logging.error("Error occurred while sending to processing URL: %s", e)
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify({"message": "Data submitted successfully"}), 200
 
 
 #SECTION TO ACCEPT OFFERS 

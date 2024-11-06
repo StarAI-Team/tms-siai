@@ -57,47 +57,52 @@
 
             <!-- Done and Back Buttons -->
             <div class="action-buttons">
-                <button class="done" onclick="clearEntry()">Done</button>
+                <button id="doneButton" class="done">Done</button>
                 <button class="back" onclick="goBack()">Back</button>
             </div>
         </div>
     </div>
+    <script src="/static/js/admin.js"></script>
     <script>
-function generateSubmissionId() {
-            return 'submission_' + Date.now();  
-        }
 
+document.addEventListener('DOMContentLoaded', function() {
+    sessionStorage.removeItem('lastSubmissionId');
+    // Add event listener for the Done button
+    const doneButton = document.getElementById('doneButton');
+    if (doneButton) {
+        doneButton.addEventListener('click', function() {
+            clearEntry();
+        });
+    }
+});
+
+
+
+// Function to show the rejection reason input field
 function showRejectionReason() {
     var rejectionReasonContainer = document.getElementById("rejection-reason-container");
     rejectionReasonContainer.style.display = "block";
-    }
+}
 
+// Function to handle rejection process
 function handleReject(userId, companyName) {
-    // Show the rejection reason input field
     showRejectionReason();
-
-    // Check if the rejection reason is provided
     var rejectionReason = document.getElementById('rejection-reason').value;
 
-    // If no rejection reason is provided, alert the user and don't proceed with submission
     if (!rejectionReason) {
         alert("Please provide a reason for rejection before submitting.");
         return;
     }
 
-    // If a rejection reason is provided, proceed with submitting the form
     submitSubmission(false, userId, companyName);
 }
 
-function submitSubmission(isAccepted,userId, companyName) {
-    // Get rejection reason
+// Function to submit acceptance or rejection data
+function submitSubmission(isAccepted, userId, companyName) {
     const rejectionReason = document.getElementById('rejection-reason').value;
-    
-    // Fetch user metadata
     fetch('/get_user_metadata')
         .then(response => response.json())
         .then(metadata => {
-            // Prepare the event data
             const eventData = {
                 event_name: isAccepted ? 'Submission_Accepted' : 'Submission_Rejected',
                 ip_address: metadata.ip_address,
@@ -107,21 +112,17 @@ function submitSubmission(isAccepted,userId, companyName) {
                 form_data: {
                     user_id: userId,
                     company_name: companyName,
-                    submission_id: generateSubmissionId(),
+                    submission_id: sessionStorage.getItem('lastSubmissionId'),
                     rejection_reason: isAccepted ? null : rejectionReason 
                 }
             };
 
-            // Check if a reason is required and missing
             if (!isAccepted && !rejectionReason) {
                 alert("Please provide a reason for rejection.");
                 return;
             }
 
-            // Debug: Log the event data to the console
             console.log("Event Data to be sent:", eventData);
-
-            // Send the data to the Flask backend
             sendEvent(eventData);
         })
         .catch(error => {
@@ -129,8 +130,8 @@ function submitSubmission(isAccepted,userId, companyName) {
         });
 }
 
+// Function to send event data to the server
 function sendEvent(eventData) {
-    // Send the event data to the Flask backend via POST request
     fetch('/user_submission', {
         method: 'POST',
         headers: {
@@ -149,15 +150,9 @@ function sendEvent(eventData) {
     });
 }
 
- // Function to navigate back to the previous page
- function goBack() {
-            window.history.back();
+// Function to navigate back to the previous page
+function goBack() {
+    window.history.back();
 }
-// Function to clear form entries
-function clearEntry() {
-            document.getElementById('rejection-reason').value = ''; 
-            alert("All entries have been cleared.");
-}
-
-    </script>
+</script>
 </html>

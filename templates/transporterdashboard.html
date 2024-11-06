@@ -49,14 +49,14 @@
                 </iframe>
                 </div>
         
-            <section class="updates-section">
-                <h2>Updates</h2>
-                <div class="update">Pelcavria Accepted Offer - Description <span>9:41 AM</span></div>
-                <div class="update">Picked Up - Description <span>9:41 AM</span><button>Upload</button></div>
-                <div class="update">In Transit - Description <span>9:41 AM</span></div>
-                <div class="update">Done - Send Documents <span>9:41 AM</span><button>Upload</button></div>
-                <div class="update">Pending Payment <span>9:41 AM</span></div>
-                <div class="update">Completed <span>9:41 AM</span></div>
+                <section class="updates-section">
+                    <h2>Updates</h2>
+                    <div class="update" data-update-type="Pelcravia Accepted Offer">Pelcravia Accepted Offer - Description <span>9:41 AM</span></div>
+                    <div class="update" data-update-type="Picked Up">Picked Up - Description <span>9:41 AM</span><button class="upload-btn">Upload</button></div>
+                    <div class="update" data-update-type="In Transit">In Transit - Description <span>9:41 AM</span></div>
+                    <div class="update" data-update-type="Done">Done - Send Documents <span>9:41 AM</span><button class="upload-btn">Upload</button></div>
+                    <div class="update" data-update-type="Pending Payment">Pending Payment <span>9:41 AM</span></div>
+                    <div class="update" data-update-type="Completed">Completed <span>9:41 AM</span></div>
 
                 <section class="logistics-news-section">
                     <h2>Logistics News</h2>
@@ -140,40 +140,113 @@
         </footer>
     </div>
     <script>
-    let currentIndex = 0;
-    const images = document.querySelectorAll('.carousel-image');
-
-    function changeSlide(direction) {
-        images[currentIndex].classList.remove('active');
-        currentIndex = (currentIndex + direction + images.length) % images.length;
-        images[currentIndex].classList.add('active');
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        images[currentIndex].classList.add('active');
-        const carousel = document.querySelector('.carousel');
-        let isHovered = false;
-        let scrollAnimation;
-
-        setInterval(() => {
-            if (!isHovered) {
-                carousel.scrollBy({
-                    left: carousel.offsetWidth,
-                    behavior: 'smooth'
-                });
-                // If we've scrolled to the end, scroll back to the start
-                if (carousel.scrollLeft + carousel.offsetWidth >= carousel.scrollWidth) {
-                    carousel.scrollTo({ left: 0, behavior: 'smooth' });
+        let currentIndex = 0;
+        const images = document.querySelectorAll('.carousel-image');
+    
+        function changeSlide(direction) {
+            images[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + direction + images.length) % images.length;
+            images[currentIndex].classList.add('active');
+        }
+    
+        document.addEventListener('DOMContentLoaded', () => {
+            images[currentIndex].classList.add('active');
+            const carousel = document.querySelector('.carousel');
+            let isHovered = false;
+    
+            // Automatic scrolling for the carousel
+            setInterval(() => {
+                if (!isHovered) {
+                    carousel.scrollBy({
+                        left: carousel.offsetWidth,
+                        behavior: 'smooth'
+                    });
+                    if (carousel.scrollLeft + carousel.offsetWidth >= carousel.scrollWidth) {
+                        carousel.scrollTo({ left: 0, behavior: 'smooth' });
+                    }
                 }
-            }
-        }, 1000); // Adjusted timing for smoother transition
-
-        carousel.addEventListener('mouseover', stopCarousel);
-        carousel.addEventListener('mouseout', startCarousel);
-
-        // Start the carousel when the page loads
-        startCarousel();
+            }, 3000); // Adjust the interval for your desired timing
+    
+            // Stop/start carousel on hover
+            carousel.addEventListener('mouseover', () => isHovered = true);
+            carousel.addEventListener('mouseout', () => isHovered = false);
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+        // Attach event listeners to "Upload" buttons
+        document.querySelectorAll('.upload-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                console.log("Upload button clicked");
+                const updateType = event.target.closest('.update').dataset.updateType;
+                console.log("Update type:", updateType);
+                handleFileUpload(event, updateType);
+            });
+        });
     });
+
+    async function handleFileUpload(event, updateType) {
+        try {
+            console.log("Fetching user metadata...");
+
+            // Fetch user metadata
+            const metadataResponse = await fetch('/get_metadata');
+            if (!metadataResponse.ok) {
+                throw new Error(`Failed to fetch metadata: ${metadataResponse.status} ${metadataResponse.statusText}`);
+            }
+            const metadata = await metadataResponse.json();
+            console.log("User metadata fetched:", metadata);
+
+            // Create a FormData object to hold the file and metadata
+            const formData = new FormData();
+            formData.append('update_type', updateType);
+            formData.append('user_id', metadata.user_id || ''); 
+            formData.append('ip_address', metadata.ip_address || '');
+            formData.append('timestamp', new Date().toISOString());
+            formData.append('user_agent', navigator.userAgent);
+
+            // File input creation for file selection
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.pdf,.jpg,.jpeg,.png';
+
+            // Handle file selection
+            fileInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    console.log("File selected:", file.name);
+
+                    // Append the file with a dynamic field name
+                    const fieldName = `file_${updateType.toLowerCase().replace(/ /g, '_')}`;
+                    formData.append(fieldName, file);
+
+                    console.log("Sending data to Flask endpoint...");
+                    
+                    // Send data to Flask endpoint
+                    const response = await fetch('/transporter_updates', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Response from server:', result);
+                    } else {
+                        console.error('Error:', response.status, response.statusText);
+                        const errorText = await response.text();
+                        console.log("Server response:", errorText);
+                    }
+                }
+            });
+
+            // Trigger file input click to open file selector
+            console.log("Triggering file input for selection");
+            fileInput.click();
+        } catch (error) {
+            console.error('Error submitting data:', error);
+        }
+    }
+    
+
+
 </script>
 </body>
 </html>
