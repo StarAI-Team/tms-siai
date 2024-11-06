@@ -30,7 +30,7 @@ def create_connection():
         user=os.environ.get('POSTGRES_USER'),
         password=os.environ.get('POSTGRES_PASSWORD'),
         host='localhost',
-        port='5432'
+        port='5433'
     )
     return conn
 
@@ -75,6 +75,8 @@ def home():
                 FROM 
                     transporter_documentation
             ) AS td ON t.user_id = td.user_id
+            WHERE 
+                t.registration_status = 'pending'  
             GROUP BY 
                 t.user_id, t.company_name, t.company_location, tf.number_of_trucks;
         """
@@ -130,6 +132,8 @@ def home():
                 FROM 
                     shipper_documentation
             ) AS td ON s.user_id = td.user_id  -- Fixed this line
+             WHERE 
+                s.registration_status = 'pending'  -- Only fetch shippers with pending status
             GROUP BY 
                 s.user_id, s.company_name, s.company_location;
         """
@@ -148,7 +152,8 @@ def home():
                 'user_id': row[0],
                 'company_name': row[1],
                 'address': row[2],
-                'files': [file['file'] for file in row[3]]  # Fixed index here
+                'files': [file['file'] for file in row[3] if file is not None] if row[3] else []
+ 
             }
             shipper_data.append(company_info)
 
@@ -200,6 +205,7 @@ def activate_user(username):
 @app.route('/submit')
 def submissions():
     # Retrieve the data from the query parameters
+    user_id = request.args.get('user_id')
     company_name = request.args.get('company_name')
     address = request.args.get('address')
     number_of_trucks = request.args.get('number_of_trucks')
@@ -207,6 +213,7 @@ def submissions():
 
     # Prepare the submission object
     submissions = {
+        'user_id': user_id,
         'company_name': company_name,
         'address': address,
         'number_of_trucks': number_of_trucks,

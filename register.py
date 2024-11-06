@@ -12,7 +12,6 @@ import logging
 
 
 
-
 app = Flask(__name__)
 app.secret_key = '025896314785368236'
 CORS(app) 
@@ -21,12 +20,7 @@ logging.basicConfig(level=logging.DEBUG)
 app.secret_key = os.urandom(24) 
 
 # Configuration
-app.config['UPLOAD_FOLDER'] = 'uploads'  # Folder where files will be saved
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit the max size to 16MB
-
-# Ensure the upload folder exists
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 
 
@@ -34,6 +28,7 @@ users = {
     "user1": "password1",
     "user2": "password2"
 }
+
 
 @app.route('/get_user_metadata', methods=['GET'])
 def get_user_metadata():

@@ -6,6 +6,7 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/static/css/alladmin.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="/static/js/admin.js"></script>
 </head>
 <body>
     <div class="container"> 
@@ -148,8 +149,9 @@
         <h3>Transporters</h3>
         <ul>
             {% for submission in submissions['transporters'] %}
-            <li>
-                <a href="{{ url_for('submissions', company_name=submission['company_name'], address=submission['address'], number_of_trucks=submission['number_of_trucks'], files=submission['files']) }}">
+            <li id="submission-{{ loop.index }}">
+                <a href="{{ url_for('submissions', user_id=submissions['user_id'], company_name=submission['company_name'], address=submission['address'], number_of_trucks=submission['number_of_trucks'], files=submission['files']) }}"
+                   onclick="storeSubmissionId('{{ loop.index }}')" data-role="submission-link">
                     {{ submission.company_name }}
                 </a>
             </li>
@@ -159,8 +161,9 @@
         <h3>Shippers</h3>
         <ul>
             {% for submission in submissions['shippers'] %}
-            <li>
-                <a href="{{ url_for('submissions', company_name=submission['company_name'], address=submission['address'], files=submission['files']) }}">
+            <li id="submission-{{ loop.index }}">
+                <a href="{{ url_for('submissions', company_name=submission['company_name'], address=submission['address'], files=submission['files']) }}"
+                onclick="storeSubmissionId('{{ loop.index }}');" data-role="submission-link">
                     {{ submission.company_name }}
                 </a>
             </li>

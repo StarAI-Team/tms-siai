@@ -96,12 +96,12 @@
             <h1><span>Login</span></h1>
         </div>
         <form method="POST" action="{{ url_for('login') }}" class="login-form">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            <label for="email">Email</label>
+            <input type="text" id="email" name="email" placeholder="Enter your company email" required>
             <div class="mb-3">
                 <label for="roleSelect" class="form-label">Select Role</label>
                 <select id="roleSelect" class="form-select" required>
-                    <option value="Client">Shipper</option>
+                    <option value="Shipper">Shipper</option>
                     <option value="Transporter">Transporter</option>
                 </select>
             </div>
@@ -142,42 +142,46 @@ document.getElementById('visibility_button1').addEventListener('click', function
             icon.textContent = 'visibility';
         }
     }
-        function handleLogin() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const role = document.getElementById('roleSelect').value;
+    function handleLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const role = document.getElementById('roleSelect').value;
 
-            if (username && password) {
-                fetch('/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        password: password,
-                        role: role
-                    })
+        if (email && password) {
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    role: role
                 })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        return response.json().then(errData => {
-                            throw new Error(errData.message || 'Login failed');
-                        });
-                    }
-                })
-                .then(data => {
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return response.json().then(errData => {
+                        throw new Error(errData.message || 'Login failed');
+                    });
+                }
+            })
+            .then(data => {
+                if (role === 'Shipper') {
                     window.location.href = '/shipper-dashboard';
-                })
-                .catch(error => {
-                    alert(error.message);
-                });
-            } else {
-                alert('Please enter all details.');
-            }
+                } else if (role === 'Transporter') {
+                    window.location.href = '/transporter-dashboard';
+                }
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+        } else {
+            alert('Please enter all details.');
         }
+    }
 
     </script>
 </body>
