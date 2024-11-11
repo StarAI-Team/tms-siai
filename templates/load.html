@@ -13,6 +13,8 @@
         <div class="form-container">
             <h1>Post Load</h1>
             <form id="multiStepForm" action="{{ url_for('post_load') }}" method="POST">
+                <!-- Hidden input to store company_name -->
+                <input type="hidden" id="company_name" name="company_name" value="{{ session['company_name'] | default('') }}">
                 <!-- Section 1 -->
                 <div class="form-step">
                     <input type="text" id="load_name" name="load_name" placeholder="Load Name" required>
