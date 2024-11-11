@@ -831,19 +831,22 @@ def login():
         if role == "shipper":
             # Join shipper_profile and shipper to match company_email and password
             cursor.execute("""
-                SELECT s.company_email, sp.password, company_name
+                SELECT s.company_email, sp.password, s.company_name
                 FROM shipper s
                 JOIN shipper_profile sp ON s.user_id = sp.user_id
                 WHERE s.company_email = %s
             """, (email,))
             shipper = cursor.fetchone()
          
+         
 
             if shipper and shipper[1] == password:
                 session['client_id'] = email  # Use email as the client ID
                 session['session_id'] = str(uuid.uuid4())  # Generate a session ID
                 session['company_name'] = shipper[2]
-                return jsonify({"message": "Login successful", "role": "shipper"}), 200 
+                print('These are the details', email, password,shipper[2])
+                return jsonify({"message": "Login successful", "role": "shipper","company_name": shipper[2]}), 200
+            
             
              
 
@@ -915,9 +918,11 @@ def post_load():
     missing_fields = [field for field in required_fields if field not in load_data]
     if missing_fields:
         return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
+    print("final load data being sent",load_data)
 
     PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
     try:
+        print("Sending the following data to processing URL:", load_data)
         response = requests.post(
             PROCESSING_FLASK_URL,
             json=load_data,
