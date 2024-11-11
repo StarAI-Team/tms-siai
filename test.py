@@ -11,6 +11,7 @@ import logging
 import psycopg2
 from datetime import datetime
 import hashlib
+from datetime import datetime
 
 
 
@@ -19,6 +20,8 @@ app = Flask(__name__)
 app.secret_key = '025896314785368236'
 CORS(app) 
 logging.basicConfig(level=logging.DEBUG)
+app.config['SESSION_TYPE'] = 'filesystem'
+#Session(app)
 
 app.secret_key = os.urandom(24) 
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit the max size to 16MB
@@ -52,10 +55,28 @@ def create_user_session(user_id, ip_address):
     finally:
         conn.close()
 
+def close_user_session(user_id):
+    conn = create_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE user_sessions
+                SET closed_at = %s
+                WHERE user_id = %s AND closed_at IS NULL;
+                """,
+                (datetime.now(), user_id)
+            )
+            conn.commit()
+    except Exception as e:
+        print(f"Error closing user session: {e}")
+    finally:
+        conn.close()
+
 # Route to get user metadata
 @app.route('/get_user_metadata', methods=['GET'])
-def get_user_metadata():
-    company_name = request.args.get('company_name')
+def get_user_metadata_reg():
+    company_name = request.args.get('company_name') or session.get('company_name')
     print(company_name)
 
     if not company_name:
@@ -86,8 +107,9 @@ def get_user_metadata():
         'ip_address': ip_address
     }
     return jsonify(metadata)
- 
 
+ 
+ 
 @app.route('/')
 def index(): 
     return render_template('landingpage.html')
@@ -97,9 +119,28 @@ def register():
     return render_template('register.html')
 
 
-@app.route('/wait')
+@app.route('/wait', methods=['GET'])
 def wait():
-    return render_template('wait.html')
+    user_id = session.get('user_id')
+    print(f"User accessed /wait. User ID: {user_id}")
+
+    if user_id:
+        try:
+            # Close the user session in the database
+            close_user_session(user_id)
+            print(f"User session for user_id {user_id} successfully closed in the database.")
+        except Exception as e:
+            print(f"Error closing user session for user_id {user_id}: {str(e)}")
+            return jsonify({"error": "Failed to close user session"}), 500
+
+        # Clear the session in Flask
+        session.clear()
+        print("Flask session cleared successfully.")
+
+    # Render or redirect to a waiting page or confirmation page
+    return render_template('wait.html')  
+
+
 
 #TRANSPORT SECTION
 
@@ -126,6 +167,7 @@ def register_transporter():
         user_id = session.get('user_id')
     print("Initial transporter data received :", transporter_data)
     print("Files in request:", request.files)
+    
     if not user_id:
         return jsonify({"error": "User session expired or user_id missing"}), 400
 
@@ -427,6 +469,7 @@ def shipper_register():
             if password != confirm_password:
                 return jsonify({"error": "Passwords do not match"}), 400
             else:
+                form_completed = True
                 # Hash the password before storing it
                 shipper_data['form_data']['password'] = generate_password_hash(password)
     
@@ -455,6 +498,7 @@ def shipper_register():
             json=shipper_data,
             headers={'Content-Type': 'application/json'}
         )
+        
         response_data = response.json()
         return jsonify(response_data), response.status_code
     except requests.exceptions.RequestException as e:
@@ -787,22 +831,26 @@ def login():
         if role == "shipper":
             # Join shipper_profile and shipper to match company_email and password
             cursor.execute("""
-                SELECT s.company_email, sp.password
+                SELECT s.company_email, sp.password, company_name
                 FROM shipper s
                 JOIN shipper_profile sp ON s.user_id = sp.user_id
                 WHERE s.company_email = %s
             """, (email,))
             shipper = cursor.fetchone()
+         
 
             if shipper and shipper[1] == password:
                 session['client_id'] = email  # Use email as the client ID
                 session['session_id'] = str(uuid.uuid4())  # Generate a session ID
-                return jsonify({"message": "Login successful", "role": "shipper"}), 200  # Return success message in JSON
+                session['company_name'] = shipper[2]
+                return jsonify({"message": "Login successful", "role": "shipper"}), 200 
+            
+             
 
         elif role == "transporter":
             # Join transporter_profile and transporter to match company_email and password
             cursor.execute("""
-                SELECT t.company_email, tp.password
+                SELECT t.company_email, tp.password, t.company_name
                 FROM transporter t
                 JOIN transporter_profile tp ON t.user_id = tp.user_id
                 WHERE t.company_email = %s
@@ -812,6 +860,7 @@ def login():
             if transporter and transporter[1] == password:
                 session['client_id'] = email  # Use email as the client ID
                 session['session_id'] = str(uuid.uuid4())  # Generate a session ID
+                session['company_name'] = transporter[2]
                 return jsonify({"message": "Login successful", "role": "transporter"}), 200  # Return success message in JSON
 
         # If no match was found, return a login failure message
@@ -906,7 +955,7 @@ def shipper_documents():
     conn = create_connection()
     with conn.cursor() as cur:
         query = """
-            SELECT title, file_name, file_url FROM documents;  -- Change this to your actual documents table name
+            SELECT title, file_name, file_url FROM documents; 
         """
         cur.execute(query)
         results = cur.fetchall()
@@ -1183,7 +1232,6 @@ def private_load():
 
 
 # Function to get user by email from the database
-# Function to get user by email from the database
 def get_user_by_email(email):
     conn = create_connection()
     cursor = conn.cursor()
@@ -1211,7 +1259,7 @@ def get_user_by_email(email):
 def user_account():
     email = session.get('email')
     if not email:
-        return redirect(url_for('login'))  # Redirect to login if not logged in
+        return redirect(url_for('login'))  
     
     user = get_user_by_email(email)
     if not user:
@@ -1335,11 +1383,26 @@ def notification_settings():
 
 
 # Route for logout
-@app.route('/logout')
+@app.route('/logout', methods=['GET'])
 def logout():
+    user_id = session.get('user_id')  # Retrieve the user_id from the session
+    if user_id:
+        try:
+            # Close the user session in the database
+            close_user_session(user_id)
+            print(f"User session for user_id {user_id} successfully closed.")
+        except Exception as e:
+            print(f"Error closing user session for user_id {user_id}: {str(e)}")
+            flash("An error occurred while logging out.", "danger")
+
+    # Clear the session in Flask
     session.clear()
+    print("Flask session cleared successfully.")
+
+    # Flash a success message and redirect to sign-in
     flash("You have been logged out", "success")
-    return redirect(url_for('sign-in'))
+    return redirect(url_for('sign_in'))  # Ensure 'sign_in' is the correct route name
+
         
 
 if __name__ == '__main__':

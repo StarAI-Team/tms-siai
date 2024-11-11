@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     showErrorMessage(`Please fill out the required field: ${input.placeholder}`); 
                 } else {
                     input.classList.remove('error'); 
+                    console.log("Input " + input.name + " is valid.");
                 }
             }
         });
@@ -91,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (input.type === 'file') {
                     // Append files to FormData
                     const files = input.files;
-                    for (let i = 0; i < files.length; i++) {
+                    for (let i = 0; i < files.length;  i++) {
                         formData.append(input.name, files[i]);
                     }
                 } else {
@@ -101,9 +102,17 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
 
+        let companyName = formData.get('company_name');
+
+        if (companyName) {
+            companyName = companyName.replace(/ /g, "_");
+        }
+
+        console.log("Company Name is", companyName);
+
         // Fetching user_id and ip_address metadata from the backend
         try {
-            const metadataResponse = await fetch('/get_user_metadata');
+            const metadataResponse = await fetch(`/get_user_metadata_reg?company_name=${encodeURIComponent(companyName)}`);
             const metadata = await metadataResponse.json();
 
             // Adding user metadata to FormData
