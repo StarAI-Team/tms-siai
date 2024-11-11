@@ -110,7 +110,11 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
 
-        const companyName = formData.get('company_name');
+        let companyName = formData.get('company_name');
+
+        if (companyName) {
+            companyName = companyName.replace(/ /g, "_");
+        }
 
     
         // Fetching user_id and ip_address metadata from the backend
