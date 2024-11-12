@@ -115,9 +115,16 @@ input[type="number"] {
 }
 
 .submit-button:hover {
-    background-color: #FF6347;
+    background-color: red;
 }
 
+.save-btn:hover {
+    background-color: red;
+}
+
+.prev-button:hover {
+    background-color: red;
+}
 .prev-button {
     padding: 15px;
     background-color: rgba(11, 11, 11, 0.7);
@@ -146,6 +153,10 @@ input[type="number"] {
     font-display:auto ;
 
 }
+.next-button:hover {
+    background-color: #FD1A1A;
+}
+
 .save-btn {
     padding: 15px;
     background-color: rgba(11, 11, 11, 0.7);
