@@ -73,7 +73,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify({
+                        ...payload,
+                        user_id: payload.metadata?.user_id || null,
+                        ip_address: payload.metadata?.ip_address || null,
+                        metadata: undefined,
+                    }),
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -116,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Generate unique event name
-        let urlParams = new URLSearchParams(window.location.search);
+        const urlParams = new URLSearchParams(window.location.search);
         const isSave = urlParams.get("action") === "save";
         payload.event_name = `load_submission${isSave ? "_save" : ""}_${sessionId}_${clientId}_${Date.now()}`;
 
@@ -141,7 +146,12 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(payload),
+            body: JSON.stringify({
+                ...payload,
+                user_id: payload.metadata?.user_id || null,
+                ip_address: payload.metadata?.ip_address || null,
+                metadata: undefined,
+            }),
         })
             .then(response => response.json())
             .then(data => {
