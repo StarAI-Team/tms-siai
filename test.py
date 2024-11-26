@@ -891,6 +891,21 @@ def post_load():
     load_data = request.get_json() 
     print(load_data)
    
+   # Extract user_id and ip_address directly from top-level fields
+    user_id = load_data.get("user_id", None)
+    ip_address = load_data.get("ip_address", None)
+    
+
+
+    # Validate user_id and ip_address
+    if not user_id:
+        return jsonify({"error": "'user_id' field is missing or invalid"}), 400
+    if not ip_address:
+        return jsonify({"error": "'ip_address' field is missing or invalid"}), 400
+    
+    print(f"User ID: {user_id}, IP Address: {ip_address}")
+    
+
     event_name = load_data.get("event_name", "")
     current_step = 1
     if "step_2" in event_name:
@@ -904,10 +919,11 @@ def post_load():
 
      # Get the required fields for the current step
     required_fields = required_fields_per_step.get(current_step, [])
-
-    if not load_data:
-        print("No data received from the form.")
-        return jsonify({"error": "No data received"}), 400
+    missing_fields = [field for field in required_fields if field not in load_data or not load_data[field]]
+    
+    if missing_fields:
+        return jsonify({"error": "Missing fields", "fields": missing_fields}), 400
+   
     
     
     # Process transporter data (if any)
@@ -992,66 +1008,133 @@ def shipper_chat():
 
 
 
-# Mock database of transporters for demonstration
-transporters = [
-    {"id": 1, "name": "Cargo Sync", "is_favourite": False, "fleet_size": 10, "rating": 4, "ranking": "premium", "git": "1800", "routes": "Harare-Bulawayo""Mbare-Kwekwe", "reviews": ["Could be better"]},
-    {"id": 2, "name": "FleetJoy", "is_favourite": True, "fleet_size": 5, "rating": 3, "ranking": "standard", "git": "2000", "routes": "Harare-Mutare", "reviews": ["Great service!"]},
-    
-]
+
+def get_transporter_by_user_id(user_id):
+    conn = create_connection()
+    try:
+        with conn.cursor() as cur:
+            query = """
+                SELECT * 
+                FROM transporters
+                WHERE user_id = %s
+            """
+            cur.execute(query, (user_id,))
+            result = cur.fetchone()
+        return result
+    except Exception as e:
+        print(f"Error fetching transporter: {e}")
+        return None
+    finally:
+        conn.close()
 
 @app.route('/view-transporters')
 def view_transporters():
-    return render_template('alltransporters.html', transporters=transporters)
+    conn = create_connection()
+    try:
+        with conn.cursor() as cur:
+            # Define the transporter query
+            transporter_query = """
+                SELECT 
+                    t.user_id,
+                    t.company_name,
+                    t.is_favourite
+                FROM transporter t
+            """
+            # Execute the transporter query
+            cur.execute(transporter_query)
 
-@app.route('/get_transporter_details/<int:transporter_id>')
-def get_transporter_details(transporter_id):
-    transporter = next((t for t in transporters if t['id'] == transporter_id), None)
+            # Fetch all results
+            transporter = cur.fetchall()
+
+            # Log the transporters to the console
+            print("Transporters retrieved from database:")
+            for transporter in transporter:
+                print(transporter)
+
+    except Exception as e:
+        print(f"Error retrieving transporters: {e}")
+        transporter = []
+    finally:
+        conn.close()
+    
+    return render_template('alltransporters.html', transporter=transporter)
+
+@app.route('/get_transporter_details/<int:user_id>')
+def get_transporter_details(user_id):
+    transporter = get_transporter_by_user_id(user_id)
     if transporter:
         return jsonify(transporter)
     return jsonify({'error': 'Transporter not found'}), 404
 
+
 @app.route('/toggle_favourite', methods=['POST'])
 def toggle_favourite():
     data = request.json
-    transporter_id = int(data.get('transporter_id'))  # Ensure transporter_id is an integer
+    user_id = data.get('user_id')
     is_favourite = data.get('is_favourite')
 
-    # Find transporter by ID and update their is_favourite status
-    for transporter in transporters:
-        if transporter['id'] == transporter_id:
-            transporter['is_favourite'] = is_favourite
-            break
+    if user_id is None or is_favourite is None:
+        return jsonify({'error': 'user_id and is_favourite must be provided'}), 400
 
-    return jsonify({'success': True, 'transporter_id': transporter_id, 'new_favourite_status': is_favourite})
+    conn = create_connection()
+    try:
+        with conn.cursor() as cur:
+            query = "UPDATE transporters SET is_favourite = %s WHERE user_id = %s"
+            cur.execute(query, (is_favourite, user_id))
+            conn.commit()
+    except Exception as e:
+        print(f"Error toggling favourite status: {e}")
+        return jsonify({'error': 'Failed to toggle favourite status'}), 500
+    finally:
+        conn.close()
+
+    return jsonify({'success': True, 'user_id': user_id, 'new_favourite_status': is_favourite})
+
 
 @app.route('/submit_review', methods=['POST'])
 def submit_review():
     data = request.json
-    transporter_id = int(data.get('transporter_id'))
+
+    user_id = int(data.get('user_id'))  # Use user_id instead of transporter_id
     review_data = data.get('reviews_text')
     rating = data.get('rating')
-    print("Received data:", data)
+    timestamp = data.get('timestamp', None)  # Optional timestamp
 
-    # Find transporter and add the review
-    transporter_found = False
-    for transporter in transporters:
-        if transporter['id'] == int(transporter_id):
-            # Append the review and rating to the transporter's data
-            transporter['reviews'].append({
-                'review': review_data,
-                'rating': rating,
-                'timestamp': data.get('timestamp', None)  # Optional: timestamp
-            })
-            transporter_found = True
-            break  # Exit the loop once the transporter is found
+    if not review_data or rating is None:
+        return jsonify({"error": "Review text and rating must be provided"}), 400
 
-    if not transporter_found:
-        return jsonify({"error": "Transporter not found"}), 404
+    conn = create_connection()
+    try:
+        with conn.cursor() as cur:
+            # Check if the transporter exists
+            query_check = """
+                SELECT * 
+                FROM transporters
+                WHERE user_id = %s
+            """
+            cur.execute(query_check, (user_id,))
+            transporter = cur.fetchone()
+
+            if not transporter:
+                return jsonify({"error": "Transporter not found"}), 404
+
+            # Insert the review into the reviews table
+            query_insert = """
+                INSERT INTO reviews (user_id, review_text, rating, timestamp)
+                VALUES (%s, %s, %s, %s)
+            """
+            cur.execute(query_insert, (user_id, review_data, rating, timestamp))
+            conn.commit()
+
+        print("Review successfully added to the database")
+
+    except Exception as e:
+        print("Error occurred while submitting review:", e)
+        return jsonify({"error": "Failed to submit review"}), 500
+    finally:
+        conn.close()
 
     # Proceed with sending data to the service on port 6000
-    print("Sending data to port 6000:", {"review": review_data, "rating": rating})
-
-    # Send the data to the processing Flask application or service
     PROCESSING_FLASK_URL = 'http://localhost:6000/process_user'
     try:
         response = requests.post(
@@ -1059,8 +1142,8 @@ def submit_review():
             json={
                 "review": review_data,
                 "rating": rating,
-                "transporter_id": transporter_id,
-                "timestamp": data.get('timestamp', None)
+                "user_id": user_id,  # Send user_id instead of transporter_id
+                "timestamp": timestamp
             },
             headers={'Content-Type': 'application/json'}
         )
@@ -1069,11 +1152,12 @@ def submit_review():
         print(f"Response status code from port 6000: {response.status_code}")
         response_data = response.json()
         print("Response data from port 6000:", response_data)
-        
+
         return jsonify(response_data), response.status_code
     except requests.exceptions.RequestException as e:
         print("Error occurred while sending data to processing URL:", e)
         return jsonify({"error": str(e)}), 500
+
 
 #UPDATES SECTION 
 @app.route('/transporter_updates', methods=['POST'])
