@@ -81,10 +81,10 @@
                     </thead>
                     <tbody id="transporter-table">
                         <!-- Use Jinja loop to iterate through transporters -->
-                        {% for transporter in transporters %}
+                        {% for transporter in transporter %}
                         <tr data-name="{{ transporter.name }}" data-rating="{{ transporter.rating }}" data-ranking="{{ transporter.ranking }}" data-git="{{ transporter.git }}" data-fleet="{{ transporter.fleet_size }}">
                             <td>{{ loop.index }}</td>
-                            <td><a href="#" onclick="viewTransporterDetails('{{ transporter.id }}')">{{ transporter.name }}</a></td>
+                            <td><a href="#" onclick="viewTransporterDetails('{{ user_id }}')">{{ transporter.name }}</a></td>
                             <td>{{ transporter.fleet_size }}</td>
                             <td>{{ transporter.git }}</td>
                             <td>{{ transporter.ranking }}</td>

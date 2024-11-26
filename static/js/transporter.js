@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Fetching user_id and ip_address metadata from the backend
         try {
-            const metadataResponse = await fetch(`/get_user_metadata_reg?company_name=${encodeURIComponent(companyName)}`);
+            const metadataResponse = await fetch(`/get_user_metadata?company_name=${encodeURIComponent(companyName)}`);
             const metadata = await metadataResponse.json();
 
             // Adding user metadata to FormData
