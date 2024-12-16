@@ -11,9 +11,11 @@ import logging
 import psycopg2
 from datetime import datetime
 import hashlib
-from datetime import datetime
+from openai import OpenAI
+from dotenv import load_dotenv
+import re
 
-
+load_dotenv()
 
 
 app = Flask(__name__)
@@ -21,7 +23,12 @@ app.secret_key = '025896314785368236'
 CORS(app) 
 logging.basicConfig(level=logging.DEBUG)
 app.config['SESSION_TYPE'] = 'filesystem'
-#Session(app)
+
+# Configure OpenAI API Key
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY"),  
+)
+
 
 app.secret_key = os.urandom(24) 
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit the max size to 16MB
@@ -1492,7 +1499,227 @@ def logout():
     flash("You have been logged out", "success")
     return redirect(url_for('sign_in'))  # Ensure 'sign_in' is the correct route name
 
-        
+
+def search_loads(route=None, truck_type=None):
+    try:
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        query = "SELECT load_name, route, price FROM loads WHERE 1=1"
+        params = []
+        if route:
+            query += " AND route LIKE %s"
+            params.append(f"%{route}%")
+        if truck_type:
+            query += " AND truck_type LIKE %s"
+            params.append(f"%{truck_type}%")
+
+        cursor.execute(query, params)
+        result = cursor.fetchall()
+        return [{"load_name": row[0], "route": row[1], "price": row[2]} for row in result]
+    except Exception as e:
+        print(f"Error searching loads: {e}")
+        return []
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+
+def extract_route(message):
+    # Example: Extract route based on simple patterns
+    import re
+    match = re.search(r"from (\w+) to (\w+)", message.lower())
+    if match:
+        return f"{match.group(1).capitalize()}-{match.group(2).capitalize()}"
+    return None
+
+def extract_truck_type(message):
+    # Extract truck type from the message
+    if "tanker" in message.lower():
+        return "Tanker"
+    elif "flatbed" in message.lower():
+        return "Flatbed"
+    return None
+
+def extract_load_name(message):
+    # Example: Extract load name from the message
+    match = re.search(r"for (\w+)", message.lower())
+    return match.group(1).capitalize() if match else None
+
+def extract_bid_amount(message):
+    # Extract bid amount from the message
+    match = re.search(r"\$(\d+)", message)
+    return int(match.group(1)) if match else None
+
+
+# Helper function to generate a chatbot response
+def generate_response(user_message):
+    try:
+        # Retrieve user ID from session
+        user_id = session.get("user_id")
+        if not user_id:
+            return "It seems you're not logged in. Please log in to access personalized features."
+
+        # Maintain conversation context
+        messages = [{"role": "system", "content": "You are a helpful assistant for a logistics company."}]
+        if 'chat_history' in session:
+            messages.extend(session['chat_history'])
+        messages.append({"role": "user", "content": user_message})
+
+        # Load Matching Intent
+        if "search for loads" in user_message.lower() or "find loads" in user_message.lower():
+            route = extract_route(user_message)  # Extract route from message
+            truck_type = extract_truck_type(user_message)  # Extract truck type
+
+            # Query backend to get matching loads
+            matching_loads = search_loads(route, truck_type)
+            if matching_loads:
+                response = "Here are the loads matching your criteria:\n"
+                for load in matching_loads:
+                    response += f"- {load['load_name']} on {load['route']} for {load['price']} USD.\n"
+                response += "\nReply with the load name to place a bid."
+            else:
+                response = "No matching loads found. Please refine your search."
+
+        # Bid Placement Intent
+        elif "place a bid" in user_message.lower() or "bid" in user_message.lower():
+            load_name = extract_load_name(user_message)  # Extract load name
+            bid_amount = extract_bid_amount(user_message)  # Extract bid amount
+
+            if not (load_name and bid_amount):
+                response = "Please specify the load name and your bid amount."
+            else:
+                # Submit bid via backend route
+                bid_response = place_bid(user_id, load_name, bid_amount)
+                if bid_response["status"] == "success":
+                    response = f"Your bid of ${bid_amount} for {load_name} has been placed successfully!"
+                else:
+                    response = f"Failed to place bid: {bid_response['error']}"
+
+        # Default GPT Response
+        else:
+            ai_response = client.chat.completions.create(
+                model="gpt-4",
+                messages=messages,
+                max_tokens=150,
+                temperature=0.7,
+            )
+            response = ai_response["choices"][0]["message"]["content"].strip()
+
+        # Save conversation context
+        session['chat_history'] = session.get('chat_history', []) + [
+            {"role": "user", "content": user_message},
+            {"role": "assistant", "content": response},
+        ]
+        return response
+
+    except Exception as e:
+        return f"Sorry, I couldn't process your request. Error: {str(e)}"
+
+
+
+
+# Chatbot endpoint
+@app.route('/chatbot', methods=['POST'])
+def chatbot():
+    if not request.is_json:
+        return jsonify({"error": "Invalid content type"}), 400
+
+    data = request.get_json()
+    user_message = data.get("message", "").strip()
+
+    if not user_message:
+        return jsonify({"error": "Message is required"}), 400
+
+    # Store user session data (optional)
+    if 'chat_history' not in session:
+        session['chat_history'] = []
+
+    session['chat_history'].append({"user": user_message})
+
+    # Generate response
+    bot_reply = generate_response(user_message)
+
+    # Save bot's reply to the session
+    session['chat_history'].append({"bot": bot_reply})
+
+    return jsonify({"reply": bot_reply})
+
+# Function to fetch user-specific data
+def get_user_data(user_id):
+    try:
+        # Establish a connection to the database
+        conn = create_connection()
+        cursor = conn.cursor()
+
+        # Fetch all loads for the user
+        cursor.execute("""
+            SELECT load_id, details, created_at
+            FROM loads
+            WHERE user_id = %s
+        """, (user_id,))
+        loads = cursor.fetchall()
+
+        # Predict ETA using an AI model for the last shipment (if loads exist)
+        last_shipment = loads[-1] if loads else None
+        last_shipment_eta = predict_eta(last_shipment) if last_shipment else "N/A"
+
+        # Prepare user-specific data
+        user_data = {
+            "active_bids": len(loads),
+            "active_loads": [{"load_id": row[0], "details": row[1], "created_at": row[2]} for row in loads],
+            "last_shipment_date": last_shipment_eta,
+        }
+
+        return user_data
+
+    except Exception as e:
+        print(f"Error retrieving user data: {e}")
+        return {"active_bids": 0, "active_loads": [], "last_shipment_date": "N/A"}
+
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+
+def predict_eta(shipment):
+    """
+    Predict the ETA for a shipment using an AI model.
+
+    Args:
+        shipment (tuple): Contains load_id, details, and created_at.
+
+    Returns:
+        str: Predicted ETA as a string.
+    """
+    if not shipment:
+        return "N/A"
+
+    # Example input for the AI model
+    ai_input = {
+        "load_id": shipment[0],
+        "details": shipment[1],
+        "created_at": str(shipment[2])
+    }
+
+    # Call the AI model (replace with your actual AI prediction logic)
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an AI that predicts the ETA for shipments."},
+                {"role": "user", "content": f"Predict ETA for shipment: {ai_input}"}
+            ],
+            max_tokens=50,
+            temperature=0.7
+        )
+        return response["choices"][0]["message"]["content"].strip()
+
+    except Exception as e:
+        print(f"Error predicting ETA: {e}")
+        return "Error predicting ETA"
+   
+
 
 if __name__ == '__main__':
     app.run(debug = True, port=8001)

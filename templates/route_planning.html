@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            max-width: 600px;
+        }
+        label, button {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Traffic Prediction</h1>
+    
+    <!-- Form for Predicting Traffic Speed -->
+    <form id="predictForm">
+        <label for="roadName">Road Name:</label>
+        <input type="text" id="roadName" placeholder="e.g., Harare-Bulawayo" required>
+
+        <label for="hour">Hour (0-23):</label>
+        <input type="number" id="hour" min="0" max="23" required>
+
+        <label for="dayOfWeek">Day of Week:</label>
+        <select id="dayOfWeek" required>
+            <option value="0">Monday</option>
+            <option value="1">Tuesday</option>
+            <option value="2">Wednesday</option>
+            <option value="3">Thursday</option>
+            <option value="4">Friday</option>
+            <option value="5">Saturday</option>
+            <option value="6">Sunday</option>
+        </select>
+
+        <button type="submit">Predict Traffic Speed</button>
+    </form>
+
+    <!-- Display Prediction Result -->
+    <div id="result"></div>
+
+    <hr>
+
+    <!-- Button to Fetch Traffic Data -->
+    <button id="fetchTrafficBtn">Fetch Traffic Data</button>
+
+    <!-- Display Fetched Traffic Data -->
+    <div id="trafficData"></div>
+
+    <script>
+        // Base API URL
+        const apiBaseUrl = "http://127.0.0.1:5003";
+
+        // Handle Traffic Prediction Form Submission
+        document.getElementById('predictForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const roadName = document.getElementById('roadName').value;
+    const hour = document.getElementById('hour').value;
+    const dayOfWeek = document.getElementById('dayOfWeek').value;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/predict_traffic`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                road_name: roadName,
+                hour: parseInt(hour),
+                day_of_week: parseInt(dayOfWeek),
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.predicted_speed !== undefined) {
+            // Valid response with predicted_speed
+            document.getElementById('result').innerHTML = `
+                <h3>Predicted Traffic Speed:</h3>
+                <p>${data.predicted_speed.toFixed(2)} km/h</p>
+            `;
+        } else if (data.error) {
+            // Backend returned an error
+            document.getElementById('result').innerHTML = `
+                <p style="color: red;">Error: ${data.error}</p>
+            `;
+        } else {
+            // Unexpected response structure
+            document.getElementById('result').innerHTML = `
+                <p style="color: red;">Unexpected response from server.</p>
+            `;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('result').innerHTML = `
+            <p style="color: red;">Failed to predict traffic speed. ${error.message}</p>
+        `;
+    }
+});
+</script>
+</body>
+</html>

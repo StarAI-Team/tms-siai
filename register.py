@@ -1163,34 +1163,3 @@ if __name__ == '__main__':
 
 
 
-@app.route('/view-transporters')
-def view_transporters():
-    conn = create_connection()
-    try:
-        with conn.cursor() as cur:
-            # Define the transporter query
-            transporter_query = """
-                SELECT 
-                    t.user_id,
-                    t.company_name,
-                    t.is_favourite
-                FROM transporter t
-            """
-            # Execute the transporter query
-            cur.execute(transporter_query)
-
-            # Fetch all results
-            transporter = cur.fetchall()
-
-            # Log the transporters to the console
-            print("Transporters retrieved from database:")
-            for transporter in transporter:
-                print(transporter)
-
-    except Exception as e:
-        print(f"Error retrieving transporters: {e}")
-        transporter = []
-    finally:
-        conn.close()
-    
-    return render_template('alltransporters.html', transporter=transporter)
