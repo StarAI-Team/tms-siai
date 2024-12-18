@@ -54,6 +54,12 @@
             </div>
         </form>
     </div>
+    {% extends 'agent.html' %}
+    {% block title %}Landing Page{% endblock %}
+
+    {% block content %}
+        
+    {% endblock %}
     <script src="{{ url_for('static', filename='signature_pad.min.js') }}"></script>
     <script>
         

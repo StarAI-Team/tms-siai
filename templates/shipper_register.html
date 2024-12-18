@@ -147,6 +147,12 @@
             </form>
         </div>
     </div>
+            {% extends 'agent.html' %}
+        {% block title %}Landing Page{% endblock %}
+
+        {% block content %}
+            
+        {% endblock %}
 
     <div id="sessionData" data-session-id="{{ session['session_id'] }}" data-shipper-id="{{ session['shipper_id'] }}"></div>
     <script src="/static/js/shipper.js"></script>

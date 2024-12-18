@@ -1555,66 +1555,65 @@ def extract_bid_amount(message):
 # Helper function to generate a chatbot response
 def generate_response(user_message):
     try:
-        # Retrieve user ID from session
         user_id = session.get("user_id")
-        if not user_id:
-            return "It seems you're not logged in. Please log in to access personalized features."
+        is_logged_in = bool(user_id)
 
-        # Maintain conversation context
-        messages = [{"role": "system", "content": "You are a helpful assistant for a logistics company."}]
+        # Maintain chat history
+        messages = [{"role": "system", "content": "You are a helpful AI assistant for a logistics platform."}]
+        if is_logged_in:
+            messages.append({"role": "system", "content": f"The user is logged in with user_id {user_id}."})
+        else:
+            messages.append({"role": "system", "content": "The user is not logged in."})
+
+        # Add chat history if available
         if 'chat_history' in session:
             messages.extend(session['chat_history'])
+
+        # Add user query to context
         messages.append({"role": "user", "content": user_message})
 
-        # Load Matching Intent
-        if "search for loads" in user_message.lower() or "find loads" in user_message.lower():
-            route = extract_route(user_message)  # Extract route from message
-            truck_type = extract_truck_type(user_message)  # Extract truck type
+        # Generate GPT response
+        ai_response = client.chat.completions.create(
+            model="gpt-4",
+            messages=messages,
+            max_tokens=150,
+            temperature=0.7,
+        )
+        response_text = ai_response["choices"][0]["message"]["content"].strip()
 
-            # Query backend to get matching loads
-            matching_loads = search_loads(route, truck_type)
-            if matching_loads:
-                response = "Here are the loads matching your criteria:\n"
-                for load in matching_loads:
-                    response += f"- {load['load_name']} on {load['route']} for {load['price']} USD.\n"
-                response += "\nReply with the load name to place a bid."
+        # Inject backend actions for matching loads or placing bids
+        if "find loads" in response_text.lower():
+            route = extract_route(user_message)
+            truck_type = extract_truck_type(user_message)
+            loads = search_loads(route, truck_type)
+            if loads:
+                response_text += "\nHere are some matching loads:\n"
+                for load in loads:
+                    response_text += f"- {load['load_name']} on {load['route']} for {load['price']} USD.\n"
             else:
-                response = "No matching loads found. Please refine your search."
+                response_text += "\nNo loads found for your criteria."
 
-        # Bid Placement Intent
-        elif "place a bid" in user_message.lower() or "bid" in user_message.lower():
-            load_name = extract_load_name(user_message)  # Extract load name
-            bid_amount = extract_bid_amount(user_message)  # Extract bid amount
-
+        elif "place a bid" in response_text.lower():
+            load_name = extract_load_name(user_message)
+            bid_amount = extract_bid_amount(user_message)
             if not (load_name and bid_amount):
-                response = "Please specify the load name and your bid amount."
+                response_text = "Please provide the load name and bid amount to proceed."
             else:
-                # Submit bid via backend route
                 bid_response = place_bid(user_id, load_name, bid_amount)
-                if bid_response["status"] == "success":
-                    response = f"Your bid of ${bid_amount} for {load_name} has been placed successfully!"
+                if bid_response.get("status") == "success":
+                    response_text = f"Your bid of ${bid_amount} for {load_name} has been placed successfully!"
                 else:
-                    response = f"Failed to place bid: {bid_response['error']}"
+                    response_text = f"Failed to place bid: {bid_response.get('error')}"
 
-        # Default GPT Response
-        else:
-            ai_response = client.chat.completions.create(
-                model="gpt-4",
-                messages=messages,
-                max_tokens=150,
-                temperature=0.7,
-            )
-            response = ai_response["choices"][0]["message"]["content"].strip()
-
-        # Save conversation context
+        # Save chat history
         session['chat_history'] = session.get('chat_history', []) + [
             {"role": "user", "content": user_message},
-            {"role": "assistant", "content": response},
+            {"role": "assistant", "content": response_text},
         ]
-        return response
+        return response_text
 
     except Exception as e:
-        return f"Sorry, I couldn't process your request. Error: {str(e)}"
+        return f"Sorry, something went wrong. Error: {str(e)}"
 
 
 
@@ -1631,19 +1630,12 @@ def chatbot():
     if not user_message:
         return jsonify({"error": "Message is required"}), 400
 
-    # Store user session data (optional)
-    if 'chat_history' not in session:
-        session['chat_history'] = []
-
-    session['chat_history'].append({"user": user_message})
-
     # Generate response
     bot_reply = generate_response(user_message)
 
-    # Save bot's reply to the session
-    session['chat_history'].append({"bot": bot_reply})
-
     return jsonify({"reply": bot_reply})
+
+
 
 # Function to fetch user-specific data
 def get_user_data(user_id):

@@ -49,6 +49,12 @@
                 </div>
             </form>
         </div>
+                {% extends 'agent.html' %}
+        {% block title %}Landing Page{% endblock %}
+
+        {% block content %}
+           
+        {% endblock %}
     </div>
     <div id="sessionData" data-session-id="{{ session['session_id'] }}" data-client-id="{{ session['client_id'] }}"></div>
     <script src="{{ url_for('static', filename='js/form.js') }}"></script>

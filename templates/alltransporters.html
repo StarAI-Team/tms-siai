@@ -186,7 +186,13 @@
                 </div>
             </div>
             </footer>
-    </div>
+                    {% extends 'agent.html' %}
+        {% block title %}Landing Page{% endblock %}
+
+        {% block content %}
+            
+        {% endblock %}
+            </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let selectedTransporter = null; 
